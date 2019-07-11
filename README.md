@@ -3,18 +3,7 @@
 Advanced machine learning methods, with an undercurrent of natural language processing (NLP) applications. Word embeddings, Markov chains, hidden Markov models, topic modeling, recurrent neural networks.
 
 
-## Teaching team
-
-| Position | Name  | Slack Handle | GHE Handle | Lab section | Office hour |
-| :------: | :---: | :----------: | :--------: | :--------: | :--------: |
-| Lecture instructor | Varada Kolhatkar | @Varada | @kvarada | all | Mondays 4:15 - 5:15pm at ESB 1045 |   
-| Lab instructor  | Varada Kolhatkar | @Varada | @kvarada | all | Mondays 4:15 - 5:15pm at ESB 1045 | 
-| Teaching assistant | Flora (Qiuyan) Liu | @Flora Liu | @floraliu | L01 | Fridays 11:00am – noon at ESB 1045| 
-| Teaching assistant | Jie Xiang  | @Doris Xiang |  | L02 | Wednesdays noon – 1:00pm at ESB 1045| 
-| Teaching assistant | Gursimran Singh | @msimar | @msimar | L03 | Fridays 3:00 – 4:00pm at ESB 1045| 
-
-
-## Tentative schedule
+## Lecture Schedule
 
 | Lecture  | Topic  | Lecture notes | Resources and optional readings |
 |-------|------------|-----------|-----------|
@@ -26,17 +15,6 @@ Advanced machine learning methods, with an undercurrent of natural language proc
 |   6   | Topic modeling | [lecture6](lectures/lecture6.ipynb) | Dave Blei [video lecture](https://www.youtube.com/watch?v=DDq3OVp9dNA&t=98s), [paper](http://menome.com/wp/wp-content/uploads/2014/12/Blei2011.pdf) |
 |   7   | Recurrent Neural Networks (RNNs) | [lecture7](lectures/lecture7.ipynb) | [The Unreasonable Effectiveness of Recurrent Neural  Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)|
 |   8   | More on RNNs and wrap up |  | [Visual step-by-step explanation of LSTMs](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)|
-
-## Lab Assignments
-
-
-| Lab    | Topics covered   | Due date |
-|-----|-------------|----------|
-| 1 |Word embeddings| 2019-03-23 18:00|
-| 2 | Markov chains, language models | 2019-03-30 18:00|
-| 3 | HMMs, topic modeling | 2019-04-06 18:00|
-| 4 | RNNs | 2019-04-13 18:00|
-
 
 ## Resources
 * [Google NLP API](https://cloud.google.com/natural-language/)
