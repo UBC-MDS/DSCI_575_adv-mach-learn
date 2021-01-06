@@ -1,20 +1,32 @@
 # DSCI 575: Advanced Machine Learning
 
-Advanced machine learning methods, with an undercurrent of natural language processing (NLP) applications. Word embeddings, Markov chains, hidden Markov models, topic modeling, recurrent neural networks.
+Advanced machine learning methods in the context of natural language processing (NLP) applications. Word embeddings, Markov chains, hidden Markov models, topic modeling, recurrent neural networks.
 
+2019/20 Instructor: **Varada Kolhatkar**
 
-## Lecture Schedule
+## High-level Course Learning Outcomes
 
-| Lecture  | Topic  | Lecture notes | Resources and optional readings |
+By the end of the course, students are expected to be able to
+- Explain and use word embeddings for word meaning representation. 
+- Train your own word embedding and use pre-trained word embeddings. 
+- Specify a Markov chain and carry out generation and inference with them. 
+- Explain the general idea of stationary distribution in Markov chains.
+- Explain hidden Markov models and carry out decoding with them. 
+- Explain Latent Dirichlet Allocation (LDA) approach to topic modeling and carry out topic modeling on text data. 
+- Explain Recurrent Neural Networks (RNNs) and use them for classification, generation, and image captioning.  
+
+## Tentative schedule
+
+| Lecture  | Topic  | Notes and videos | Resources and optional readings |
 |-------|------------|-----------|-----------|
-|   1   | Word vectors, word embeddings | [lecture1](lectures/lecture1.ipynb) | Word2Vec papers: <li>[Distributed representations of words and phrases and their compositionality](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)</li> <li>[Efficient estimation of word representations in vector space](https://arxiv.org/pdf/1301.3781.pdf)</li> <li>[word2vec Explained](https://arxiv.org/pdf/1402.3722.pdf)</li>|
-|   2   | Using word embeddings, text preprocessing | [lecture2](lectures/lecture2.ipynb) | Pre-trained embeddings:  <li>[word2vec](https://code.google.com/archive/p/word2vec/)</li> <li>[GloVe](https://nlp.stanford.edu/projects/glove/) </li> <li>[fastText](https://fasttext.cc/docs/en/pretrained-vectors.html)</li>Bias in word embeddings:<li>[Debiasing Word Embeddings](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf)</li>|
-|   3   | Ngrams, POS tagging, Markov chains | [lecture3](lectures/lecture3.ipynb) | [Markov chains in action](http://setosa.io/ev/markov-chains/)|
-|   4   | Language models, PageRank| [lecture4](lectures/lecture4.ipynb) | [Dan Jurafsky's videos on PageRank](https://www.youtube.com/playlist?list=PLaZQkZp6WhWzSy3WKExE7656jBxfXJh3I)|
-|   5   | Hidden Markov models  | [lecture5](lectures/lecture5.ipynb) | [Rabiner HMM tutorial](https://www.cs.ubc.ca/~murphyk/Bayes/rabiner.pdf) |
-|   6   | Topic modeling | [lecture6](lectures/lecture6.ipynb) | Dave Blei [video lecture](https://www.youtube.com/watch?v=DDq3OVp9dNA&t=98s), [paper](http://menome.com/wp/wp-content/uploads/2014/12/Blei2011.pdf) |
-|   7   | Recurrent Neural Networks (RNNs) | [lecture7](lectures/lecture7.ipynb) | [The Unreasonable Effectiveness of Recurrent Neural  Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)|
-|   8   | More on RNNs and wrap up |  | [Visual step-by-step explanation of LSTMs](http://colah.github.io/posts/2015-08-Understanding-LSTMs/)|
+|   1   | Word vectors, word embeddings | <li>[Notes](lectures/lecture1_word-embeddings.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | Word2Vec papers: <li>[Distributed representations of words and phrases and their compositionality](https://papers.nips.cc/paper/5021-distributed-representations-of-words-and-phrases-and-their-compositionality.pdf)</li> <li>[Efficient estimation of word representations in vector space](https://arxiv.org/pdf/1301.3781.pdf)</li> <li>[word2vec Explained](https://arxiv.org/pdf/1402.3722.pdf)</li><li>[Debiasing Word Embeddings](http://papers.nips.cc/paper/6228-man-is-to-computer-programmer-as-woman-is-to-homemaker-debiasing-word-embeddings.pdf)</li>|
+|   2   | Using word embeddings, text preprocessing | <li>[Notes](lectures/lecture2_using-word-embeddings.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | <li>[Dan Jurafsky's video on tokenization](https://www.youtube.com/watch?v=pEwBjcYdcKw)</li>|
+|   3   | Markov Models | <li>[Notes](lectures/lecture3_Markov-chains.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | <li> [Markov chains in action](http://setosa.io/ev/markov-chains/) </li> <li> [Dan Jurafsky's videos on PageRank](https://www.youtube.com/playlist?list=PLaZQkZp6WhWzSy3WKExE7656jBxfXJh3I) </li> | 
+|   4   | Hidden Markov models | <li>[Notes](lectures/lecture4_HMMs.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | <li>[Nando de Freitas' lecture on HMMs](https://www.youtube.com/watch?v=jY2E6ExLxaw)</li> <li>[A gentle intro to HMMs by Eric Fosler-Lussier](http://di.ubi.pt/~jpaulo/competence/tutorials/hmm-tutorial-1.pdf)</li>|
+|   5   | Topic modeling | <li>[Notes](lectures/lecture5_Viterbi-topic-modeling.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | Dave Blei [video lecture](https://www.youtube.com/watch?v=DDq3OVp9dNA&t=98s), [paper](http://menome.com/wp/wp-content/uploads/2014/12/Blei2011.pdf) |
+|   6   | Introduction to Recurrent Neural Networks (RNNs) | <li>[Notes](lectures/lecture6_intro-to-RNNs.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | <li>[The Unreasonable Effectiveness of Recurrent Neural  Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)</li><li>[Sequence Processing with Recurrent Networks](https://web.stanford.edu/~jurafsky/slp3/9.pdf)</li>|  
+|   7   | Long short term memory networks (LSTMs) | <li>[Notes](lectures/lecture7_LSTMs.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | [Visual step-by-step explanation of LSTMs](http://colah.github.io/posts/2015-08-Understanding-LSTMs/) |
+|   8   | Image captioning using CNNs and RNNs and wrap up | <li>[Notes](lectures/lecture8_LSTMs-applications.ipynb)</li><li>[Videos](https://canvas.ubc.ca/courses/36126/external_tools/187)</li> | [Jeff Heaton's video](https://www.youtube.com/watch?v=NmoW_AYWkb4&list=PLjy4p-07OYzulelvJ5KVaT2pDlxivl_BN)|
 
 ## Resources
 * [Google NLP API](https://cloud.google.com/natural-language/)
@@ -29,8 +41,8 @@ Advanced machine learning methods, with an undercurrent of natural language proc
 * [RNN resources](https://github.com/ajhalthor/awesome-rnn)
 
 ## Books
-* Jurafsky, D., & Martin, J. H. (2017). [Speech and language processing](https://web.stanford.edu/~jurafsky/slp3/ed3book.pdf).
+* Jurafsky, D., & Martin, J. H. [Speech and language processing](https://web.stanford.edu/~jurafsky/slp3/).
 * Goodfellow, I., Bengio, Y., Courville, A., & Bengio, Y. (2016). [Deep learning (Vol. 1)](http://www.deeplearningbook.org/). Cambridge: MIT press. 
 * [Jacob Eisenstein. Natural Language Processing](https://github.com/jacobeisenstein/gt-nlp-class/blob/master/notes/eisenstein-nlp-notes.pdf)
 * Goldberg, Y. (2017). Neural network methods for natural language processing. Synthesis Lectures on Human Language Technologies, 10(1), 1-309. 
-* Bird, S., Klein, E., & Loper, E. (2009). Natural language processing with Python. O'Reilly Media, Inc. [[link](http://www.nltk.org/book/)].
+* Bird, S., Klein, E., & Loper, E. (2009). [Natural language processing with Python](http://www.nltk.org/book/). O'Reilly Media, Inc.
