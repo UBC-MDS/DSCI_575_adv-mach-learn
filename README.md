@@ -4,7 +4,7 @@ Advanced machine learning methods in the context of natural language processing 
 
 2019/20 Instructor: **Varada Kolhatkar**
 
-## High-level Course Learning Outcomes
+## Course Learning Outcomes
 
 By the end of the course, students are expected to be able to
 - Explain and use word embeddings for word meaning representation. 
@@ -15,7 +15,7 @@ By the end of the course, students are expected to be able to
 - Explain Latent Dirichlet Allocation (LDA) approach to topic modeling and carry out topic modeling on text data. 
 - Explain Recurrent Neural Networks (RNNs) and use them for classification, generation, and image captioning.  
 
-All videos are available [here](https://drive.google.com/drive/folders/1nMzTI-dNgkuitmqlHcndZ88zHeQhKel3)
+All videos are available [here](https://drive.google.com/drive/folders/1nMzTI-dNgkuitmqlHcndZ88zHeQhKel3).
 
 ## Tentative schedule
 
