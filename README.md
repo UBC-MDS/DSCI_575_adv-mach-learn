@@ -2,12 +2,7 @@
 
 ## Important links 
 
-- [Panopto videos](https://ubc.ca.panopto.com/Panopto/Pages/Sessions/List.aspx#folderID=%22d02a3fbd-0ac0-4212-bc51-afce01047111%22)
-- [Course Jupyter book](https://pages.github.ubc.ca/mds-2022-23/DSCI_575_adv-mach-learn_students/README.html)
-- [Course GitHub page](https://github.ubc.ca/MDS-2022-23/DSCI_575_adv-mach-learn_students)
-- [Slack Channel](https://ubc-mds.slack.com/messages/575_adv-mach-learn)
-- [Canvas](https://canvas.ubc.ca/courses/106530)
-- [Gradescope](https://www.gradescope.ca/courses/10058)
+
 - [YouTube videos](https://www.youtube.com/playlist?list=PLHofvQE1VlGtZoAULxcHb7lOsMved0CuM)
 - [Class + office hours calendar](https://ubc-mds.github.io/calendar/)
 
@@ -41,23 +36,6 @@ The following deliverables will determine your course grade:
 
 See [Calendar](https://ubc-mds.github.io/calendar/) for the due dates. 
 </details>
-
-## Teaching team
-<details>
-  <summary>Click to expand!</summary>
-    
-    
-| Role | Name  | Slack Handle |
-| :------: | :---: | :----------: |
-| Lecture instructor | Varada Kolhatkar | `@varada` |
-| Lab instructor | Varada Kolhatkar | `@varada` |
-| Teaching assistant | Farnoosh Hashemi  |   | 
-| Teaching assistant | Harsh Sharma  |   |     
-| Teaching assistant | Mohit Pandey |   |    
-| Teaching assistant | Ngoc Bui  |   |
-| Teaching assistant | Shanny Lu |   |    
-    
-</details>  
 
 
 ## Lecture schedule
