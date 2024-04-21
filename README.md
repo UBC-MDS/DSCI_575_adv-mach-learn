@@ -2,8 +2,8 @@
 
 ## Important links 
 
+- [Course Jupyter book](https://pages.github.ubc.ca/mds-2023-24/DSCI_575_adv-mach-learn_students/README.html)
 - [YouTube videos](https://www.youtube.com/playlist?list=PLHofvQE1VlGtZoAULxcHb7lOsMved0CuM)
-- [Class + office hours calendar](https://ubc-mds.github.io/calendar/)
 
 ## Course learning outcomes    
 In this course, we will learn some advanced machine learning methods in the context of natural language processing (NLP) applications. Markov chains, hidden Markov models, topic modeling, recurrent neural networks.
@@ -26,12 +26,12 @@ The following deliverables will determine your course grade:
 
 | Assessment       | Weight  | Where to submit|
 | :---:            | :---:   |:---:  | 
-| Lab Assignment 1 | 15%     | [Gradescope](https://www.gradescope.ca/courses/10058) |
-| Lab Assignment 2 | 15%     | [Gradescope](https://www.gradescope.ca/courses/10058) |
-| Lab Assignment 3 | 15%     | [Gradescope](https://www.gradescope.ca/courses/10058) |
-| Lab Assignment 4 | 15%     | [Gradescope](https://www.gradescope.ca/courses/10058) |
-| Quiz 1           | 20%     | [Canvas](https://canvas.ubc.ca/courses/106530)     |
-| Quiz 2           | 20%     | [Canvas](https://canvas.ubc.ca/courses/106530)     |
+| Lab Assignment 1 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
+| Lab Assignment 2 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
+| Lab Assignment 3 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
+| Lab Assignment 4 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
+| Quiz 1           | 20%     | [Canvas](https://canvas.ubc.ca/courses/130315)     |
+| Quiz 2           | 20%     | [Canvas](https://canvas.ubc.ca/courses/130315)     |
 
 See [Calendar](https://ubc-mds.github.io/calendar/) for the due dates. 
 </details>
@@ -41,24 +41,23 @@ See [Calendar](https://ubc-mds.github.io/calendar/) for the due dates.
   <summary>Click to expand!</summary>
     
     
-| Role | Name  | Slack Handle |
-| :------: | :---: | :----------: |
-| Lecture instructor | Varada Kolhatkar | `@varada` |
-| Lab instructor | Varada Kolhatkar | `@varada` |
-| Teaching assistant | Farnoosh Hashemi  |   | 
-| Teaching assistant | Harsh Sharma  |   |     
-| Teaching assistant | Mohit Pandey |   |    
-| Teaching assistant | Ngoc Bui  |   |
-| Teaching assistant | Shanny Lu |   |    
-    
+| Role | Name  | 
+| :------: | :---: |
+| Lecture instructor | Varada Kolhatkar |
+| Lab instructor | Varada Kolhatkar and Vincent Liu|
+| Teaching assistant | Daniel Ramandi |
+| Teaching assistant | Harsh Sharma |
+| Teaching assistant | Mohit Pandey |
+| Teaching assistant | Ngoc Bui |
+
 </details>  
 
 
 ## Lecture schedule
 
-This course will be run in person. We will meet three times every week: twice for lectures and once for the lab. You can refer to the [Calendar](https://ubc-mds.github.io/calendar/) for lecture and lab times and locations. Lectures of this course will be a combination traditional live lecturing, class activities, and a pre-recorded videos. Drafts of the lecture notes for each week will be made available earlier in the week.  
+This course will be run in person. We will meet three times every week: twice for lectures and once for the lab. You can refer to the [Calendar](https://ubc-mds.github.io/calendar/) for lecture and lab times and locations. Lectures of this course will be a combination traditional live lecturing, class activities, and pre-recorded videos. Drafts of the lecture notes for each week will be made available earlier in the week.  
 
-This course occurs during **Block 6** in the 2022/23 school year.
+This course occurs during **Block 6** in the 2023/24 school year.
 
 | Lecture  | Topic  | Assigned videos/Readings | Resources and optional readings |
 |-------|------------|-----------|-----------|
@@ -73,20 +72,22 @@ This course occurs during **Block 6** in the 2022/23 school year.
 |   8   | [Applications of Transformers](lectures/08_transformers-applications.ipynb) |  | |
 
 
-The labs are going to be in person. We will also be holding a short 1-hour parallel Zoom session for each lab run by the TAs so that people who cannot join in person have an opportunity to ask questions and get help. You will be able to access appropriate Zoom links via [Canvas](https://canvas.ubc.ca/courses/106530). There will be a lot of opportunity for discussion and getting help during lab sessions. Please make good use of this time.  
+The labs are going to be in person. We will also be holding a short 1-hour parallel Zoom session for each lab run by the TAs so that people who cannot join in person have an opportunity to ask questions and get help. You will be able to access appropriate Zoom links via [Canvas](https://canvas.ubc.ca/courses/130315). There will be a lot of opportunity for discussion and getting help during lab sessions. Please make good use of this time.  
 
 ## Installation
- 
+
 We are providing you with a `conda` environment file which is available [here](env-dsci-575.yml). You can download this file and create a conda environment for the course and activate it as follows. 
 
 ```
 conda env create -f env-dsci-575.yml
 conda activate 575
 ```
-In order to use this environment in `Jupyter`, you will have to install `nb_conda_kernels` in the environment where you have installed `Jupyter` (typically the `base` environment). You will then be able to select this new environment in `Jupyter`. For more details on this, refer to "Making environments work well with JupyterLab section" in your [521 lecture 6](https://pages.github.ubc.ca/fdandrea/521_lecture6/slides.html#51).
 
-I've only tried installing this environment file on a couple of machines, and it's possible that you will encounter problems with some of the packages from the `yml` file when you run the commands above. This is not unusual. It often means that the package with the given version is not available for your operating system via `conda` yet. There are a couple of options for you when this happens:
-1. Get rid of the line with that package from the `yml` file.
+In order to use this environment in `Jupyter`, you will have to install `nb_conda_kernels` in the environment where you have installed `Jupyter` (typically the `base` environment). You will then be able to select this new environment in `Jupyter`. If you're unable to see the environment in Jupyter, you might have to install the kernel manually. See the documentation [here](https://ipython.readthedocs.io/en/stable/install/kernel_install.html). For more details on this, refer to your [521 lecture 7](https://pages.github.ubc.ca/MDS-2023-24/DSCI_521_platforms-dsci_students/lectures/7-virtual-environments.html#).
+
+I've only attempted to install this environment file on a few machines, and you may encounter issues with certain packages from the `yaml` file when executing the commands above. This is not uncommon and may suggest that the specified package version is not yet available for your operating system via `conda`. When this occurs, you have a couple of options:
+
+1. Modify the local version of the `yaml` file to remove the line containing that package.
 2. Create the environment without that package. 
 3. Activate the environment and install the package manually either with `conda install` or `pip install` in the environment.   
 
@@ -124,39 +125,6 @@ For each deliverable, after I return grades, I'll let you know who has graded wh
  
 I am open for a conversation with you. If you want to talk about anything sensitive, please direct message me on Slack (and tag me) rather than posting it on the course channel. It might take a while for me to get back to you, but I'll try my best to respond as soon as possible. 
 
-</details>
-
-## Working during the COVID-19 global pandemic
-<details>
-  <summary>Click to expand!</summary>
-    
-We are working together on this course during this transition period between hybrid to in-person teaching and learning. Everyone is struggling to some extent. If you tell me you are having trouble, I am not going to judge you or think less of you. I hope you will extend me the same grace! Let's try to be open with each other and help each other. 
-
-Here are some ground rules:
-
-- If you are unable to submit a deliverable on time, please reach out **before** the deliverable is due.
-- If you need extra support, the teaching team is here to work with you. Our goal is to help each of you succeed in the course.
-- If you are struggling with the material, getting back to in-person teaching and learning, or anything else, please reach out. I will try to find time and listen to you empathetically.
-- If I am unable to help you, I might know someone who can. UBC has some [great student support resources](https://students.ubc.ca/support).
-
-### [Covid Safety at UBC](https://srs.ubc.ca/covid-19/ubc-campus-rules-guidance-documents/#COVID-19%20Campus%20Rules)
-
-Please read [Covid Campus Rules](https://srs.ubc.ca/covid-19/ubc-campus-rules-guidance-documents/#COVID-19%20Campus%20Rules).  
-
-**Masks:** This class is going to be in person. UBC no longer requires students, faculty and staff to wear non-medical masks, but continues to recommend that masks be worn in indoor public spaces. 
-
-**Your personal health:**
-If you are ill or believe you have COVID-19 symptoms or been exposed to SARS-CoV-2 use the [Thrive Health](https://bc.thrive.health/covid19/en) self-assessment tool for guidance, or download the [BC COVID-19 Support App](https://welcome.thrive.health/bc-covid19-app) for iOS or Android device and follow the instructions provided. Follow the advice from [Public Health](https://www2.gov.bc.ca/gov/content/covid-19/info/restrictions).
-
-Stay home if you have recently tested positive for COVID-19 or are required to quarantine. You can check [this website](http://www.bccdc.ca/health-info/diseases-conditions/covid-19/self-isolation#Who) to find out if you should self-isolate or self-monitor. If you are unable to submit a deliverable on time or unable to appear for an in-person quiz, check out [MDS policies](https://ubc-mds.github.io/policies/) on academic concession and remote quiz requests. 
-
-Your precautions will help reduce risk and keep everyone safer. In this class, the marking scheme is intended to provide flexibility so that you can prioritize your health and still be able to succeed: 
-- All course notes will be provided online. 
-- All homework assignments can be done and handed in online. 
-- All exams will be held online.  
-- Most of the class activity will be video recorded and will be made available to you. 
-- Before each class, I'll also try to post some [videos on YouTube](https://www.youtube.com/watch?v=-1hTcS5ZE4w&list=PLHofvQE1VlGtZoAULxcHb7lOsMved0CuM) to facilitate hybrid learning. 
-- There will be at least a few office hours which will be held online. 
 </details>
 
 ## Reference Material
