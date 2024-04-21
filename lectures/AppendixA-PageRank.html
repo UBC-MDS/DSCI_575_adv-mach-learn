@@ -1,0 +1,869 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>PageRank as a Markov model &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/AppendixA-PageRank';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="HMM supervised POS tagging" href="AppendixB-HMM-POS.html" />
+    <link rel="prev" title="Class Demo: Recipe generator" href="class_demos/text-generation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/mds-hex-sticker.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models  and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Viterbi-Baum-Welch.html">Lecture 4: Decoding and Learning in HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_topic-modeling.html">Lecture 5: Topic Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-RNNs.html">Lecture 6: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_intro-to-transformers.html">Lecture 7: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_more-transformers.html">Lecture 8: More transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="class_demos/text-generation.html">Class Demo: Recipe generator</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">PageRank as a Markov model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixB-HMM-POS.html">HMM supervised POS tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixC-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixD-LDA-details.html">LDA details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixE-LSTMs.html">AppendixD: More RNNs, LSTMs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/UBC-MDS/DSCI_575_adv-mach-learn" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/lectures/AppendixA-PageRank.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>PageRank as a Markov model</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-intuition">PageRank: intuition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-scoring">PageRank: scoring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-teleporting">PageRank: teleporting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">PageRank: teleporting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions">Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-as-a-markov-chain">PageRank as a Markov chain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-deriving-transition-matrix">PageRank: deriving transition matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">PageRank: deriving transition matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-deriving-transition-matrix-example">PageRank: deriving transition matrix (example)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">PageRank: deriving transition matrix (example)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">PageRank: deriving transition matrix (example)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-page-rank">Calculate page rank</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-page-rank-power-iteration-method">Calculate page rank: power iteration method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-do-this-in-python">How to do this in Python?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modern-ranking-methods-are-more-advanced">Modern ranking methods are more advanced:</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="pagerank-as-a-markov-model">
+<h1>PageRank as a Markov model<a class="headerlink" href="#pagerank-as-a-markov-model" title="Permalink to this heading">#</a></h1>
+<section id="pagerank-intuition">
+<h2>PageRank: intuition<a class="headerlink" href="#pagerank-intuition" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Important webpages are linked from other important webpages.</p></li>
+<li><p>Don’t just look at the number of links coming to a webpage but consider who the links are coming from</p></li>
+</ul>
+<p><img alt="" src="../_images/wiki_page_rank.jpg" /></p>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/PageRank#/media/File:PageRanks-Example.jpg">Credit</a></p>
+</section>
+<section id="pagerank-scoring">
+<h2>PageRank: scoring<a class="headerlink" href="#pagerank-scoring" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Imagine a browser doing a random walk</p>
+<ul>
+<li><p>At time t=0, start at a random webpage.</p></li>
+<li><p>At time t=1, follow a random link on the current page.</p></li>
+<li><p>At time t=2, follow a random link on the current page.</p></li>
+</ul>
+</li>
+<li><p>Intuition</p>
+<ul>
+<li><p>In the “steady state” each page has a long-term visit rate, which is the page’s score (rank).</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="pagerank-teleporting">
+<h2>PageRank: teleporting<a class="headerlink" href="#pagerank-teleporting" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Obvious problem with the random walk:</p>
+<ul>
+<li><p>Pages with no in-links have a rank of 0.</p></li>
+<li><p>Algorithm can get “stuck” in part of the graph, as the web is full of dead-ends.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id1">
+<h2>PageRank: teleporting<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>At a dead end, jump to a random web page.</p></li>
+<li><p>At a non-dead end, we still jump to a random web page with probability <span class="math notranslate nohighlight">\(\alpha\)</span>.</p></li>
+<li><p>With the remaining probability <span class="math notranslate nohighlight">\((1-\alpha)\)</span> go out on a random link.</p></li>
+<li><p>With teleporting, we cannot get stuck locally.</p></li>
+</ul>
+</section>
+<section id="questions">
+<h2>Questions<a class="headerlink" href="#questions" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="pagerank-as-a-markov-chain">
+<h2>PageRank as a Markov chain<a class="headerlink" href="#pagerank-as-a-markov-chain" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>A state is a web page</p></li>
+<li><p>Transition probabilities represent probabilities of moving from one page to another</p></li>
+<li><p>We derive these from the adjacency matrix of the web graph</p>
+<ul>
+<li><p>Adjacency matrix <span class="math notranslate nohighlight">\(M\)</span> is a <span class="math notranslate nohighlight">\(n \times n\)</span> matrix, if <span class="math notranslate nohighlight">\(n\)</span> is the number of states (web pages)</p></li>
+<li><p><span class="math notranslate nohighlight">\(M_{ij} = 1\)</span> if there is a hyperlink from page <span class="math notranslate nohighlight">\(i\)</span> to page <span class="math notranslate nohighlight">\(j\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="pagerank-deriving-transition-matrix">
+<h2>PageRank: deriving transition matrix<a class="headerlink" href="#pagerank-deriving-transition-matrix" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>If a state has no out-links, the random surfer teleports:</p>
+<ul>
+<li><p>the transition probability to each state from this state is <span class="math notranslate nohighlight">\(1/n\)</span>, if <span class="math notranslate nohighlight">\(n\)</span> is the number of states</p></li>
+</ul>
+</li>
+<li><p>If a node has K &gt; 0 outgoing links:</p>
+<ul>
+<li><p>with probability <span class="math notranslate nohighlight">\(0 \leq \alpha \leq 1\)</span> the surfer teleports to a random node</p>
+<ul>
+<li><p>probability is <span class="math notranslate nohighlight">\(\alpha/n\)</span></p></li>
+</ul>
+</li>
+<li><p>with probability <span class="math notranslate nohighlight">\((1-\alpha)\)</span> the surfer takes a normal random walk</p>
+<ul>
+<li><p>probability is <span class="math notranslate nohighlight">\((1-\alpha)/K\)</span></p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="id2">
+<h2>PageRank: deriving transition matrix<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>If a row has all 0’s, replace each element by <span class="math notranslate nohighlight">\(1/n\)</span></p></li>
+<li><p>Else</p>
+<ul>
+<li><p>Normalize: divide each 1 by the number of 1’s in the row</p></li>
+<li><p>Multiply the resulting matrix by <span class="math notranslate nohighlight">\((1-\alpha)\)</span></p></li>
+<li><p>Add <span class="math notranslate nohighlight">\(\alpha/n\)</span> to every element in the resulting matrix to create the transition matrix <span class="math notranslate nohighlight">\(A\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="pagerank-deriving-transition-matrix-example">
+<h2>PageRank: deriving transition matrix (example)<a class="headerlink" href="#pagerank-deriving-transition-matrix-example" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Adjacency matrix: $
+M =</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-038675f8-a470-4183-a189-cebd7ea8fa7c">
+<span class="eqno">(17)<a class="headerlink" href="#equation-038675f8-a470-4183-a189-cebd7ea8fa7c" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1 &amp; 0\\
+1 &amp; 0 &amp; 1\\
+0 &amp; 1 &amp; 0\\    
+\end{bmatrix}\]</div>
+<p>, \alpha = 0.0$</p>
+<ul class="simple">
+<li><p>Transition matrix: $
+A_{\alpha=0} =</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-6568ea82-f146-4825-b3c2-8fea8304fa26">
+<span class="eqno">(18)<a class="headerlink" href="#equation-6568ea82-f146-4825-b3c2-8fea8304fa26" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1 &amp; 0\\
+0.5 &amp; 0 &amp; 0.5\\
+0 &amp; 1 &amp; 0\\    
+\end{bmatrix}\]</div>
+</section>
+<section id="id3">
+<h2>PageRank: deriving transition matrix (example)<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<p>$
+M =</p>
+<div class="amsmath math notranslate nohighlight" id="equation-a51a3c57-4520-4aed-a30f-a0edc0abdbfd">
+<span class="eqno">(19)<a class="headerlink" href="#equation-a51a3c57-4520-4aed-a30f-a0edc0abdbfd" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1 &amp; 0\\
+1 &amp; 0 &amp; 1\\
+0 &amp; 1 &amp; 0\\    
+\end{bmatrix}\]</div>
+<p>, n =3, \alpha = 0.5$</p>
+<p>Normalize: divide each 1 by the number of 1’s in the row:<br />
+$</p>
+<div class="amsmath math notranslate nohighlight" id="equation-ddf8a8d3-4e5c-4cf3-98cb-da86c331aefe">
+<span class="eqno">(20)<a class="headerlink" href="#equation-ddf8a8d3-4e5c-4cf3-98cb-da86c331aefe" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1 &amp; 0\\
+1/2 &amp; 0 &amp; 1/2\\
+0 &amp; 1 &amp; 0\\    
+\end{bmatrix}\]</div>
+</section>
+<section id="id4">
+<h2>PageRank: deriving transition matrix (example)<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<p>$
+M =</p>
+<div class="amsmath math notranslate nohighlight" id="equation-f54f33de-e755-46fe-a146-81ddf393148e">
+<span class="eqno">(21)<a class="headerlink" href="#equation-f54f33de-e755-46fe-a146-81ddf393148e" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1 &amp; 0\\
+1 &amp; 0 &amp; 1\\
+0 &amp; 1 &amp; 0\\    
+\end{bmatrix}\]</div>
+<p>, n =3, \alpha = 0.5$</p>
+<ul class="simple">
+<li><p>Normalized</p></li>
+<li><p>Multiply the resulting matrix by <span class="math notranslate nohighlight">\((1-\alpha)\)</span>: $ (1-0.5)</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-2b967029-4656-42c7-875a-f564f0e1c8e9">
+<span class="eqno">(22)<a class="headerlink" href="#equation-2b967029-4656-42c7-875a-f564f0e1c8e9" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1 &amp; 0\\
+1/2 &amp; 0 &amp; 1/2\\
+0 &amp; 1 &amp; 0\\    
+\end{bmatrix}\]</div>
+<p>$ =</p>
+<div class="amsmath math notranslate nohighlight" id="equation-16c05b8b-cdca-410c-950f-8cd4eba9f784">
+<span class="eqno">(23)<a class="headerlink" href="#equation-16c05b8b-cdca-410c-950f-8cd4eba9f784" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+0 &amp; 1/2 &amp; 0\\
+1/4 &amp; 0 &amp; 1/4\\
+0 &amp; 1/2 &amp; 0\\    
+\end{bmatrix}\]</div>
+<ul class="simple">
+<li><p>Add <span class="math notranslate nohighlight">\(\alpha/n\)</span> to every element in the resulting matrix to create the transition matrix:
+$
+A_{\alpha = 0.5} =</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-05df5bbf-f38c-4ddf-a68f-3b88cca8d5d2">
+<span class="eqno">(24)<a class="headerlink" href="#equation-05df5bbf-f38c-4ddf-a68f-3b88cca8d5d2" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+1/6 &amp; 2/3 &amp; 1/6\\
+5/12 &amp; 1/6 &amp; 5/12\\
+1/6 &amp; 2/3 &amp; 1/6\\    
+\end{bmatrix}\]</div>
+</section>
+<section id="id5">
+<h2>Questions<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h2>
+</section>
+<section id="calculate-page-rank">
+<h2>Calculate page rank<a class="headerlink" href="#calculate-page-rank" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>We have a transition matrix: $A_{\alpha = 0.5} =</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-d3b6d998-b9ac-4d9c-9922-d71e25cbdf54">
+<span class="eqno">(25)<a class="headerlink" href="#equation-d3b6d998-b9ac-4d9c-9922-d71e25cbdf54" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+1/6 &amp; 2/3 &amp; 1/6\\
+5/12 &amp; 1/6 &amp; 5/12\\
+1/6 &amp; 2/3 &amp; 1/6\\    
+\end{bmatrix}\]</div>
+<ul class="simple">
+<li><p>We want to find the stationary distribution</p>
+<ul>
+<li><p>Is it irreducible?</p></li>
+<li><p>Is it aperiodic?</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="calculate-page-rank-power-iteration-method">
+<h2>Calculate page rank: power iteration method<a class="headerlink" href="#calculate-page-rank-power-iteration-method" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Start with a random initial probability distribution <span class="math notranslate nohighlight">\(\pi\)</span></p></li>
+<li><p>Multiply <span class="math notranslate nohighlight">\(\pi\)</span> by powers of the transition matrix <span class="math notranslate nohighlight">\(A\)</span> until the product looks stable</p>
+<ul>
+<li><p>After one step, we are at <span class="math notranslate nohighlight">\(\pi A\)</span></p></li>
+<li><p>After two steps, we are at <span class="math notranslate nohighlight">\(\pi A^2\)</span></p></li>
+<li><p>After three steps, we are at <span class="math notranslate nohighlight">\(\pi A^3\)</span></p></li>
+<li><p>Eventually (for a large <span class="math notranslate nohighlight">\(k\)</span>), <span class="math notranslate nohighlight">\(\pi A^k = \pi\)</span></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="how-to-do-this-in-python">
+<h2>How to do this in Python?<a class="headerlink" href="#how-to-do-this-in-python" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Use <a class="reference external" href="https://networkx.github.io/documentation/networkx-1.9/index.html">networkx</a> package <a class="reference external" href="https://networkx.github.io/documentation/networkx-1.9/reference/generated/networkx.algorithms.link_analysis.pagerank_alg.google_matrix.html">google_matrix</a> function. Warning: their definition of  𝛼  is opposite from ours.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">networkx</span> <span class="k">as</span> <span class="nn">nx</span>
+<span class="n">G</span><span class="o">=</span><span class="n">nx</span><span class="o">.</span><span class="n">Graph</span><span class="p">()</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_node</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s1">&#39;A&#39;</span><span class="p">,</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="s1">&#39;A&#39;</span><span class="p">)</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s1">&#39;B&#39;</span><span class="p">,</span><span class="s1">&#39;C&#39;</span><span class="p">)</span>
+<span class="n">G</span><span class="o">.</span><span class="n">add_edge</span><span class="p">(</span><span class="s1">&#39;C&#39;</span><span class="p">,</span><span class="s1">&#39;B&#39;</span><span class="p">)</span>
+<span class="n">nx</span><span class="o">.</span><span class="n">draw</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">with_labels</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../_images/bb84eb0d12a992bfb31ea419e7f13538471d8a0b7c5fa9a6e843bf5808b1a103.png" src="../_images/bb84eb0d12a992bfb31ea419e7f13538471d8a0b7c5fa9a6e843bf5808b1a103.png" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transition matrix for alpha = 0.0</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">nx</span><span class="o">.</span><span class="n">google_matrix</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">nodelist</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">()),</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.0</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[[0.  1.  0. ]
+ [0.5 0.  0.5]
+ [0.  1.  0. ]]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Transition matrix for alpha = 0.5</span>
+<span class="n">A</span> <span class="o">=</span> <span class="n">nx</span><span class="o">.</span><span class="n">google_matrix</span><span class="p">(</span><span class="n">G</span><span class="p">,</span> <span class="n">nodelist</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">G</span><span class="o">.</span><span class="n">nodes</span><span class="p">()),</span> <span class="n">alpha</span> <span class="o">=</span> <span class="mf">1.0</span> <span class="o">-</span> <span class="mf">0.5</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">A</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[[0.16666667 0.66666667 0.16666667]
+ [0.41666667 0.16666667 0.41666667]
+ [0.16666667 0.66666667 0.16666667]]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">print_pi_over_time</span><span class="p">(</span><span class="n">s0</span><span class="p">,</span> <span class="n">T</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">prev</span> <span class="o">=</span> <span class="n">s0</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Step 0&#39;</span><span class="p">,</span> <span class="n">prev</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">steps</span><span class="p">):</span>    
+        <span class="n">current</span> <span class="o">=</span> <span class="n">prev</span><span class="nd">@T</span>
+        <span class="nb">print</span><span class="p">(</span><span class="s1">&#39;Step &#39;</span><span class="p">,</span> <span class="n">i</span><span class="o">+</span><span class="mi">1</span><span class="p">,</span> <span class="n">current</span><span class="p">)</span>
+        <span class="n">prev</span> <span class="o">=</span> <span class="n">current</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Random initialization of pi</span>
+<span class="n">pi</span> <span class="o">=</span> <span class="p">[</span><span class="mf">.4</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]</span>
+<span class="c1"># Power iteration method</span>
+<span class="n">print_pi_over_time</span><span class="p">(</span><span class="n">pi</span><span class="p">,</span> <span class="n">A</span><span class="p">,</span> <span class="n">steps</span><span class="o">=</span><span class="mi">40</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Step 0 [0.4, 0.2, 0.2]
+Step  1 [[0.18333333 0.43333333 0.18333333]]
+Step  2 [[0.24166667 0.31666667 0.24166667]]
+Step  3 [[0.2125 0.375  0.2125]]
+Step  4 [[0.22708333 0.34583333 0.22708333]]
+Step  5 [[0.21979167 0.36041667 0.21979167]]
+Step  6 [[0.2234375 0.353125  0.2234375]]
+Step  7 [[0.22161458 0.35677083 0.22161458]]
+Step  8 [[0.22252604 0.35494792 0.22252604]]
+Step  9 [[0.22207031 0.35585937 0.22207031]]
+Step  10 [[0.22229818 0.35540365 0.22229818]]
+Step  11 [[0.22218424 0.35563151 0.22218424]]
+Step  12 [[0.22224121 0.35551758 0.22224121]]
+Step  13 [[0.22221273 0.35557454 0.22221273]]
+Step  14 [[0.22222697 0.35554606 0.22222697]]
+Step  15 [[0.22221985 0.3555603  0.22221985]]
+Step  16 [[0.22222341 0.35555318 0.22222341]]
+Step  17 [[0.22222163 0.35555674 0.22222163]]
+Step  18 [[0.22222252 0.35555496 0.22222252]]
+Step  19 [[0.22222207 0.35555585 0.22222207]]
+Step  20 [[0.2222223  0.35555541 0.2222223 ]]
+Step  21 [[0.22222219 0.35555563 0.22222219]]
+Step  22 [[0.22222224 0.35555552 0.22222224]]
+Step  23 [[0.22222221 0.35555557 0.22222221]]
+Step  24 [[0.22222223 0.35555555 0.22222223]]
+Step  25 [[0.22222222 0.35555556 0.22222222]]
+Step  26 [[0.22222222 0.35555555 0.22222222]]
+Step  27 [[0.22222222 0.35555556 0.22222222]]
+Step  28 [[0.22222222 0.35555555 0.22222222]]
+Step  29 [[0.22222222 0.35555556 0.22222222]]
+Step  30 [[0.22222222 0.35555556 0.22222222]]
+Step  31 [[0.22222222 0.35555556 0.22222222]]
+Step  32 [[0.22222222 0.35555556 0.22222222]]
+Step  33 [[0.22222222 0.35555556 0.22222222]]
+Step  34 [[0.22222222 0.35555556 0.22222222]]
+Step  35 [[0.22222222 0.35555556 0.22222222]]
+Step  36 [[0.22222222 0.35555556 0.22222222]]
+Step  37 [[0.22222222 0.35555556 0.22222222]]
+Step  38 [[0.22222222 0.35555556 0.22222222]]
+Step  39 [[0.22222222 0.35555556 0.22222222]]
+Step  40 [[0.22222222 0.35555556 0.22222222]]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="modern-ranking-methods-are-more-advanced">
+<h2>Modern ranking methods are more advanced:<a class="headerlink" href="#modern-ranking-methods-are-more-advanced" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Guarding against methods that exploit algorithm.</p></li>
+<li><p>Removing offensive/illegal content.</p></li>
+<li><p>Supervised and personalized ranking methods.</p></li>
+<li><p>Take into account that you often only care about top rankings.</p></li>
+<li><p>Also work on diversity of rankings:</p></li>
+<li><p>E.g., divide objects into sub-topics and do weighted “covering” of topics.</p></li>
+<li><p>Persistence/freshness as in recommender systems (news articles).</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="class_demos/text-generation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Class Demo: Recipe generator</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="AppendixB-HMM-POS.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">HMM supervised POS tagging</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-intuition">PageRank: intuition</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-scoring">PageRank: scoring</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-teleporting">PageRank: teleporting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">PageRank: teleporting</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions">Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-as-a-markov-chain">PageRank as a Markov chain</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-deriving-transition-matrix">PageRank: deriving transition matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">PageRank: deriving transition matrix</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank-deriving-transition-matrix-example">PageRank: deriving transition matrix (example)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">PageRank: deriving transition matrix (example)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">PageRank: deriving transition matrix (example)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Questions</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-page-rank">Calculate page rank</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#calculate-page-rank-power-iteration-method">Calculate page rank: power iteration method</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-do-this-in-python">How to do this in Python?</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#modern-ranking-methods-are-more-advanced">Modern ranking methods are more advanced:</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Varada Kolhatkar
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

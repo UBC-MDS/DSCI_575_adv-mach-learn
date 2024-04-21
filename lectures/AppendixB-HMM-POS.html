@@ -1,0 +1,1050 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>HMM supervised POS tagging &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/AppendixB-HMM-POS';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Baum-Welch (BW) algorithm" href="AppendixC-BaumWelch.html" />
+    <link rel="prev" title="PageRank as a Markov model" href="AppendixA-PageRank.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/mds-hex-sticker.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models  and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Viterbi-Baum-Welch.html">Lecture 4: Decoding and Learning in HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_topic-modeling.html">Lecture 5: Topic Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-RNNs.html">Lecture 6: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_intro-to-transformers.html">Lecture 7: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_more-transformers.html">Lecture 8: More transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="class_demos/text-generation.html">Class Demo: Recipe generator</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-PageRank.html">PageRank as a Markov model</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">HMM supervised POS tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixC-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixD-LDA-details.html">LDA details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixE-LSTMs.html">AppendixD: More RNNs, LSTMs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/UBC-MDS/DSCI_575_adv-mach-learn" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/lectures/AppendixB-HMM-POS.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>HMM supervised POS tagging</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-the-documentation">From the documentation:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-states">HMM states</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-prior-probabilities">Log prior probabilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-output-probabilities">Log output probabilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-transition-probabilities">Log transition probabilities</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tagging-a-sentence">Tagging a sentence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#let-s-try-it-out-on-a-bigger-dataset">Let’s try it out on a bigger dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-of-the-output">Explanation of the output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#let-s-try-it-out-on-a-new-unseen-sentence">Let’s try it out on a new unseen sentence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-not-use-traditional-ml-models">Why not use traditional ML models?</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="hmm-supervised-pos-tagging">
+<h1>HMM supervised POS tagging<a class="headerlink" href="#hmm-supervised-pos-tagging" title="Permalink to this heading">#</a></h1>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">IPython</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">nltk.tag.hmm</span> <span class="kn">import</span> <span class="n">HiddenMarkovModelTrainer</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>Part-of-speech tagging task</p>
+<ul class="simple">
+<li><p>Given a text assign part-of-speech tags to the words in the text.</p></li>
+<li><p>Input sentence:</p></li>
+</ul>
+<blockquote>
+    MDS students are hard-working .
+</blockquote>    
+<ul class="simple">
+<li><p>POS-tagged sentence:</p></li>
+</ul>
+<blockquote>
+    MDS/<span style="color:green">PROPER_NOUN</span> students/<span style="color:green">NOUN</span> are/<span style="color:green">VERB</span> hard-working/<span style="color:green">ADJECTIVE</span> ./<span style="color:green">PUNCTUATION</span>
+</blockquote>    
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">words</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;flight&quot;</span><span class="p">,</span> <span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">]</span>
+<span class="n">POS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Noun&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">,</span> <span class="s2">&quot;Punct&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">corpus</span> <span class="o">=</span> <span class="p">[</span>
+    <span class="p">[(</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;flight&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Punct&quot;</span><span class="p">)],</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Punct&quot;</span><span class="p">),</span>
+    <span class="p">],</span>
+    <span class="p">[(</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;flight&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Punct&quot;</span><span class="p">)],</span>
+    <span class="p">[(</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;flight&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">)],</span>
+    <span class="p">[(</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;flight&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">),</span> <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Punct&quot;</span><span class="p">)],</span>
+    <span class="p">[</span>
+        <span class="p">(</span><span class="s2">&quot;I&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;like&quot;</span><span class="p">,</span> <span class="s2">&quot;Verb&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;that&quot;</span><span class="p">,</span> <span class="s2">&quot;Pron&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;Noun&quot;</span><span class="p">),</span>
+        <span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">,</span> <span class="s2">&quot;Punct&quot;</span><span class="p">),</span>
+    <span class="p">],</span>
+<span class="p">]</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p>The syntax is a bit weird. This is just for demonstration purpose. You’re unlikely to use this when you carry out POS tagging.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trainer</span> <span class="o">=</span> <span class="n">HiddenMarkovModelTrainer</span><span class="p">(</span><span class="n">POS</span><span class="p">,</span> <span class="n">words</span><span class="p">)</span>
+<span class="n">hmm</span> <span class="o">=</span> <span class="n">trainer</span><span class="o">.</span><span class="n">train_supervised</span><span class="p">(</span>
+    <span class="n">corpus</span><span class="p">,</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hmm</span><span class="o">.</span><span class="n">_create_cache</span><span class="p">()</span>
+<span class="n">P</span><span class="p">,</span> <span class="n">O</span><span class="p">,</span> <span class="n">X</span><span class="p">,</span> <span class="n">S</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">_cache</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/kvarada/miniconda3/envs/575/lib/python3.12/site-packages/nltk/tag/hmm.py:332: RuntimeWarning: overflow encountered in cast
+  P[i] = self._priors.logprob(si)
+/Users/kvarada/miniconda3/envs/575/lib/python3.12/site-packages/nltk/tag/hmm.py:334: RuntimeWarning: overflow encountered in cast
+  X[i, j] = self._transitions[si].logprob(self._states[j])
+/Users/kvarada/miniconda3/envs/575/lib/python3.12/site-packages/nltk/tag/hmm.py:336: RuntimeWarning: overflow encountered in cast
+  O[i, k] = self._output_logprob(si, self._symbols[k])
+</pre></div>
+</div>
+</div>
+</div>
+<section id="from-the-documentation">
+<h2>From the documentation:<a class="headerlink" href="#from-the-documentation" title="Permalink to this heading">#</a></h2>
+<p>The cache is a tuple (P, O, X, S) where:</p>
+<ul>
+<li><p>S maps symbols to integers.  I.e., it is the inverse
+mapping from self._symbols; for each symbol s in
+self._symbols, the following is true::</p>
+<p><code class="docutils literal notranslate"><span class="pre">self._symbols[S[s]]</span> <span class="pre">==</span> <span class="pre">s</span></code></p>
+</li>
+<li><p>O is the log output probabilities::</p>
+<p><code class="docutils literal notranslate"><span class="pre">O[i,k]</span> <span class="pre">=</span> <span class="pre">log(</span> <span class="pre">P(token[t]=sym[k]|tag[t]=state[i])</span> <span class="pre">)</span></code></p>
+</li>
+<li><p>X is the log transition probabilities::</p>
+<p><code class="docutils literal notranslate"><span class="pre">X[i,j]</span> <span class="pre">=</span> <span class="pre">log(</span> <span class="pre">P(tag[t]=state[j]|tag[t-1]=state[i])</span> <span class="pre">)</span></code></p>
+</li>
+<li><p>P is the log prior probabilities::</p>
+<p><code class="docutils literal notranslate"><span class="pre">P[i]</span> <span class="pre">=</span> <span class="pre">log(</span> <span class="pre">P(tag[0]=state[i])</span> <span class="pre">)</span></code></p>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Mapping between the observations (symbols) to integers.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">S</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>{&#39;book&#39;: 0, &#39;that&#39;: 1, &#39;flight&#39;: 2, &#39;like&#39;: 3, &#39;I&#39;: 4, &#39;.&#39;: 5}
+</pre></div>
+</div>
+</div>
+</div>
+<section id="hmm-states">
+<h3>HMM states<a class="headerlink" href="#hmm-states" title="Permalink to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hmm</span><span class="o">.</span><span class="n">_states</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;Noun&#39;, &#39;Verb&#39;, &#39;Punct&#39;, &#39;Pron&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="log-prior-probabilities">
+<h3>Log prior probabilities<a class="headerlink" href="#log-prior-probabilities" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\pi_0\)</span> for all states</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">P</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">hmm</span><span class="o">.</span><span class="n">_states</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;pi_0&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>pi_0</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Noun</th>
+      <td>-inf</td>
+    </tr>
+    <tr>
+      <th>Verb</th>
+      <td>-1.0</td>
+    </tr>
+    <tr>
+      <th>Punct</th>
+      <td>-inf</td>
+    </tr>
+    <tr>
+      <th>Pron</th>
+      <td>-1.0</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="log-output-probabilities">
+<h3>Log output probabilities<a class="headerlink" href="#log-output-probabilities" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>log(P(observation | tag)) for all observations and tags.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">O</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">hmm</span><span class="o">.</span><span class="n">_states</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">S</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>book</th>
+      <th>that</th>
+      <th>flight</th>
+      <th>like</th>
+      <th>I</th>
+      <th>.</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Noun</th>
+      <td>-1.807355</td>
+      <td>-inf</td>
+      <td>-0.807355</td>
+      <td>-2.807355</td>
+      <td>-inf</td>
+      <td>-inf</td>
+    </tr>
+    <tr>
+      <th>Verb</th>
+      <td>-0.584962</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-1.584962</td>
+      <td>-inf</td>
+      <td>-inf</td>
+    </tr>
+    <tr>
+      <th>Punct</th>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Pron</th>
+      <td>-inf</td>
+      <td>-1.0</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-1.0</td>
+      <td>-inf</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+<section id="log-transition-probabilities">
+<h3>Log transition probabilities<a class="headerlink" href="#log-transition-probabilities" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Transition matrix</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">hmm</span><span class="o">.</span><span class="n">_states</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">hmm</span><span class="o">.</span><span class="n">_states</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Noun</th>
+      <th>Verb</th>
+      <th>Punct</th>
+      <th>Pron</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Noun</th>
+      <td>-2.584963</td>
+      <td>-inf</td>
+      <td>-0.263034</td>
+      <td>-inf</td>
+    </tr>
+    <tr>
+      <th>Verb</th>
+      <td>-1.000000</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-1.0</td>
+    </tr>
+    <tr>
+      <th>Punct</th>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-inf</td>
+      <td>-inf</td>
+    </tr>
+    <tr>
+      <th>Pron</th>
+      <td>-1.000000</td>
+      <td>-1.0</td>
+      <td>-inf</td>
+      <td>-inf</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+</section>
+</section>
+<section id="tagging-a-sentence">
+<h2>Tagging a sentence<a class="headerlink" href="#tagging-a-sentence" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hmm</span><span class="o">.</span><span class="n">tag</span><span class="p">([</span><span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;flight&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(&#39;book&#39;, &#39;Verb&#39;), (&#39;flight&#39;, &#39;Noun&#39;), (&#39;.&#39;, &#39;Punct&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+<p>We’ll see in the next lecture the algorithm used for such tagging.</p>
+</section>
+<section id="let-s-try-it-out-on-a-bigger-dataset">
+<h2>Let’s try it out on a bigger dataset<a class="headerlink" href="#let-s-try-it-out-on-a-bigger-dataset" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>You don’t have to understand the code.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;code/.&quot;</span><span class="p">)</span>
+<span class="kn">from</span> <span class="nn">hmm_pos_demo</span> <span class="kn">import</span> <span class="o">*</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nltk</span>
+<span class="c1"># nltk.download(&#39;brown&#39;)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hmm</span> <span class="o">=</span> <span class="n">demo_pos_supervised</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>HMM POS tagging demo
+
+Training HMM...
+Testing...
+Test: the/AT fulton/NP county/NN grand/JJ jury/NN said/VBD friday/NR an/AT investigation/NN of/IN atlanta&#39;s/NP$ recent/JJ primary/NN election/NN produced/VBD ``/`` no/AT evidence/NN &#39;&#39;/&#39;&#39; that/CS any/DTI irregularities/NNS took/VBD place/NN ./.
+
+Untagged: the fulton county grand jury said friday an investigation of atlanta&#39;s recent primary election produced `` no evidence &#39;&#39; that any irregularities took place .
+
+HMM-tagged: the/AT fulton/NP county/NN grand/JJ jury/NN said/VBD friday/NR an/AT investigation/NN of/IN atlanta&#39;s/NP$ recent/JJ primary/NN election/NN produced/VBD ``/`` no/AT evidence/NN &#39;&#39;/&#39;&#39; that/CS any/DTI irregularities/NNS took/VBD place/NN ./.
+
+Entropy: 18.7331739704536
+
+------------------------------------------------------------
+Test: the/AT jury/NN further/RBR said/VBD in/IN term-end/NN presentments/NNS that/CS the/AT city/NN executive/JJ committee/NN ,/, which/WDT had/HVD over-all/JJ charge/NN of/IN the/AT election/NN ,/, ``/`` deserves/VBZ the/AT praise/NN and/CC thanks/NNS of/IN the/AT city/NN of/IN atlanta/NP &#39;&#39;/&#39;&#39; for/IN the/AT manner/NN in/IN which/WDT the/AT election/NN was/BEDZ conducted/VBN ./.
+
+Untagged: the jury further said in term-end presentments that the city executive committee , which had over-all charge of the election , `` deserves the praise and thanks of the city of atlanta &#39;&#39; for the manner in which the election was conducted .
+
+HMM-tagged: the/AT jury/NN further/RBR said/VBD in/IN term-end/AT presentments/NN that/CS the/AT city/NN executive/NN committee/NN ,/, which/WDT had/HVD over-all/VBN charge/NN of/IN the/AT election/NN ,/, ``/`` deserves/VBZ the/AT praise/NN and/CC thanks/NNS of/IN the/AT city/NN of/IN atlanta/NP &#39;&#39;/&#39;&#39; for/IN the/AT manner/NN in/IN which/WDT the/AT election/NN was/BEDZ conducted/VBN ./.
+
+Entropy: 27.07087255188224
+
+------------------------------------------------------------
+Test: the/AT september-october/NP term/NN jury/NN had/HVD been/BEN charged/VBN by/IN fulton/NP superior/JJ court/NN judge/NN durwood/NP pye/NP to/TO investigate/VB reports/NNS of/IN possible/JJ ``/`` irregularities/NNS &#39;&#39;/&#39;&#39; in/IN the/AT hard-fought/JJ primary/NN which/WDT was/BEDZ won/VBN by/IN mayor-nominate/NN ivan/NP allen/NP jr./NP ./.
+
+Untagged: the september-october term jury had been charged by fulton superior court judge durwood pye to investigate reports of possible `` irregularities &#39;&#39; in the hard-fought primary which was won by mayor-nominate ivan allen jr. .
+
+HMM-tagged: the/AT september-october/JJ term/NN jury/NN had/HVD been/BEN charged/VBN by/IN fulton/NP superior/JJ court/NN judge/NN durwood/TO pye/VB to/TO investigate/VB reports/NNS of/IN possible/JJ ``/`` irregularities/NNS &#39;&#39;/&#39;&#39; in/IN the/AT hard-fought/JJ primary/NN which/WDT was/BEDZ won/VBN by/IN mayor-nominate/NP ivan/NP allen/NP jr./NP ./.
+
+Entropy: 33.82818742373867
+
+------------------------------------------------------------
+Test: ``/`` only/RB a/AT relative/JJ handful/NN of/IN such/JJ reports/NNS was/BEDZ received/VBN &#39;&#39;/&#39;&#39; ,/, the/AT jury/NN said/VBD ,/, ``/`` considering/IN the/AT widespread/JJ interest/NN in/IN the/AT election/NN ,/, the/AT number/NN of/IN voters/NNS and/CC the/AT size/NN of/IN this/DT city/NN &#39;&#39;/&#39;&#39; ./.
+
+Untagged: `` only a relative handful of such reports was received &#39;&#39; , the jury said , `` considering the widespread interest in the election , the number of voters and the size of this city &#39;&#39; .
+
+HMM-tagged: ``/`` only/RB a/AT relative/JJ handful/NN of/IN such/JJ reports/NNS was/BEDZ received/VBN &#39;&#39;/&#39;&#39; ,/, the/AT jury/NN said/VBD ,/, ``/`` considering/IN the/AT widespread/JJ interest/NN in/IN the/AT election/NN ,/, the/AT number/NN of/IN voters/NNS and/CC the/AT size/NN of/IN this/DT city/NN &#39;&#39;/&#39;&#39; ./.
+
+Entropy: 11.437819859633125
+
+------------------------------------------------------------
+Test: the/AT jury/NN said/VBD it/PPS did/DOD find/VB that/CS many/AP of/IN georgia&#39;s/NP$ registration/NN and/CC election/NN laws/NNS ``/`` are/BER outmoded/JJ or/CC inadequate/JJ and/CC often/RB ambiguous/JJ &#39;&#39;/&#39;&#39; ./.
+
+Untagged: the jury said it did find that many of georgia&#39;s registration and election laws `` are outmoded or inadequate and often ambiguous &#39;&#39; .
+
+HMM-tagged: the/AT jury/NN said/VBD it/PPS did/DOD find/VB that/CS many/AP of/IN georgia&#39;s/NP$ registration/NN and/CC election/NN laws/NNS ``/`` are/BER outmoded/VBG or/CC inadequate/JJ and/CC often/RB ambiguous/VB &#39;&#39;/&#39;&#39; ./.
+
+Entropy: 20.816362319185643
+
+------------------------------------------------------------
+Test: it/PPS recommended/VBD that/CS fulton/NP legislators/NNS act/VB ``/`` to/TO have/HV these/DTS laws/NNS studied/VBN and/CC revised/VBN to/IN the/AT end/NN of/IN modernizing/VBG and/CC improving/VBG them/PPO &#39;&#39;/&#39;&#39; ./.
+
+Untagged: it recommended that fulton legislators act `` to have these laws studied and revised to the end of modernizing and improving them &#39;&#39; .
+
+HMM-tagged: it/PPS recommended/VBD that/CS fulton/NP legislators/NNS act/VB ``/`` to/TO have/HV these/DTS laws/NNS studied/VBD and/CC revised/VBD to/IN the/AT end/NN of/IN modernizing/NP and/CC improving/VBG them/PPO &#39;&#39;/&#39;&#39; ./.
+
+Entropy: 20.32449212032506
+
+------------------------------------------------------------
+Test: the/AT grand/JJ jury/NN commented/VBD on/IN a/AT number/NN of/IN other/AP topics/NNS ,/, among/IN them/PPO the/AT atlanta/NP and/CC fulton/NP county/NN purchasing/VBG departments/NNS which/WDT it/PPS said/VBD ``/`` are/BER well/QL operated/VBN and/CC follow/VB generally/RB accepted/VBN practices/NNS which/WDT inure/VB to/IN the/AT best/JJT interest/NN of/IN both/ABX governments/NNS &#39;&#39;/&#39;&#39; ./.
+
+Untagged: the grand jury commented on a number of other topics , among them the atlanta and fulton county purchasing departments which it said `` are well operated and follow generally accepted practices which inure to the best interest of both governments &#39;&#39; .
+
+HMM-tagged: the/AT grand/JJ jury/NN commented/VBD on/IN a/AT number/NN of/IN other/AP topics/NNS ,/, among/IN them/PPO the/AT atlanta/NP and/CC fulton/NP county/NN purchasing/NN departments/NNS which/WDT it/PPS said/VBD ``/`` are/BER well/RB operated/VBN and/CC follow/VB generally/RB accepted/VBN practices/NNS which/WDT inure/VBZ to/IN the/AT best/JJT interest/NN of/IN both/ABX governments/NNS &#39;&#39;/&#39;&#39; ./.
+
+Entropy: 31.383423146867017
+
+------------------------------------------------------------
+Test: merger/NN proposed/VBN
+
+Untagged: merger proposed
+
+HMM-tagged: merger/PPS proposed/VBD
+
+Entropy: 5.671820394600896
+
+------------------------------------------------------------
+Test: however/WRB ,/, the/AT jury/NN said/VBD it/PPS believes/VBZ ``/`` these/DTS two/CD offices/NNS should/MD be/BE combined/VBN to/TO achieve/VB greater/JJR efficiency/NN and/CC reduce/VB the/AT cost/NN of/IN administration/NN &#39;&#39;/&#39;&#39; ./.
+
+Untagged: however , the jury said it believes `` these two offices should be combined to achieve greater efficiency and reduce the cost of administration &#39;&#39; .
+
+HMM-tagged: however/WRB ,/, the/AT jury/NN said/VBD it/PPS believes/VBZ ``/`` these/DTS two/CD offices/NNS should/MD be/BE combined/VBN to/TO achieve/VB greater/JJR efficiency/NN and/CC reduce/VB the/AT cost/NN of/IN administration/NN &#39;&#39;/&#39;&#39; ./.
+
+Entropy: 8.2754594390854
+
+------------------------------------------------------------
+Test: the/AT city/NN purchasing/VBG department/NN ,/, the/AT jury/NN said/VBD ,/, ``/`` is/BEZ lacking/VBG in/IN experienced/VBN clerical/JJ personnel/NNS as/CS a/AT result/NN of/IN city/NN personnel/NNS policies/NNS &#39;&#39;/&#39;&#39; ./.
+
+Untagged: the city purchasing department , the jury said , `` is lacking in experienced clerical personnel as a result of city personnel policies &#39;&#39; .
+
+HMM-tagged: the/AT city/NN purchasing/NN department/NN ,/, the/AT jury/NN said/VBD ,/, ``/`` is/BEZ lacking/VBG in/IN experienced/AT clerical/JJ personnel/NNS as/CS a/AT result/NN of/IN city/NN personnel/NNS policies/NNS &#39;&#39;/&#39;&#39; ./.
+
+Entropy: 16.762253727845472
+
+------------------------------------------------------------
+accuracy over 284 tokens: 92.96
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="explanation-of-the-output">
+<h2>Explanation of the output<a class="headerlink" href="#explanation-of-the-output" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>What do these tags (e.g., NN, AT, IN, NNS etc) mean? Where do they come from?</p>
+<ul>
+<li><p>These tags come from <a class="reference external" href="https://www.ling.upenn.edu/courses/Fall_2003/ling001/penn_treebank_pos.html">the Penn Treebank Project</a></p></li>
+<li><p>The Penn Treebank tagset consists of 36 POS tags to label different parts of speech of words in English.</p></li>
+</ul>
+</li>
+<li><p>Entropy is a common metric used to measure the degree of uncertainty or ambiguity in the tagging process.</p>
+<ul>
+<li><p>Lower entropy <span class="math notranslate nohighlight">\(\rightarrow\)</span> the tagger is relatively certain about the tags</p></li>
+<li><p>High entropy <span class="math notranslate nohighlight">\(\rightarrow\)</span> the tagger is less certain about the tags</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="let-s-try-it-out-on-a-new-unseen-sentence">
+<h2>Let’s try it out on a new unseen sentence<a class="headerlink" href="#let-s-try-it-out-on-a-new-unseen-sentence" title="Permalink to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">hmm</span><span class="o">.</span><span class="n">tag</span><span class="p">([</span><span class="s2">&quot;keep&quot;</span><span class="p">,</span> <span class="s2">&quot;the&quot;</span><span class="p">,</span> <span class="s2">&quot;book&quot;</span><span class="p">,</span> <span class="s2">&quot;on&quot;</span><span class="p">,</span> <span class="s2">&quot;the&quot;</span><span class="p">,</span> <span class="s2">&quot;table&quot;</span><span class="p">,</span> <span class="s2">&quot;.&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[(&#39;keep&#39;, &#39;VB&#39;),
+ (&#39;the&#39;, &#39;AT&#39;),
+ (&#39;book&#39;, &#39;NN&#39;),
+ (&#39;on&#39;, &#39;IN&#39;),
+ (&#39;the&#39;, &#39;AT&#39;),
+ (&#39;table&#39;, &#39;NN&#39;),
+ (&#39;.&#39;, &#39;.&#39;)]
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="why-not-use-traditional-ml-models">
+<h2>Why not use traditional ML models?<a class="headerlink" href="#why-not-use-traditional-ml-models" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>We could extract features and treat it as a multi-class classification problem of predicting POS for each word. Some example features could be:</p>
+<ul>
+<li><p>Whether the word ends with an “ing” (for verbs)</p></li>
+<li><p>What’s the previous word?</p></li>
+<li><p>Or whether the word occurs at the beginning or end of a sentence</p></li>
+</ul>
+</li>
+<li><p>But coming up with such features is time consuming and limited. It can get unwieldy quite quickly and it leads to fragile and overfit models.</p></li>
+<li><p>HMM provide a much more elegant way to model sequences and usually they are a preferred way to model sequences.</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="AppendixA-PageRank.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">PageRank as a Markov model</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="AppendixC-BaumWelch.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Baum-Welch (BW) algorithm</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-the-documentation">From the documentation:</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-states">HMM states</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-prior-probabilities">Log prior probabilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-output-probabilities">Log output probabilities</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#log-transition-probabilities">Log transition probabilities</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#tagging-a-sentence">Tagging a sentence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#let-s-try-it-out-on-a-bigger-dataset">Let’s try it out on a bigger dataset</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#explanation-of-the-output">Explanation of the output</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#let-s-try-it-out-on-a-new-unseen-sentence">Let’s try it out on a new unseen sentence</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#why-not-use-traditional-ml-models">Why not use traditional ML models?</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Varada Kolhatkar
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

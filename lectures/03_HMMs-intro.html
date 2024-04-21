@@ -1,0 +1,1550 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Lecture 3: Introduction to Hidden Markov Models (HMMs) &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/03_HMMs-intro';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lecture 4: Decoding and Learning in HMMs" href="04_Viterbi-Baum-Welch.html" />
+    <link rel="prev" title="Lecture 2: Applications of Markov Models and Text Preprocessing" href="02_LMs-text-preprocessing.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/mds-hex-sticker.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models  and Text Preprocessing</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Viterbi-Baum-Welch.html">Lecture 4: Decoding and Learning in HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_topic-modeling.html">Lecture 5: Topic Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-RNNs.html">Lecture 6: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_intro-to-transformers.html">Lecture 7: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_more-transformers.html">Lecture 8: More transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="class_demos/text-generation.html">Class Demo: Recipe generator</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-PageRank.html">PageRank as a Markov model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixB-HMM-POS.html">HMM supervised POS tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixC-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixD-LDA-details.html">LDA details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixE-LSTMs.html">AppendixD: More RNNs, LSTMs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/UBC-MDS/DSCI_575_adv-mach-learn" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/lectures/03_HMMs-intro.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lecture 3: Introduction to Hidden Markov Models (HMMs)</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-lo">Imports, LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation">1. Motivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speech-recognition">1.1 Speech recognition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmms-intuition">1.2 HMMs intuition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-definition-and-example">2. HMM definition and example</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-process-with-hidden-variables-example">2.1 Markov process with hidden variables: Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-ingredients">2.2 HMM ingredients</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-assumptions">2.2 HMM assumptions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-fundamental-questions-for-an-hmm">2.3 Three fundamental questions for an HMM</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#likelihood">Likelihood</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#decoding">Decoding</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#learning">Learning</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 3.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-2-discuss-the-following-questions-with-your-neighbour">Exercise 3.2: Discuss the following questions with your neighbour.</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break-5-mins">Break (~5 mins)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3. Likelihood</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-of-an-observation-sequence-given-the-state-sequence">Probability of an observation sequence given the state sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#joint-probability-of-observations-and-a-possible-hidden-sequence">3.1 Joint probability of observations and a possible hidden sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#total-probability-of-an-observation-sequence">3.2 Total probability of an observation sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure">3.3 The forward procedure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure-initialization-alpha-0-and-alpha-0">3.3.1 The forward procedure: Initialization <span class="math notranslate nohighlight">\(\alpha_🙂(0)\)</span> and <span class="math notranslate nohighlight">\(\alpha_😔(0)\)</span></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure-induction">3.3.2 The forward procedure: Induction</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure-conclusion">3.3.3 The forward procedure: Conclusion</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-the-forward-algorithm">Recap: The forward algorithm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supervised-training-of-hmms">4. Supervised training of HMMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">4.1 Supervised training of HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-libraries">4.2 HMM libraries</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-2-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 3.2: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-3-discuss-the-following-question-with-your-neighbour">Exercise 3.3: Discuss the following question with your neighbour.</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-summary">Quick summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#important-ideas-we-learned">Important ideas we learned</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamental-questions-for-hmms">Fundamental questions for HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Supervised training of HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#coming-up">Coming up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <p><img alt="" src="../_images/575_banner.png" /></p>
+<section class="tex2jax_ignore mathjax_ignore" id="lecture-3-introduction-to-hidden-markov-models-hmms">
+<h1>Lecture 3: Introduction to Hidden Markov Models (HMMs)<a class="headerlink" href="#lecture-3-introduction-to-hidden-markov-models-hmms" title="Permalink to this heading">#</a></h1>
+<p>UBC Master of Data Science program, 2023-24</p>
+<p>Instructor: Varada Kolhatkar</p>
+<section id="imports-lo">
+<h2>Imports, LO<a class="headerlink" href="#imports-lo" title="Permalink to this heading">#</a></h2>
+<section id="imports">
+<h3>Imports<a class="headerlink" href="#imports" title="Permalink to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">),</span> <span class="s2">&quot;code&quot;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">plotting_functions</span> <span class="kn">import</span> <span class="o">*</span>
+<span class="kn">import</span> <span class="nn">IPython</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">display</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Intel MKL WARNING: Support of Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) enabled only processors has been deprecated. Intel oneAPI Math Kernel Library 2025.0 will require Intel(R) Advanced Vector Extensions (Intel(R) AVX) instructions.
+Intel MKL WARNING: Support of Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) enabled only processors has been deprecated. Intel oneAPI Math Kernel Library 2025.0 will require Intel(R) Advanced Vector Extensions (Intel(R) AVX) instructions.
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="learning-outcomes">
+<h3>Learning outcomes<a class="headerlink" href="#learning-outcomes" title="Permalink to this heading">#</a></h3>
+<p>From this lesson you will be able to</p>
+<ul class="simple">
+<li><p>explain the motivation for using HMMs</p></li>
+<li><p>define an HMM</p></li>
+<li><p>state the Markov assumption in HMMs</p></li>
+<li><p>explain three fundamental questions for an HMM</p></li>
+<li><p>apply the forward algorithm given an HMM</p></li>
+<li><p>explain supervised training in HMMs</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="motivation">
+<h2>1. Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">#</a></h2>
+<section id="speech-recognition">
+<h3>1.1 Speech recognition<a class="headerlink" href="#speech-recognition" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>An important component of virtual assistants (e.g., Siri, Cortana, Google Home, Alexa) is speech recognition.</p></li>
+<li><p>We ask such assistants questions. They convert the question into text, make sense of the question, and return the appropriate answer most of the times.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://www.ibm.com/demos/live/speech-to-text/self-service/home&quot;</span>
+
+<span class="n">IPython</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">IFrame</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">800</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">900</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+        <iframe
+            width="800"
+            height="900"
+            src="https://www.ibm.com/demos/live/speech-to-text/self-service/home"
+            frameborder="0"
+            allowfullscreen
+            
+        ></iframe>
+        </div></div>
+</div>
+<ul class="simple">
+<li><p>A number of speech recognition API’s are available out there.</p></li>
+<li><p>You can access them with Python.</p></li>
+<li><p>A Python module called <a class="reference external" href="https://pypi.org/project/SpeechRecognition/"><code class="docutils literal notranslate"><span class="pre">SpeechRecognition</span></code></a> can let you access some of these APIs.</p>
+<ul>
+<li><p>CMU Sphinx (works offline)</p></li>
+<li><p>Google Speech Recognition</p></li>
+<li><p>Google Cloud Speech API</p></li>
+<li><p>Wit.ai</p></li>
+<li><p>Microsoft Bing Voice Recognition</p></li>
+<li><p>Houndify API</p></li>
+<li><p>IBM Speech to Text</p></li>
+<li><p>Snowboy Hotword Detection (works offline)</p></li>
+</ul>
+</li>
+<li><p>Usually, you have to pay some money if you want to use these APIs.</p></li>
+</ul>
+<ul class="simple">
+<li><p>In speech recognition, you are given a sequence of sound waves and your job is to recognize the corresponding sequence of phonemes or words.</p></li>
+<li><p>Phonemes: distinct units of sound. For example:</p>
+<ul>
+<li><p>tree <span class="math notranslate nohighlight">\(\rightarrow\)</span> T R IY</p></li>
+<li><p>cat <span class="math notranslate nohighlight">\(\rightarrow\)</span> K AE T</p></li>
+<li><p>stats <span class="math notranslate nohighlight">\(\rightarrow\)</span> S T AE T S</p></li>
+<li><p>eks <span class="math notranslate nohighlight">\(\rightarrow\)</span> E K S</p></li>
+</ul>
+</li>
+<li><p>There are ~44 phonemes in North American English.</p></li>
+<li><p>Is it possible to use the ML models we learned in 571, 573, 563 for this problem?</p></li>
+<li><p>In written text, we know that certain transitions are more likely than others</p>
+<ul>
+<li><p>“th” as in “this”</p></li>
+<li><p>“sh” as in “shoe”</p></li>
+<li><p>“ch” as in “chair”</p></li>
+<li><p>“ck” as in “back”</p></li>
+</ul>
+</li>
+<li><p>Which transition do you think is easier and more natural/efficient/common for phonemes?</p>
+<ul>
+<li><p>/s/ to /t/: “stop”, “best”, “fast”</p></li>
+<li><p>/t/ and /r/: “try”, “tree”, “train”</p></li>
+<li><p>/f/ to /v/: “of value”</p></li>
+<li><p>/s/ to /b/</p></li>
+<li><p>In other words is it easier to say “stop” or “of value”?</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<ul class="simple">
+<li><p>Speech recognition is a sequence modeling problem.</p>
+<ul>
+<li><p>It’s a good idea to incorporate sequential information in the model for speech recognition.</p></li>
+</ul>
+</li>
+<li><p>Many modern statistical speech recognition systems are based on hidden Markov models.</p></li>
+</ul>
+</section>
+<section id="hmms-intuition">
+<h3>1.2 HMMs intuition<a class="headerlink" href="#hmms-intuition" title="Permalink to this heading">#</a></h3>
+<p><strong>Observable Markov models</strong></p>
+<ul class="simple">
+<li><p>Example</p>
+<ul>
+<li><p>States: {uniformly, are, charming}</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/observable_Markov.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/observable_Markov.png" height="600" width="600"> -->
+<!-- </center> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/A.pdf">Source</a></p>
+<p><strong>Hidden phenomenon</strong></p>
+<p>Very often the things you observe in the real world can be thought of as a function of some other <strong>hidden</strong> variables.</p>
+<p>Example 1:</p>
+<ul class="simple">
+<li><p>Observations: Acoustic features of the speech signal, hidden states: phonemes that are spoken</p></li>
+</ul>
+<p>Example 2:</p>
+<ul class="simple">
+<li><p>Observations: Words, hidden states: parts-of-speech</p></li>
+</ul>
+<p><img alt="" src="../_images/hmm_pos_tagging.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/hmm_pos_tagging.png" height="1000" width="1000"> -->
+<!-- </center> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/8.pdf">Source</a></p>
+<p>More examples</p>
+<ul class="simple">
+<li><p>Observations: Encrypted symbols, hidden states: messages</p></li>
+<li><p>Observations: Exchange rates, hidden states: volatility of the market</p></li>
+</ul>
+<!-- ![](img/stock_market_hmm.png) --><p>Recently, neural models have overshadowed HMMs in many areas, especially in NLP and tasks requiring the processing of long sequences. That said, HMMs are not obsolete. Their simplicity, interpretability, and efficiency in modeling temporal or sequential data make them suitable for applications where</p>
+<ul class="simple">
+<li><p>the data sequences are not excessively long or</p></li>
+<li><p>the computational resources are limited</p></li>
+</ul>
+<p>HMMS still shine in the following areas:</p>
+<ul class="simple">
+<li><p>Speech Recognition</p></li>
+<li><p>Bioinformatics</p></li>
+<li><p>Financial Modeling</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="hmm-definition-and-example">
+<h2>2. HMM definition and example<a class="headerlink" href="#hmm-definition-and-example" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Last week we used the following toy example to demonstrate how do we learn initial state probabilities and transition probabilities in Markov models.</p></li>
+<li><p>Imagine you’re developing a system for a company interested in tailoring its services based on users’ emotional states. (Though, remember, this is a simplified and hypothetical scenario to understand HMMs, not a real-world application due to privacy and ethical considerations.)</p></li>
+<li><p>In this scenario, the company cannot directly know a person’s emotional state because it’s ‘hidden’. However, they can observe behaviors through activity on their platform, like the types of videos watched or search queries.</p></li>
+</ul>
+<p><img alt="" src="../_images/activity-seqs.png" /></p>
+<!-- <img src="img/activity-seqs.png" height="800" width="800"> --><section id="markov-process-with-hidden-variables-example">
+<h3>2.1 Markov process with hidden variables: Example<a class="headerlink" href="#markov-process-with-hidden-variables-example" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Let’s simplify above example.</p></li>
+<li><p>Suppose you have a little robot that is trying to estimate the posterior probability that you are <strong>Happy (H or 🙂)</strong> or <strong>Sad (S or 😔)</strong>, given that the robot has observed whether you are doing one of the following activities:</p>
+<ul>
+<li><p><strong>Learning data science (L or 📚)</strong></p></li>
+<li><p><strong>Eat (E or 🍎)</strong></p></li>
+<li><p><strong>Cry (C or 😿)</strong></p></li>
+<li><p><strong>Social media (F)</strong></p></li>
+</ul>
+</li>
+<li><p>The robot is trying to estimate the unknown (hidden) state <span class="math notranslate nohighlight">\(Q\)</span>, where <span class="math notranslate nohighlight">\(Q =H\)</span> when you are happy (🙂) and <span class="math notranslate nohighlight">\(Q = S\)</span> when you are sad (😔).</p></li>
+<li><p>The robot is able to observe the activity you are doing: <span class="math notranslate nohighlight">\(O = {L, E, C, F}\)</span></p></li>
+<li><p>By observing activities, the goal is to infer the underlying emotional states (the hidden states) and understand the transition patterns between these states.</p></li>
+</ul>
+<p>(Attribution: Example adapted from <a class="reference external" href="https://www.cs.ubc.ca/~nando/340-2012/lectures/l6.pdf">here</a>.)</p>
+<ul class="simple">
+<li><p>Example questions we are interested in answering are:</p>
+<ul>
+<li><p>Given an HMM, what is the probability of observation sequence 📚📚😿📚📚? (this lecture)</p></li>
+<li><ul>
+<li><p>Given an HMM, what is the best possible sequence of state of mind (e.g.,🙂,🙂,😔,🙂,🙂 ) given an observation sequence (e.g., L,L,C,L,L or 📚📚😿📚📚). (next lecture)</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="hmm-ingredients">
+<h3>2.2 HMM ingredients<a class="headerlink" href="#hmm-ingredients" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>State space (e.g., 🙂 (H), 😔 (S))</p></li>
+<li><p>An initial probability distribution over the states</p></li>
+<li><p>Transition probabilities</p></li>
+<li><p><strong>Emission probabilities</strong></p>
+<ul>
+<li><p>Conditional probabilities for all observations given a hidden state</p></li>
+<li><p>Example: Below <span class="math notranslate nohighlight">\(P(L|🙂) = 0.7\)</span> and <span class="math notranslate nohighlight">\(P(L|😔) = 0.1\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/HMM_example_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example.png" height="600" width="600"> -->
+<!-- </center> --><p><strong>Definition of an HMM</strong></p>
+<ul class="simple">
+<li><p>A hidden Markov model (HMM) is specified by the 5-tuple:  <span class="math notranslate nohighlight">\(\{S, Y, \pi, T, B\}\)</span></p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(S = \{s_1, s_2, \dots, s_n\}\)</span> is a set of states (e.g., moods)</p></li>
+<li><p><strong><span class="math notranslate nohighlight">\(Y = \{y_1, y_2, \dots, y_k\}\)</span> is output alphabet (e.g., set of activities)</strong></p></li>
+<li><p><span class="math notranslate nohighlight">\(\pi = {\pi_1, \pi_2, \dots, \pi_n}\)</span> is discrete initial state probability distribution</p></li>
+<li><p>Transition probability matrix <span class="math notranslate nohighlight">\(T\)</span>, where each <span class="math notranslate nohighlight">\(a_{ij}\)</span> represents the probability of moving from state <span class="math notranslate nohighlight">\(s_i\)</span> to state <span class="math notranslate nohighlight">\(s_j\)</span></p></li>
+<li><p><strong>Emission probabilities B = $b_i(o), i \in S, o \in Y$</strong></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Yielding the state sequence and the observation sequences in an unrolled HMM</p>
+<ul>
+<li><p>State sequence: <span class="math notranslate nohighlight">\(Q = {q_0,q_1, q_2, \dots q_T}, q_i \in S\)</span></p></li>
+<li><p>Observation sequence: <span class="math notranslate nohighlight">\(O = {o_0,o_1, o_2, \dots o_T}, o_i \in Y\)</span></p></li>
+</ul>
+</li>
+</ul>
+<!-- ![](img/HMM_unrolling_timesteps.png) -->
+<!-- <center> -->
+<!-- <img src="img/HMM_example.png" height="600" width="600"> -->
+<!-- </center> -->
+<!-- <center> -->
+<!-- <img src="img/HMM_unrolling_timesteps.png" height="700" width="700"> -->
+<!-- </center> --><p>Here is an example of an unrolled HMM for six time steps, a possible realization of a sequence of states and a sequence of observations.</p>
+<p><img alt="" src="../_images/HMM_unrolling_timesteps.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_unrolling_timesteps.png" height="800" width="800"> -->
+<!-- </center> -->
+<ul class="simple">
+<li><p>Each state produces only a single observation and the sequence of hidden states and the sequence of observations have the same length.</p></li>
+</ul>
+</section>
+<section id="hmm-assumptions">
+<h3>2.2 HMM assumptions<a class="headerlink" href="#hmm-assumptions" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>The probability of a particular state only depends on the previous state.</strong></p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(q_i|q_0,q_1,\dots,q_{i-1})\)</span> = <span class="math notranslate nohighlight">\(P(q_i|q_{i-1})\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>The probability of an output observation <span class="math notranslate nohighlight">\(o_i\)</span> depends only on the state that produces the observation and not on any other state or any other observation.</strong></p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(o_i|q_0,q_1,\dots,q_{i}, o_0,o_1,\dots,o_{i-1})\)</span> = <span class="math notranslate nohighlight">\(P(o_i|q_i)\)</span></p></li>
+</ul>
+</li>
+</ul>
+<!-- ![](img/HMM_unrolling_timesteps.png) -->
+<p><br><br><br><br></p>
+</section>
+<section id="three-fundamental-questions-for-an-hmm">
+<h3>2.3 Three fundamental questions for an HMM<a class="headerlink" href="#three-fundamental-questions-for-an-hmm" title="Permalink to this heading">#</a></h3>
+<section id="likelihood">
+<h4>Likelihood<a class="headerlink" href="#likelihood" title="Permalink to this heading">#</a></h4>
+<p>Given a model with parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, T, B&gt;\)</span>, how do we efficiently compute the likelihood of a particular observation sequence <span class="math notranslate nohighlight">\(O\)</span>?</p>
+</section>
+<section id="decoding">
+<h4>Decoding<a class="headerlink" href="#decoding" title="Permalink to this heading">#</a></h4>
+<p>Given an observation sequence <span class="math notranslate nohighlight">\(O\)</span> and a model <span class="math notranslate nohighlight">\(\theta\)</span> how do we choose a state sequence <span class="math notranslate nohighlight">\(Q={q_0, q_1, \dots q_T}\)</span> that best explains the observation sequence?</p>
+</section>
+<section id="learning">
+<h4>Learning<a class="headerlink" href="#learning" title="Permalink to this heading">#</a></h4>
+<p>Training: Given a large observation sequence <span class="math notranslate nohighlight">\(O\)</span> how do we choose the best parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p>
+<p><br><br></p>
+</section>
+</section>
+</section>
+<section id="questions-for-you">
+<h2>❓❓ Questions for you<a class="headerlink" href="#questions-for-you" title="Permalink to this heading">#</a></h2>
+<section id="exercise-3-1-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 3.1: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-3-1-select-all-of-the-following-statements-which-are-true-iclicker" title="Permalink to this heading">#</a></h3>
+<p><strong>iClicker join link: https://join.iclicker.com/ZTLY</strong></p>
+<ul class="simple">
+<li><p>(A) Emission probabilities in our toy example give us the probabilities of being happy or sad given that you are performing one of the four activities: Learn, Eat, Cry, Facebook.</p></li>
+<li><p>(B) In hidden Markov models, the observation at time step <span class="math notranslate nohighlight">\(t\)</span> is conditionally independent of previous observations and previous hidden states given the hidden state at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>(C) In hidden Markov models, given the hidden state at time <span class="math notranslate nohighlight">\(t-1\)</span>, the hidden state at time step <span class="math notranslate nohighlight">\(t\)</span> is conditionally independent of the previous hidden states and observations.</p></li>
+<li><p>(D) In hidden Markov models, each hidden state has a probability distribution over all observations.</p></li>
+</ul>
+<p><br><br><br><br></p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 3.1: V’s Solutions!</p>
+<ul class="simple">
+<li><p>B, C, D</p></li>
+</ul>
+</div>
+</section>
+<section id="exercise-3-2-discuss-the-following-questions-with-your-neighbour">
+<h3>Exercise 3.2: Discuss the following questions with your neighbour.<a class="headerlink" href="#exercise-3-2-discuss-the-following-questions-with-your-neighbour" title="Permalink to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>What are the parameters <span class="math notranslate nohighlight">\(\theta\)</span> of a hidden Markov model?</p></li>
+<li><p>Below is a hidden Markov model that relates numbers of ice creams eaten by Jason to the weather. Identify observations, hidden states, transition probabilities, and emission probabilities in the model.</p></li>
+</ol>
+<p><img alt="" src="../_images/ice-cream-hmm.png" /></p>
+<!-- <img src="img/ice-cream-hmm.png" height="600" width="600"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/A.pdf">Source</a></p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 3.2: V’s Solutions!</p>
+<ol class="arabic simple">
+<li><p>initial state probabilities <span class="math notranslate nohighlight">\(\pi_0\)</span>, transition probabilities <span class="math notranslate nohighlight">\(T\)</span>, emission probabilities <span class="math notranslate nohighlight">\(B\)</span></p></li>
+<li></li>
+</ol>
+<ul class="simple">
+<li><p>Observations: 1, 2, 3</p></li>
+<li><p>Hidden states: HOT, COLD</p></li>
+<li><p>transition probabilities:</p></li>
+</ul>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head text-center"><p>HOT</p></th>
+<th class="head text-right"><p>COLD</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HOT</p></td>
+<td class="text-center"><p>0.6</p></td>
+<td class="text-right"><p>0.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>COLD</p></td>
+<td class="text-center"><p>0.5</p></td>
+<td class="text-right"><p>0.5</p></td>
+</tr>
+</tbody>
+</table>
+<p>Emission probabilities:</p>
+<table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head text-center"><p>1</p></th>
+<th class="head text-right"><p>2</p></th>
+<th class="head text-right"><p>3</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>HOT</p></td>
+<td class="text-center"><p>0.2</p></td>
+<td class="text-right"><p>0.4</p></td>
+<td class="text-right"><p>0.4</p></td>
+</tr>
+<tr class="row-odd"><td><p>COLD</p></td>
+<td class="text-center"><p>0.5</p></td>
+<td class="text-right"><p>0.4</p></td>
+<td class="text-right"><p>0.1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<section id="break-5-mins">
+<h3>Break (~5 mins)<a class="headerlink" href="#break-5-mins" title="Permalink to this heading">#</a></h3>
+<p><img alt="" src="../_images/eva-coffee.png" /></p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="id1">
+<h2>3. Likelihood<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<p>In the context of HMMs, the likelihood of an observation sequence is the probability of observing that sequence given a particular set of model parameters <span class="math notranslate nohighlight">\(\theta\)</span>.</p>
+<p>Given a model with parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, T, B&gt;\)</span>, how do we efficiently compute the likelihood of a particular observation sequence <span class="math notranslate nohighlight">\(O\)</span>?</p>
+<ul class="simple">
+<li><p>Example: What’s the probability of the sequence below?</p></li>
+</ul>
+<p><img alt="" src="lectures/img/HMM_example_activity_seq_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_activity_seq.png" height="400" width="400"> -->
+<!-- </center> -->
+<ul class="simple">
+<li><p>Recall that in HMMs, the observations are dependent upon the hidden states in the same time step. Let’s consider a particular state sequence.
+<br><br></p></li>
+</ul>
+<p><img alt="" src="lectures/img/HMM_likelihood_known_hidden_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_likelihood_known_hidden.png" height="500" width="500"> -->
+<!-- </center> --><section id="probability-of-an-observation-sequence-given-the-state-sequence">
+<h3>Probability of an observation sequence given the state sequence<a class="headerlink" href="#probability-of-an-observation-sequence-given-the-state-sequence" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Suppose we know both the sequence of hidden states (moods) and the sequence of activities emitted by them.</p></li>
+<li><p><span class="math notranslate nohighlight">\(P(O|Q) = \prod\limits_{i=1}^{T} P(o_i|q_i)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P(E L F C|🙂 🙂 😔 😔) = P(E|🙂) \times P(L|🙂) \times P(F|😔) \times P(C|😔)\)</span></p></li>
+</ul>
+</section>
+<section id="joint-probability-of-observations-and-a-possible-hidden-sequence">
+<h3>3.1 Joint probability of observations and a possible hidden sequence<a class="headerlink" href="#joint-probability-of-observations-and-a-possible-hidden-sequence" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Let’s consider the joint probability of being in a particular state sequence <span class="math notranslate nohighlight">\(Q\)</span> and generating a particular sequence <span class="math notranslate nohighlight">\(O\)</span> of activities.</p></li>
+<li><p><span class="math notranslate nohighlight">\(P(O,Q) = P(O|Q)\times P(Q) = \prod\limits_{i=1}^T P(o_i|q_i) \times \prod\limits_{i=1}^T P(q_i|q_{i-1})\)</span></p></li>
+</ul>
+<br>
+<p><img alt="" src="lectures/img/HMM_likelihood_unknown_hidden_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_likelihood_unknown_hidden.png" height="600" width="500"> -->
+<!-- </center> --><p>For example, for our toy sequence:</p>
+<div class="amsmath math notranslate nohighlight" id="equation-ef5ae14b-0264-4d39-a499-d6fa87b21f11">
+<span class="eqno">(5)<a class="headerlink" href="#equation-ef5ae14b-0264-4d39-a499-d6fa87b21f11" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+P(E L F C, 🙂 🙂 😔 😔) = &amp; P(🙂|start)\\ 
+                          &amp; \times P(🙂|🙂) \times P(😔|🙂) \times P(😔|😔)\\
+                          &amp; \times P(E|🙂) \times P(L|🙂) \times P(F|😔) \times P(C|😔)\\
+                      = &amp; 0.8 \times 0.7 \times 0.3 \times 0.6 \times 0.2 \times 0.7 \times 0.2 \times 0.6 
+\end{split}
+\end{equation}\]</div>
+</section>
+<section id="total-probability-of-an-observation-sequence">
+<h3>3.2 Total probability of an observation sequence<a class="headerlink" href="#total-probability-of-an-observation-sequence" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>But we do not know the hidden state sequence <span class="math notranslate nohighlight">\(Q\)</span>.</p></li>
+<li><p>We need to look at all combinations of hidden states.</p></li>
+<li><p>We need to compute the probability of activity sequence (ELFC) by summing over all possible state (mood) sequences.</p></li>
+<li><p><span class="math notranslate nohighlight">\(P(O) = \sum\limits_Q P(O,Q) = \sum\limits_QP(O|Q)P(Q)\)</span></p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-f3fbcfd1-be5f-4b55-97df-0c90e49daaf5">
+<span class="eqno">(6)<a class="headerlink" href="#equation-f3fbcfd1-be5f-4b55-97df-0c90e49daaf5" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+P(E L F C) = &amp; P(E L F C,🙂🙂🙂🙂)\\ 
+             &amp; + P(E L F C,🙂🙂🙂😔)\\
+             &amp; + P(E L F C,🙂🙂😔😔) + \dots
+\end{split}
+\end{equation}\]</div>
+<ul class="simple">
+<li><p>Computationally inefficient</p>
+<ul>
+<li><p>For HMMs with <span class="math notranslate nohighlight">\(n\)</span> hidden states and an observation sequence of <span class="math notranslate nohighlight">\(T\)</span> observations, there are <span class="math notranslate nohighlight">\(n^T\)</span> possible hidden sequences!!</p></li>
+<li><p>In real-world problems both <span class="math notranslate nohighlight">\(n\)</span> and <span class="math notranslate nohighlight">\(T\)</span> are large numbers.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>How to compute <span class="math notranslate nohighlight">\(P(O)\)</span> cleverly?</strong></p>
+<ul class="simple">
+<li><p>To avoid this complexity we use <strong>dynamic programming</strong>; we remember the results rather than recomputing them.</p></li>
+<li><p>We make a <strong>trellis</strong> which is an array of states vs. time.</p></li>
+<li><p>Note the alternative paths in the trellis. We are covering all the 16 combinations of states.</p></li>
+<li><p>We compute <span class="math notranslate nohighlight">\(\alpha_i(t)\)</span> at each <span class="math notranslate nohighlight">\((i,t)\)</span>, which represents the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> after seeing all previous observations and the current observation at time step <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+</ul>
+<p><img alt="" src="../_images/HMM_trellis_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_trellis.png" height="400" width="400"> -->
+<!-- </center> --></section>
+<section id="the-forward-procedure">
+<h3>3.3 The forward procedure<a class="headerlink" href="#the-forward-procedure" title="Permalink to this heading">#</a></h3>
+<p><strong>Intuition</strong></p>
+<ul class="simple">
+<li><p>To compute <span class="math notranslate nohighlight">\(\alpha_j(t)\)</span>, we can compute <span class="math notranslate nohighlight">\(\alpha_{i}(t-1)\)</span> for all possible states <span class="math notranslate nohighlight">\(i\)</span> and then use our knowledge of <span class="math notranslate nohighlight">\(a_{ij}\)</span> and <span class="math notranslate nohighlight">\(b_j(o_t)\)</span>.</p></li>
+<li><p>We compute the trellis left-to-right because of the convention of time.</p></li>
+<li><p>Remember that <span class="math notranslate nohighlight">\(o_t\)</span> is fixed and known.</p></li>
+</ul>
+<p><strong>Three steps of the forward procedure.</strong></p>
+<ul class="simple">
+<li><p>Initialization: Compute the <span class="math notranslate nohighlight">\(\alpha\)</span> values for nodes in the first column of the trellis <span class="math notranslate nohighlight">\((t = 0)\)</span>.</p></li>
+<li><p>Induction: Iteratively compute the <span class="math notranslate nohighlight">\(\alpha\)</span> values for nodes in the rest of the trellis <span class="math notranslate nohighlight">\((1 \leq t &lt; T)\)</span>.</p></li>
+<li><p>Conclusion: Sum over the <span class="math notranslate nohighlight">\(\alpha\)</span> values for nodes in the last column of the trellis <span class="math notranslate nohighlight">\((t = T)\)</span>.</p></li>
+</ul>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> -->
+<section id="the-forward-procedure-initialization-alpha-0-and-alpha-0">
+<h4>3.3.1 The forward procedure: Initialization <span class="math notranslate nohighlight">\(\alpha_🙂(0)\)</span> and <span class="math notranslate nohighlight">\(\alpha_😔(0)\)</span><a class="headerlink" href="#the-forward-procedure-initialization-alpha-0-and-alpha-0" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Compute the nodes in the first column of the trellis <span class="math notranslate nohighlight">\((T = 0)\)</span>.</p>
+<ul>
+<li><p>Probability of starting at state 🙂 and observing the activity E: <span class="math notranslate nohighlight">\(\alpha_🙂(0) = \pi_🙂 \times b_🙂(E) = 0.8 \times 0.2 = 0.16\)</span></p></li>
+<li><p>Probability of starting at state 😔 and observing the activity E: <span class="math notranslate nohighlight">\(\alpha_😔(0) = \pi_😔 \times b_😔(E) = 0.2 \times 0.1 = 0.02\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> -->
+</section>
+<section id="the-forward-procedure-induction">
+<h4>3.3.2 The forward procedure: Induction<a class="headerlink" href="#the-forward-procedure-induction" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Iteratively compute the nodes in the rest of the trellis <span class="math notranslate nohighlight">\((1 \leq t &lt; T)\)</span>.</p></li>
+<li><p>To compute <span class="math notranslate nohighlight">\(\alpha_j(t+1)\)</span> we can compute <span class="math notranslate nohighlight">\(\alpha_{i}(t)\)</span> for all possible states <span class="math notranslate nohighlight">\(i\)</span> and then use our knowledge of <span class="math notranslate nohighlight">\(a_{ij}\)</span> and <span class="math notranslate nohighlight">\(b_j(o_{t+1})\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+</ul>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> -->
+<p><strong>The forward procedure: Induction <span class="math notranslate nohighlight">\(\alpha_🙂(1)\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+<li><p>Probability of being at state 🙂 at <span class="math notranslate nohighlight">\(t=1\)</span> and observing the activity L</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-8b65d654-333c-4c53-8a8b-b82b63887a07">
+<span class="eqno">(7)<a class="headerlink" href="#equation-8b65d654-333c-4c53-8a8b-b82b63887a07" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\alpha_🙂(1) = &amp; \alpha_🙂(0)a_{🙂🙂}b_🙂(L) + \alpha_😔(0)a_{😔🙂}b_🙂(L)\\
+             = &amp; 0.16 \times 0.7 \times 0.7 + 0.02 \times 0.4 \times 0.7\\ 
+             = &amp; 0.084\\
+\end{split}
+\end{equation}\]</div>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> -->
+<p><strong>The forward procedure: Induction <span class="math notranslate nohighlight">\(\alpha_😔(1)\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+<li><p>Probability of being at state 😔 at <span class="math notranslate nohighlight">\(t=1\)</span> and observing the activity L:</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-3f4b00a9-0e61-4390-b0b1-c800fb265e69">
+<span class="eqno">(8)<a class="headerlink" href="#equation-3f4b00a9-0e61-4390-b0b1-c800fb265e69" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}             
+\alpha_😔(1) = &amp; \alpha_🙂(0)a_{🙂😔}b_😔(L) + \alpha_😔(0)a_{😔😔}b_😔(L)\\
+             = &amp; 0.16 \times 0.3 \times 0.1 + 0.02 \times 0.6 \times 0.1\\
+             = &amp; 0.006\\
+\end{split}
+\end{equation}\]</div>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> --><p><strong>The forward procedure: Induction <span class="math notranslate nohighlight">\(\alpha_🙂(2)\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+<li><p>Probability of being at state 🙂 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing the activity F</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-5774a6d3-2157-48d7-81c5-4dfb133c054d">
+<span class="eqno">(9)<a class="headerlink" href="#equation-5774a6d3-2157-48d7-81c5-4dfb133c054d" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\alpha_🙂(2) = &amp; \alpha_🙂(1)a_{🙂🙂}b_🙂(F) + \alpha_😔(1)a_{😔🙂}b_🙂(F)\\
+             = &amp; 0.084 \times 0.7 \times 0.0 + 0.006 \times 0.4 \times 0.0\\ 
+             = &amp; 0.0\\
+\end{split}
+\end{equation}\]</div>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> --><p><strong>The forward procedure: Induction <span class="math notranslate nohighlight">\(\alpha_😔(2)\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+<li><p>Probability of being at state 😔 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing the activity F:</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-1893a3a4-6e85-45c8-b965-a1e7a4b576b1">
+<span class="eqno">(10)<a class="headerlink" href="#equation-1893a3a4-6e85-45c8-b965-a1e7a4b576b1" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}             
+\alpha_😔(2) = &amp; \alpha_🙂(1)a_{🙂😔}b_😔(F) + \alpha_😔(1)a_{😔😔}b_😔(F)\\
+             = &amp; 0.084 \times 0.3 \times 0.2 + 0.006 \times 0.6 \times 0.2\\
+             = &amp; 0.00576\\
+\end{split}
+\end{equation}\]</div>
+<!-- ![](img/HMM_example_trellis.png) -->
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> --><p><strong>The forward procedure: Induction <span class="math notranslate nohighlight">\(\alpha_🙂(3)\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+<li><p>Probability of being at state 🙂 at <span class="math notranslate nohighlight">\(t=3\)</span> and observing the activity C:</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-a8911255-b27d-41fa-8e25-37884b0525d6">
+<span class="eqno">(11)<a class="headerlink" href="#equation-a8911255-b27d-41fa-8e25-37884b0525d6" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\alpha_🙂(3) = &amp; \alpha_🙂(2)a_{🙂🙂}b_🙂(C) + \alpha_😔(2)a_{😔🙂}b_🙂(C)\\
+             = &amp; 0 \times 0.7 \times 0.1 + 0.00576 \times 0.4 \times 0.1\\ 
+             = &amp; 2.3 \times 10^{-4}\\
+\end{split}
+\end{equation}\]</div>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> --><p><strong>The forward procedure: Induction <span class="math notranslate nohighlight">\(\alpha_😔(3)\)</span></strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_j(t+1) = \sum\limits_{i=1}^n \alpha_i(t) a_{ij} b_j(o_{t+1})\)</span></p></li>
+<li><p>Probability of being at state 😔 at <span class="math notranslate nohighlight">\(t=3\)</span> and observing the activity C:</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-5436d598-b3b4-42d1-bd6c-4368ae74c5f9">
+<span class="eqno">(12)<a class="headerlink" href="#equation-5436d598-b3b4-42d1-bd6c-4368ae74c5f9" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}             
+\alpha_😔(3) = &amp; \alpha_🙂(2)a_{🙂😔}b_😔(C) + \alpha_😔(2)a_{😔😔}b_😔(C)\\
+             = &amp; 0.0 \times 0.3 \times 0.6 + 0.00576 \times 0.6 \times 0.6\\
+             = &amp; 2.07 \times 10^{-3}\\
+\end{split}
+\end{equation}\]</div>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> --></section>
+<section id="the-forward-procedure-conclusion">
+<h4>3.3.3 The forward procedure: Conclusion<a class="headerlink" href="#the-forward-procedure-conclusion" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Sum over all possible final states:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(O;\theta) = \sum\limits_{i=1}^{n}\alpha_i(T-1)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P(E,L,F,C) = \alpha_🙂(3) + \alpha_😔(3) = 2.3 \times 10^{-4} + 2.07 \times 10^{-3}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700"> -->
+<!-- </center> -->
+</section>
+<section id="recap-the-forward-algorithm">
+<h4>Recap: The forward algorithm<a class="headerlink" href="#recap-the-forward-algorithm" title="Permalink to this heading">#</a></h4>
+<ul class="simple">
+<li><p>The forward algorithm computes likelihood of a given observation sequence: <span class="math notranslate nohighlight">\(P(O;\theta)\)</span>.</p></li>
+<li><p>For each state <span class="math notranslate nohighlight">\(i\)</span>, we calculated <span class="math notranslate nohighlight">\(\alpha_i(0), \alpha_i(1), \alpha_i(2), ...\alpha_i(t)\)</span>, which represent the probabilities of being in state <span class="math notranslate nohighlight">\(i\)</span> at times <span class="math notranslate nohighlight">\(t\)</span> knowing all the observations which came before and at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>The trellis was computed left to right and top to bottom.</p></li>
+<li><p>The forward algorithm stores the probabilities of all possible 1-state sequences (from the start), to store all possible 2-state sequences (from the start), to store all possible 3-state sequences (from the start) and so on.</p></li>
+</ul>
+<p><img alt="" src="../_images/hmm_alpha_values.png" /></p>
+<ul class="simple">
+<li><p>Sum over all possible final states:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(O;\theta) = \sum\limits_{i=1}^{n}\alpha_i(T-1)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P(E,L,F,C) = \alpha_🙂(3) + \alpha_😔(3) = 0.00023 + 0.00207 = 0.0023\)</span></p></li>
+</ul>
+</li>
+</ul>
+<!-- <center> -->
+<!-- <img src="img/hmm_alpha_values.png" height="500" width="500">  -->
+<!-- </center> --><p><br><br><br><br></p>
+</section>
+</section>
+</section>
+<section id="supervised-training-of-hmms">
+<h2>4. Supervised training of HMMs<a class="headerlink" href="#supervised-training-of-hmms" title="Permalink to this heading">#</a></h2>
+<section id="id2">
+<h3>4.1 Supervised training of HMMs<a class="headerlink" href="#id2" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Suppose we have training data where we have <span class="math notranslate nohighlight">\(O\)</span> and corresponding <span class="math notranslate nohighlight">\(Q\)</span>, then we can use MLE to learn parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, T, B&gt;\)</span></p></li>
+<li><p>Get transition matrix and the emission probabilities.</p>
+<ul>
+<li><p>Suppose <span class="math notranslate nohighlight">\(i\)</span>, <span class="math notranslate nohighlight">\(j\)</span> are unique states from the state space and <span class="math notranslate nohighlight">\(k\)</span> is a unique observation.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\pi_0(i) = P(q_0 = i) = \frac{Count(q_0 = i)}{\#sequences}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(a_{ij} = P(q_{t+1} = j|q_t = i) = \frac{Count(i,j)}{Count(i, anything)}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(b_i(k) = P(o_{t} = k|q_t = i) = \frac{Count(i,k)}{Count(i, anything)}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/HMM_unrolling_timesteps.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_unrolling_timesteps.png" height="700" width="700"> -->
+<!-- </center> --><ul class="simple">
+<li><p>Suppose we have training data where we have <span class="math notranslate nohighlight">\(O\)</span> and corresponding <span class="math notranslate nohighlight">\(Q\)</span>, then we can use MLE to learn parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, T, B&gt;\)</span></p>
+<ul>
+<li><p>Count how often <span class="math notranslate nohighlight">\(q_{i-1}\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span> occur together normalized by how often <span class="math notranslate nohighlight">\(q_{i-1}\)</span> occurs with anything:
+<span class="math notranslate nohighlight">\(p(q_i|q_{i-1}) = \frac{Count(q_{i-1} q_i)}{Count(q_{i-1} \text{anything})}\)</span></p></li>
+<li><p>Count how often <span class="math notranslate nohighlight">\(q_i\)</span> is associated with the observation <span class="math notranslate nohighlight">\(o_i\)</span>.<br />
+<span class="math notranslate nohighlight">\(p(o_i|q_{i}) = \frac{Count(o_i \wedge q_i)}{Count(q_{i} \text{anything})}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<!-- ![](img/HMM_unrolling_timesteps.png) -->
+<!-- <center>
+<img src="img/HMM_unrolling_timesteps.png" height="700" width="700">
+</center> --><p><strong>In real life, all the calculations above are done with log probabilities for numerical stability.</strong></p>
+</section>
+<section id="hmm-libraries">
+<h3>4.2 HMM libraries<a class="headerlink" href="#hmm-libraries" title="Permalink to this heading">#</a></h3>
+<p>Usually, practitioners develop there own version of HMMs suitable for their application. But there are some popular libraries:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://hmmlearn.readthedocs.io/en/latest/">hmmlearn</a></p></li>
+<li><p><a class="reference external" href="https://github.com/jmschrei/pomegranate">pomegranate</a></p></li>
+<li><p><a class="reference external" href="https://htk.eng.cam.ac.uk/">HTK Toolkit</a></p></li>
+</ul>
+<blockquote>
+<div><p>Note that there are not many actively maintained off-the-shelf libraries available for supervised training of HMMs. <a class="reference external" href="https://pypi.org/project/seqlearn/">seqlearn</a> used to be part of <code class="docutils literal notranslate"><span class="pre">sklearn</span></code>. But it’s separated now and is not being maintained.</p>
+</div></blockquote>
+<p>Let’s calculate the likelihood of observing an observation sequence given a particular set of model parameters <span class="math notranslate nohighlight">\(\theta\)</span> using <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code>.</p>
+<p><img alt="" src="../_images/HMM_example_small.png" /></p>
+<!-- <img src="img/HMM_example.png" height="600" width="600"> --><p>To run the code below successfully, you need install <code class="docutils literal notranslate"><span class="pre">networkx</span></code> and <code class="docutils literal notranslate"><span class="pre">graphviz</span></code>.</p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">graphviz</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">python</span><span class="o">-</span><span class="n">graphviz</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">anaconda</span> <span class="n">networkx</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">-</span><span class="n">c</span> <span class="n">anaconda</span> <span class="n">pydot</span>
+<span class="n">conda</span> <span class="n">install</span> <span class="o">--</span><span class="n">channel</span> <span class="n">conda</span><span class="o">-</span><span class="n">forge</span> <span class="n">pygraphviz</span>
+</pre></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">hmmlearn</span> <span class="kn">import</span> <span class="n">hmm</span>
+
+<span class="c1"># Initializing an HMM</span>
+<span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Happy&quot;</span><span class="p">,</span> <span class="s2">&quot;Sad&quot;</span><span class="p">]</span>
+<span class="n">n_states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+<span class="n">symbols</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Learn&quot;</span><span class="p">,</span> <span class="s2">&quot;Eat&quot;</span><span class="p">,</span> <span class="s2">&quot;Cry&quot;</span><span class="p">,</span> <span class="s2">&quot;Facebook&quot;</span><span class="p">]</span>
+<span class="n">n_observations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">symbols</span><span class="p">)</span>
+
+<span class="n">model</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">CategoricalHMM</span><span class="p">(</span>
+    <span class="n">n_components</span><span class="o">=</span><span class="n">n_states</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span>
+<span class="p">)</span>  <span class="c1"># for discrete observations</span>
+
+<span class="c1"># Set the initial state probabilities</span>
+<span class="n">model</span><span class="o">.</span><span class="n">startprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+
+<span class="c1"># Set the transition matrix</span>
+<span class="n">model</span><span class="o">.</span><span class="n">transmat_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]])</span>
+
+<span class="c1"># Set the emission probabilities of shape (n_components, n_symbols)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">emissionprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualize_hmm</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;happy&quot;</span><span class="p">,</span> <span class="s2">&quot;sad&quot;</span><span class="p">])</span> <span class="c1"># user-defined function from code/plotting_functions.py</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Nodes:
+[&#39;happy&#39;, &#39;sad&#39;]
+</pre></div>
+</div>
+<img alt="../_images/211d455bb6bfbaa405b3f6e279095a0fdefa235ed78415cf5ed2481723a503c6.svg" src="../_images/211d455bb6bfbaa405b3f6e279095a0fdefa235ed78415cf5ed2481723a503c6.svg" /></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Emission probabilities: &quot;</span><span class="p">)</span>
+<span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">model</span><span class="o">.</span><span class="n">emissionprob_</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">symbols</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Emission probabilities: 
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Learn</th>
+      <th>Eat</th>
+      <th>Cry</th>
+      <th>Facebook</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Happy</th>
+      <td>0.7</td>
+      <td>0.2</td>
+      <td>0.1</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Sad</th>
+      <td>0.1</td>
+      <td>0.1</td>
+      <td>0.6</td>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<ul class="simple">
+<li><p>We can calculate the probability of an observation sequence efficiently using the forward algorithm.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code>, we can use the <code class="docutils literal notranslate"><span class="pre">.score</span></code> method of the hmm model to get the log probabilities.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">obs_seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">label_obs_seq</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">symbols</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">obs_seq</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># ?model.score</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span>
+    <span class="s2">&quot;Log likelihood of sequence </span><span class="si">%s</span><span class="s2"> is </span><span class="si">%s</span><span class="s2"> &quot;</span>
+    <span class="o">%</span> <span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">label_obs_seq</span><span class="p">),</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">obs_seq</span><span class="p">))</span>
+<span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Log likelihood of sequence [&#39;Eat&#39;, &#39;Learn&#39;, &#39;Facebook&#39;, &#39;Cry&#39;] is -6.073108536148493 
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="id3">
+<h2>❓❓ Questions for you<a class="headerlink" href="#id3" title="Permalink to this heading">#</a></h2>
+<section id="exercise-3-2-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 3.2: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-3-2-select-all-of-the-following-statements-which-are-true-iclicker" title="Permalink to this heading">#</a></h3>
+<p><strong>iClicker join link: https://join.iclicker.com/ZTLY</strong></p>
+<ul class="simple">
+<li><p>(A) In the forward algorithm we assume that the observation sequence <span class="math notranslate nohighlight">\(O\)</span> and the model parameters are fixed and known.</p></li>
+<li><p>(B) In the forward algorithm, in our notation, <span class="math notranslate nohighlight">\(\alpha_{i}(t)\)</span> represents the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> after seeing all the observations including the observation at time step <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>(C) In the forward algorithm <span class="math notranslate nohighlight">\(\alpha_i(t)\)</span> does not know anything about the future time steps after the time step <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>(D) We conclude the forward procedure by summing over the <span class="math notranslate nohighlight">\(\alpha\)</span> values at the last time step.</p></li>
+<li><p>(E) You can pass sequences of different lengths when training HMMs.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 3.2: V’s Solutions!</p>
+<ul class="simple">
+<li><p>A, B, C, D, E</p></li>
+</ul>
+</div>
+</section>
+</section>
+<section id="id4">
+<h2>❓❓ Questions for you<a class="headerlink" href="#id4" title="Permalink to this heading">#</a></h2>
+<section id="exercise-3-3-discuss-the-following-question-with-your-neighbour">
+<h3>Exercise 3.3: Discuss the following question with your neighbour.<a class="headerlink" href="#exercise-3-3-discuss-the-following-question-with-your-neighbour" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The forward procedure using dynamic programming needs only <span class="math notranslate nohighlight">\(\approx 2n^2T\)</span> multiplications compared to the <span class="math notranslate nohighlight">\(\approx(2T)n^T\)</span> multiplications with the naive approach!! Why? Discuss with your neighbour.</p></li>
+<li><p>Give an advantage of using the forward procedure compared to summing over all possible state combinations of length T.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 3.3: V’s Solutions!</p>
+<p>The forward procedure is a computationally efficient procedure compared to the method of summing over all possible state combinations of length <span class="math notranslate nohighlight">\(T\)</span>. The former requires <span class="math notranslate nohighlight">\(2Tn^T\)</span> multiplications compared to <span class="math notranslate nohighlight">\(2n^2T\)</span> multiplications in the latter, where <span class="math notranslate nohighlight">\(N\)</span> is the number of states and <span class="math notranslate nohighlight">\(T\)</span> is the number of time steps.</p>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="quick-summary">
+<h2>Quick summary<a class="headerlink" href="#quick-summary" title="Permalink to this heading">#</a></h2>
+<section id="summary">
+<h3>Summary<a class="headerlink" href="#summary" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Hidden Markov models (HMMs) model time-series with latent factors.</p></li>
+<li><p>There are tons of applications associated with them and they are more realistic than Markov models.</p></li>
+<li><p>The most successful application of HMMs is speech recognition.</p></li>
+</ul>
+</section>
+<section id="important-ideas-we-learned">
+<h3>Important ideas we learned<a class="headerlink" href="#important-ideas-we-learned" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>HMM ingredients</p>
+<ul>
+<li><p>Hidden states (e.g., Happy, Sad)</p></li>
+<li><p>Output alphabet or output symbols (e.g., learn, study, cry, facebook)</p></li>
+<li><p>Discrete initial state probability distribution</p></li>
+<li><p>Transition probabilities</p></li>
+<li><p>Emission probabilities</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/HMM_example_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example.png" height="600" width="600"> -->
+<!-- </center> --></section>
+<section id="fundamental-questions-for-hmms">
+<h3>Fundamental questions for HMMs<a class="headerlink" href="#fundamental-questions-for-hmms" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Three fundamental questions for HMMs:</p>
+<ul>
+<li><p>likelihood</p></li>
+<li><p>decoding</p></li>
+<li><p>parameter learning</p></li>
+</ul>
+</li>
+<li><p>The forward algorithm is a dynamic programming algorithm to efficiently calculate the probability of an observation sequence given an HMM.</p></li>
+</ul>
+</section>
+<section id="id5">
+<h3>Supervised training of HMMs<a class="headerlink" href="#id5" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>HMMs for POS tagging.</p></li>
+<li><p>Not many tools out there for supervised training of HMMs.</p></li>
+</ul>
+</section>
+<section id="coming-up">
+<h3>Coming up<a class="headerlink" href="#coming-up" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Decoding: Viterbi algorithm</p>
+<ul>
+<li><p>Given an HMM model and an observation sequence, how do we efficiently compute the corresponding hidden state sequence.</p></li>
+</ul>
+</li>
+<li><p>Unsupervised training of HMMs (Optional)</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="resources">
+<h3>Resources<a class="headerlink" href="#resources" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/A.pdf">Hidden Markov Models chapter from Jurafsky and Martin</a></p></li>
+<li><p>Attribution: Many presentation ideas in this notebook are taken from <a class="reference external" href="http://www.cs.toronto.edu/~frank/csc401/lectures2018/5-HMMs.pdf">Frank Rudzicz’s slides</a>.</p></li>
+<li><p><a class="reference external" href="https://vimeo.com/31374528">Jason Eisner’s lecture on hidden Markov Models</a></p></li>
+<li><p><a class="reference external" href="https://cs.jhu.edu/~jason/papers/eisner.hmm.xls">Jason Eisner’s interactive spreadsheet for HMMs</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=JvNkZdZJBt4">Who each player is guarding?</a></p></li>
+<li><p><a class="reference external" href="https://arxiv.org/pdf/cs/0504020v2.pdf">The Viterbi Algorithm: A Personal History</a></p></li>
+<li><p><a class="reference external" href="https://a-little-book-of-r-for-bioinformatics.readthedocs.io/en/latest/src/chapter10.html">A nice demo of independent vs. Markov vs. HMMs for DNA</a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="02_LMs-text-preprocessing.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lecture 2: Applications of Markov Models  and Text Preprocessing</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="04_Viterbi-Baum-Welch.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lecture 4: Decoding and Learning in HMMs</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-lo">Imports, LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation">1. Motivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#speech-recognition">1.1 Speech recognition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmms-intuition">1.2 HMMs intuition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-definition-and-example">2. HMM definition and example</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-process-with-hidden-variables-example">2.1 Markov process with hidden variables: Example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-ingredients">2.2 HMM ingredients</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-assumptions">2.2 HMM assumptions</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-fundamental-questions-for-an-hmm">2.3 Three fundamental questions for an HMM</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#likelihood">Likelihood</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#decoding">Decoding</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#learning">Learning</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 3.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-2-discuss-the-following-questions-with-your-neighbour">Exercise 3.2: Discuss the following questions with your neighbour.</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break-5-mins">Break (~5 mins)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3. Likelihood</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#probability-of-an-observation-sequence-given-the-state-sequence">Probability of an observation sequence given the state sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#joint-probability-of-observations-and-a-possible-hidden-sequence">3.1 Joint probability of observations and a possible hidden sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#total-probability-of-an-observation-sequence">3.2 Total probability of an observation sequence</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure">3.3 The forward procedure</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure-initialization-alpha-0-and-alpha-0">3.3.1 The forward procedure: Initialization <span class="math notranslate nohighlight">\(\alpha_🙂(0)\)</span> and <span class="math notranslate nohighlight">\(\alpha_😔(0)\)</span></a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure-induction">3.3.2 The forward procedure: Induction</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#the-forward-procedure-conclusion">3.3.3 The forward procedure: Conclusion</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-the-forward-algorithm">Recap: The forward algorithm</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#supervised-training-of-hmms">4. Supervised training of HMMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">4.1 Supervised training of HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-libraries">4.2 HMM libraries</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-2-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 3.2: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id4">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-3-3-discuss-the-following-question-with-your-neighbour">Exercise 3.3: Discuss the following question with your neighbour.</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#quick-summary">Quick summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary">Summary</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#important-ideas-we-learned">Important ideas we learned</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#fundamental-questions-for-hmms">Fundamental questions for HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id5">Supervised training of HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#coming-up">Coming up</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Varada Kolhatkar
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

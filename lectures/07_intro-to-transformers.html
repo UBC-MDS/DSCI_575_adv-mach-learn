@@ -1,0 +1,1363 @@
+
+
+<!DOCTYPE html>
+
+
+<html lang="en" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="generator" content="Docutils 0.18.1: http://docutils.sourceforge.net/" />
+
+    <title>Lecture 7: Introduction to self-attention and transformers &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "light";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../_static/styles/theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/bootstrap.css?digest=e353d410970836974a52" rel="stylesheet" />
+<link href="../_static/styles/pydata-sphinx-theme.css?digest=e353d410970836974a52" rel="stylesheet" />
+
+  
+  <link href="../_static/vendor/fontawesome/6.1.2/css/all.min.css?digest=e353d410970836974a52" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../_static/vendor/fontawesome/6.1.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../_static/pygments.css" />
+    <link rel="stylesheet" href="../_static/styles/sphinx-book-theme.css?digest=14f4ca6b54d191a8c7657f6c759bf11a5fb86285" type="text/css" />
+    <link rel="stylesheet" type="text/css" href="../_static/togglebutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/copybutton.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/sphinx-thebe.css" />
+    <link rel="stylesheet" type="text/css" href="../_static/design-style.4045f2051d55cab465a707391d5b2007.min.css" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../_static/scripts/bootstrap.js?digest=e353d410970836974a52" />
+<link rel="preload" as="script" href="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52" />
+
+    <script data-url_root="../" id="documentation_options" src="../_static/documentation_options.js"></script>
+    <script src="../_static/jquery.js"></script>
+    <script src="../_static/underscore.js"></script>
+    <script src="../_static/_sphinx_javascript_frameworks_compat.js"></script>
+    <script src="../_static/doctools.js"></script>
+    <script src="../_static/clipboard.min.js"></script>
+    <script src="../_static/copybutton.js"></script>
+    <script src="../_static/scripts/sphinx-book-theme.js?digest=5a5c038af52cf7bc1a1ec88eea08e6366ee68824"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../_static/togglebutton.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../_static/design-tabs.js"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"
+const thebe_selector = ".thebe,.cell"
+const thebe_selector_input = "pre"
+const thebe_selector_output = ".output, .cell_output"
+</script>
+    <script async="async" src="../_static/sphinx-thebe.js"></script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/07_intro-to-transformers';</script>
+    <link rel="index" title="Index" href="../genindex.html" />
+    <link rel="search" title="Search" href="../search.html" />
+    <link rel="next" title="Lecture 8: More transformers" href="08_more-transformers.html" />
+    <link rel="prev" title="Lecture 6: Introduction to Recurrent Neural Networks (RNNs)" href="06_intro-to-RNNs.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <a class="skip-link" href="#main-content">Skip to main content</a>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__primary"
+          id="__primary"/>
+  <label class="overlay overlay-primary" for="__primary"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          name="__secondary"
+          id="__secondary"/>
+  <label class="overlay overlay-secondary" for="__secondary"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+  
+    <nav class="bd-header navbar navbar-expand-lg bd-navbar">
+    </nav>
+  
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+  
+
+<a class="navbar-brand logo" href="../README.html">
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../_static/mds-hex-sticker.png" class="logo__image only-light" alt="Logo image"/>
+    <script>document.write(`<img src="../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="Logo image"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item"><nav class="bd-links" id="bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models  and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_Viterbi-Baum-Welch.html">Lecture 4: Decoding and Learning in HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_topic-modeling.html">Lecture 5: Topic Modeling</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-RNNs.html">Lecture 6: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lecture 7: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_more-transformers.html">Lecture 8: More transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="class_demos/text-generation.html">Class Demo: Recipe generator</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-PageRank.html">PageRank as a Markov model</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixB-HMM-POS.html">HMM supervised POS tagging</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixC-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixD-LDA-details.html">LDA details</a></li>
+<li class="toctree-l1"><a class="reference internal" href="AppendixE-LSTMs.html">AppendixD: More RNNs, LSTMs</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><label class="sidebar-toggle primary-toggle btn btn-sm" for="__primary" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</label></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.com/UBC-MDS/DSCI_575_adv-mach-learn" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../_sources/lectures/07_intro-to-transformers.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+<script>
+document.write(`
+  <button class="theme-switch-button btn btn-sm btn-outline-primary navbar-btn rounded-circle" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="theme-switch" data-mode="light"><i class="fa-solid fa-sun"></i></span>
+    <span class="theme-switch" data-mode="dark"><i class="fa-solid fa-moon"></i></span>
+    <span class="theme-switch" data-mode="auto"><i class="fa-solid fa-circle-half-stroke"></i></span>
+  </button>
+`);
+</script>
+
+<script>
+document.write(`
+  <button class="btn btn-sm navbar-btn search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+  </button>
+`);
+</script>
+<label class="sidebar-toggle secondary-toggle btn btn-sm" for="__secondary"title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</label>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lecture 7: Introduction to self-attention and transformers</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-lo">Imports and LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributions">Attributions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation">1. Motivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problems-with-rnns">1.2 Problems with RNNs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transformers-the-intuition">1.3 Transformers: the intuition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#self-attention">2. Self-attention</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intuition">2.1 Intuition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-key-operations-in-self-attention">2.2 The key operations in self-attention</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break">Break</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.2: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#positional-embeddings">3. Positional embeddings</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-head-attention">4. Multi-head attention</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transformer-blocks">5. Transformer blocks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#language-models-with-transformers">5.1 Language models with transformers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-and-summary">Final comments and summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article" role="main">
+                  
+  <p><img alt="" src="../_images/575_banner.png" /></p>
+<section class="tex2jax_ignore mathjax_ignore" id="lecture-7-introduction-to-self-attention-and-transformers">
+<h1>Lecture 7: Introduction to self-attention and transformers<a class="headerlink" href="#lecture-7-introduction-to-self-attention-and-transformers" title="Permalink to this heading">#</a></h1>
+<p>UBC Master of Data Science program, 2023-24</p>
+<p>Instructor: Varada Kolhatkar</p>
+<blockquote>
+<div><p><a class="reference external" href="https://arxiv.org/pdf/1706.03762.pdf">Attention is all you need!</a></p>
+</div></blockquote>
+<p><br><br></p>
+<section id="imports-and-lo">
+<h2>Imports and LO<a class="headerlink" href="#imports-and-lo" title="Permalink to this heading">#</a></h2>
+<section id="imports">
+<h3>Imports<a class="headerlink" href="#imports" title="Permalink to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">IPython</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">display</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_colwidth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Intel MKL WARNING: Support of Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) enabled only processors has been deprecated. Intel oneAPI Math Kernel Library 2025.0 will require Intel(R) Advanced Vector Extensions (Intel(R) AVX) instructions.
+Intel MKL WARNING: Support of Intel(R) Streaming SIMD Extensions 4.2 (Intel(R) SSE4.2) enabled only processors has been deprecated. Intel oneAPI Math Kernel Library 2025.0 will require Intel(R) Advanced Vector Extensions (Intel(R) AVX) instructions.
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+</section>
+<section id="learning-outcomes">
+<h3>Learning outcomes<a class="headerlink" href="#learning-outcomes" title="Permalink to this heading">#</a></h3>
+<p>From this lecture you will be able to</p>
+<ul class="simple">
+<li><p>Broadly explain the problem of vanishing gradients.</p></li>
+<li><p>Broadly explain the limitations of RNNs.</p></li>
+<li><p>Explain the idea of self-attention.</p></li>
+<li><p>Describe the three core operations in self-attention.</p></li>
+<li><p>Explain the query, key, and value roles in self-attention.</p></li>
+<li><p>Explain the role of linear projections for query, key, and value in self-attention.</p></li>
+<li><p>Explain transformer blocks.</p></li>
+<li><p>Explain the advantages of using transformers over LSTMs.</p></li>
+<li><p>Broadly explain the idea of multihead attention.</p></li>
+<li><p>Broadly explain the idea of positional embeddings.</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="attributions">
+<h3>Attributions<a class="headerlink" href="#attributions" title="Permalink to this heading">#</a></h3>
+<p>This material is heavily based on <span class="xref myst">Jurafsky and Martin, Chapter 10</span>.</p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="questions-for-you">
+<h2>❓❓ Questions for you<a class="headerlink" href="#questions-for-you" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Suppose you are training a vanilla RNN with one hidden layer.</p>
+<ul>
+<li><p>input representation is of size 200</p></li>
+<li><p>output layer is of size 200</p></li>
+<li><p>the hidden size is 100</p></li>
+</ul>
+</li>
+</ul>
+<section id="exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 7.1: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker" title="Permalink to this heading">#</a></h3>
+<p><strong>iClicker join link: https://join.iclicker.com/ZTLY</strong></p>
+<ul class="simple">
+<li><p>(A) The shape of matrix <span class="math notranslate nohighlight">\(U\)</span> between hidden layers in consecutive time steps is going to be <span class="math notranslate nohighlight">\(200 \times 200\)</span>.</p></li>
+<li><p>(B) The output of the hidden layer is going to be a <span class="math notranslate nohighlight">\(100\)</span> dimensional vector.</p></li>
+<li><p>(C) In bidirectional RNNs, if we want to combine the outputs of two RNNs with element-wise addition, the hidden sizes of the two RNNs have to be the same.</p></li>
+<li><p>(D) Word2vec skipgram model is likely to suffer from the problem of vanishing gradients.</p></li>
+<li><p>(E) In the forward pass, in each time step in RNNs, you calculate the output of the hidden layer by multiplying the input <span class="math notranslate nohighlight">\(x\)</span> by the weight matrix <span class="math notranslate nohighlight">\(W\)</span> or <span class="math notranslate nohighlight">\(W_{xh}\)</span> and applying non-linearity.</p></li>
+</ul>
+<p><br><br><br><br></p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 7.1: V’s Solutions!</p>
+<ul class="simple">
+<li><p>B, C</p></li>
+</ul>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="motivation">
+<h2>1. Motivation<a class="headerlink" href="#motivation" title="Permalink to this heading">#</a></h2>
+<p>What kind of neural network models are at the core of all state-of-the-art Generative AI models (e.g., BERT, GPT3, GPT4, Gemini, DALL-E, Llama, Github Copilot)?</p>
+<p><img alt="" src="../_images/genai.png" /></p>
+<!-- <center>
+<img src="img/gpt3-transformer-blocks.gif" height="500" width="500"> 
+</center>    
+ -->
+<p><a class="reference external" href="https://jalammar.github.io/how-gpt3-works-visualizations-animations/">Source</a>
+<br><br></p>
+<p><img alt="" src="../_images/GPT-4-tech-report-abstract.png" /></p>
+<p>Source: <a class="reference external" href="https://arxiv.org/pdf/2303.08774.pdf">GPT-4 Technical Report</a></p>
+<p><img alt="" src="../_images/BERT-paper-abstract.png" /></p>
+<p>Source: <a class="reference external" href="https://aclanthology.org/N19-1423.pdf">BERT paper</a></p>
+<p><br><br></p>
+<p>Recall the properties we want when we model sequences.</p>
+<ul class="simple">
+<li><p>[ ] Order matters</p></li>
+<li><p>[ ] Variable sequence lengths</p></li>
+<li><p>[ ] Capture long distance dependencies</p></li>
+</ul>
+<p>What are some reasonable predictions for the missing words in the following sentences?</p>
+<blockquote>
+<div><p>The <strong>students</strong> in the exam where the fire <em>alarm</em> <em>is</em> ringing __ really stressed.</p>
+</div></blockquote>
+<blockquote>
+<div><p>The flies munching on the banana that is lying under the tree which is in full bloom __ really happy.</p>
+</div></blockquote>
+<p><br><br></p>
+<p>Markov models are able to represent time and handle variable sequence lengths. But they are unable to represent long-distance dependencies in text.</p>
+<p>Are RNNs able to capture long-distance dependencies in text?</p>
+<p><br><br></p>
+<section id="problems-with-rnns">
+<h3>1.2 Problems with RNNs<a class="headerlink" href="#problems-with-rnns" title="Permalink to this heading">#</a></h3>
+<p>Conceptually, RNNs are supposed to capture long-distance dependencies in text. But in practice, you’ll hardly see people using vanilla RNNs because they are quite hard to train for tasks that require access to distant information. There are three main problems:</p>
+<ul class="simple">
+<li><p>Hard to remember relevant information</p></li>
+<li><p>Hard to optimize</p></li>
+<li><p>Hard to parallelize</p></li>
+</ul>
+<p><strong>Problem 1: Hard to remember relevant information</strong></p>
+<ul class="simple">
+<li><p>In RNNs, the hidden layer and the weights that determine the values in the hidden layer are asked to perform two tasks simultaneously:</p>
+<ul>
+<li><p>Providing information useful for current decision</p></li>
+<li><p>Updating and carrying forward information required for future decisions</p></li>
+</ul>
+</li>
+<li><p>Despite having access to the entire previous sequence, the information encoded in hidden states of RNNs is fairly local.</p></li>
+</ul>
+<p>In the following example:</p>
+<blockquote>
+<div><p>The <strong>students</strong> in the exam where the fire <em>alarm</em> <em>is</em> ringing <strong>are</strong> really stressed.</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Assigning high probability to <strong><em>is</em></strong> following <em>alarm</em> is straightforward since it provides a local context for singular agreement.</p></li>
+<li><p>However, assigning a high probability to <strong><em>are</em></strong> following <em>ringing</em> is quite difficult because not only the plural <em>students</em> is distant, but also the intervening context involves singular constituents.</p></li>
+<li><p>Ideally, we want the network to retain the distant information about the plural <strong><em>students</em></strong> until it’s needed while still processing the intermediate parts of the sequence correctly.</p></li>
+</ul>
+<p><strong>Problem 2: Hard to optimize</strong></p>
+<ul class="simple">
+<li><p>Another difficulty with training RNNs arises from the need to backpropagate the error signal back through time.</p></li>
+<li><p>Recall that we learn RNNs with</p>
+<ul>
+<li><p>Forward pass</p></li>
+<li><p>Backward pass (backprop through time)</p></li>
+</ul>
+</li>
+<li><p>Computing new states and output in RNNs</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}
+h_t = g(Uh_{t-1} + Wx_t + b_1)\\
+y_t = \text{softmax}(Vh_t + b_2)
+\end{split}\]</div>
+<p><img alt="" src="lectures/img/RNN-dynamic-model_small.png" /></p>
+<!-- <center>
+<img src="img/RNN-dynamic-model.png" height="400" width="400"> 
+</center>     --><p>Recall: Backpropagation through time</p>
+<ul class="simple">
+<li><p>When we backprop with feedforward neural networks</p>
+<ul>
+<li><p>Take the gradient (derivative) of the loss with respect to the parameters.</p></li>
+<li><p>Change parameters to minimize the loss.</p></li>
+</ul>
+</li>
+<li><p>In RNNs we use a generalized version of backprop called Backpropogation Through Time (BPTT)</p>
+<ul>
+<li><p>Calculating gradient at each output depends upon the current time step as well as the previous time steps.</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/RNN_loss.png" /></p>
+<!-- <center>    
+<img src="img/RNN_loss.png" height="600" width="600"> 
+</center>
+[Credit](http://cs231n.stanford.edu/slides/2017/cs231n_2017_lecture10.pdf) --><ul class="simple">
+<li><p>So in the backward pass of RNNs, we have to multiply many derivatives together, which very often results in</p>
+<ul>
+<li><p>vanishing gradients (gradients becoming very small and eventually driven to zero) in case of long sequences</p></li>
+</ul>
+</li>
+<li><p>If we have a vanishing gradient, we might not be able to update our weights reliably.</p></li>
+<li><p>So we are not able to capture long-term dependencies, which kind of defeats the whole purpose of using RNNs.</p></li>
+</ul>
+<ul class="simple">
+<li><p>To address these issues more complex network architectures have been designed with the goal of maintaining relevant context over time by enabling the network to learn to forget the information that is no longer needed and to remember information required for decisions still to come.</p></li>
+<li><p>Most commonly used models are</p>
+<ul>
+<li><p>The Long short-term memory network (LSTM) (See <a class="reference internal" href="AppendixE-LSTMs.html"><span class="doc std std-doc">this appendix</span></a> on LSTMs.)</p></li>
+<li><p>Gated Recurrent Units (GRU)</p></li>
+</ul>
+</li>
+<li><p>That said, even with these models, for long sequences, there is still a loss of relevant information and difficulties in training.</p></li>
+<li><p>Also, inherently sequential nature of RNNs/LSTMs make them hard to parallelize. So they are slow to train.</p></li>
+</ul>
+<p><strong>Problem 3: Hard to parallelize</strong></p>
+<ul class="simple">
+<li><p>Due to their inherently sequential nature</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="transformers-the-intuition">
+<h3>1.3 Transformers: the intuition<a class="headerlink" href="#transformers-the-intuition" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p><strong>Transformers</strong> provide an approach to sequence processing but they eliminate recurrent connections in RNNs and LSTMs.</p></li>
+<li><p>The idea is to build up richer and richer <strong>contextual representations</strong> of the meaning of input words or tokens across a series of transformer layers.</p></li>
+<li><p>GPT-3 large, for instance, has 96 transformer layers.</p></li>
+<li><p>They are easy to parallelize and much better at capturing long distance dependencies.</p></li>
+<li><p>They are at the core of all state-of-the-art generative AI models such as BERT, GPT2, GPT3, DALL-E 2, DALL-E 3, SORA, Meta’s Llama, Google Bard, and GitHub Copilot.</p></li>
+<li><p>There are two main innovations which make these models work so well.</p>
+<ul>
+<li><p><strong>Self-attention</strong></p></li>
+<li><p><strong>Positional embeddings/encodings</strong></p></li>
+</ul>
+</li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="self-attention">
+<h2>2. Self-attention<a class="headerlink" href="#self-attention" title="Permalink to this heading">#</a></h2>
+<section id="intuition">
+<h3>2.1 Intuition<a class="headerlink" href="#intuition" title="Permalink to this heading">#</a></h3>
+<p><strong>Biological motivation for self-attention</strong></p>
+<ul class="simple">
+<li><p>Count how many times the players wearing the white pass the basketball?</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### An example of a state-of-the-art language model</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://www.youtube.com/embed/vJG698U2Mvo&quot;</span>
+<span class="n">IPython</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">IFrame</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+        <iframe
+            width="500"
+            height="500"
+            src="https://www.youtube.com/embed/vJG698U2Mvo"
+            frameborder="0"
+            allowfullscreen
+            
+        ></iframe>
+        </div></div>
+</div>
+<p>When we process information, we often selectively focus on specific parts of the input, giving more attention to relevant information and less attention to irrelevant information. This is the core idea of <strong>attention</strong>.
+<br><br></p>
+<p>Consider the examples below:</p>
+<ul class="simple">
+<li><p>Example 1: She left a brief <strong>note</strong> on the kitchen table, reminding him to pick up groceries.</p></li>
+<li><p>Example 2: The diplomat’s speech struck a positive <strong>note</strong> in the peace negotiations.</p></li>
+<li><p>Example 3: She plucked the guitar strings, ending with a melancholic <strong>note</strong>.</p></li>
+</ul>
+<p>The word <strong>note</strong> in these examples serves quite distinct meanings, each tied to different contexts.</p>
+<ul class="simple">
+<li><p>To capture varying word meanings across different contexts, we need a mechanism that considers the wider context to compute each word’s contextual representation.</p></li>
+<li><p><strong>Self-attention</strong> is just that mechanism!</p></li>
+<li><p>It allows us to look broadly into the context and tells us how to integrate the representations of context words to build representation of a word.</p></li>
+<li><p>A question for you: why not use traditional word embeddings we have seen so far (like word2vec or GloVe)?</p></li>
+</ul>
+<p><br><br></p>
+<p>Let’s visualize self-attention, we’ll focus on how the word note is interpreted within its sequence.</p>
+<blockquote>
+<div><p>She plucked the guitar strings , ending with a melancholic <strong>note</strong> .</p>
+</div></blockquote>
+<p>Which words in the context are most relevant to <strong>note</strong>? Assign a qualitative weight (high or low) to each context word below.</p>
+<ul class="simple">
+<li><p><strong>note</strong> attending to <strong>She</strong>: low weight</p></li>
+<li><p><strong>note</strong> attending to <strong>plucked</strong>:</p></li>
+<li><p><strong>note</strong> attending to <strong>ending</strong>:</p></li>
+<li><p><strong>note</strong> attending to <strong>guitar</strong>:</p></li>
+<li><p><strong>note</strong> attending to <strong>strings</strong>:</p></li>
+<li><p><strong>note</strong> attending to <strong>melancholic</strong>:</p></li>
+</ul>
+<p><img alt="" src="../_images/attention_viz.png" /></p>
+<ul class="simple">
+<li><p>Self-attention mechanism allows a neural network model to ‘attend’ to different parts of the input data with varying degrees of focus.</p></li>
+<li><p>We compare a token of our interest to a collection of other tokens in the context that reveal their relevance in the current context. (The relevance is denoted with the colour intensity in the diagram above.)</p></li>
+<li><p>For each token in the sequence, we assign a <strong>weight</strong> based on how relevant it is to the token under consideration.</p></li>
+<li><p>Calculate the output for the current token based on these weights.</p></li>
+<li><p>It allows a network to directly extract and use information from arbitrarily large contexts without the need to pass it through intermediate recurrent connections as in RNNs.</p></li>
+</ul>
+<p><br><br></p>
+<ul class="simple">
+<li><p>Below is a single backward looking self-attention layer which maps sequences of input vectors <span class="math notranslate nohighlight">\((x_1, \dots, x_n)\)</span> to sequences of output vectors <span class="math notranslate nohighlight">\((y_1, \dots, y_n)\)</span> of the same length.</p></li>
+<li><p>When processing an item at time <span class="math notranslate nohighlight">\(t\)</span>, the model has access to all of the inputs up to and including the one under consideration.</p></li>
+<li><p>It does not have access to the input beyond the current one.</p></li>
+<li><p>Note that unlike RNNs or LSTMs, each computation can be done independently; it does not depend upon the previous computation which allows us to easily parallelize forward pass and the training of such models.</p></li>
+</ul>
+<p><img alt="" src="../_images/self_attention.png" /></p>
+<!-- <img src="img/self_attention.png" width="500" height="500"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/9.pdf">Source</a></p>
+<p><br><br></p>
+</section>
+<section id="the-key-operations-in-self-attention">
+<h3>2.2 The key operations in self-attention<a class="headerlink" href="#the-key-operations-in-self-attention" title="Permalink to this heading">#</a></h3>
+<p>To determine the weights of various tokens in the context during self-attention’s output calculation for a specific token, we follow three key operations</p>
+<ul class="simple">
+<li><p>Calculate scores with dot products between tokens</p></li>
+<li><p>Apply softmax to derive a probability distribution</p></li>
+<li><p>Compute a weighted sum based on the scores for all observed inputs</p></li>
+</ul>
+<p>Now, let’s break down these operations step by step.</p>
+<p><strong>Example: Calculating the output <span class="math notranslate nohighlight">\(y\)</span> for the token <em>note</em> in the given context</strong>
+<br><br>
+<img alt="" src="../_images/self-attention-note1.png" /></p>
+<!-- <img src="img/self-attention-note1.png" width="800" height="800"> --><p>To generalize, in order to calculate the output <span class="math notranslate nohighlight">\(y_i\)</span></p>
+<ul class="simple">
+<li><p>We score token <span class="math notranslate nohighlight">\(x_i\)</span> with all previous tokens <span class="math notranslate nohighlight">\(x_j\)</span> by taking the dot product between them.
+$<span class="math notranslate nohighlight">\(\text{score}(x_i, x_j) = x_i \cdot x_j\)</span>$</p></li>
+<li><p>We apply <span class="math notranslate nohighlight">\(\text{softmax}\)</span> on these scores to get probability distribution over these scores.
+$<span class="math notranslate nohighlight">\(\alpha_{ij} = \text{softmax}(\text{score}(x_i \cdot x_j)), \forall j \leq i\)</span>$</p></li>
+<li><p>The output is the weighted sum of the inputs seen so far, where the weights correspond to the <span class="math notranslate nohighlight">\(\alpha\)</span> values calculated above.
+$<span class="math notranslate nohighlight">\(y_i = \sum_{j \leq i} \alpha_{ij}x_j\)</span>$</p></li>
+<li><p>The final output vector incorporates the information from all relevant parts of the sentence, weighted by their relevance to the target word “note”.</p></li>
+</ul>
+<p>These <strong>three operations outline the core of an attention-based approach</strong>. These operations can be carried out independently for each input allowing easy parallelism. Now, let’s introduce additional bells and whistles to make it trainable.</p>
+<p><br><br></p>
+<p><strong>Query, Key, and Value roles</strong></p>
+<p>Note that in the process of calculating outputs corresponding to each input, each input embedding plays three kinds of roles: <strong>Query</strong>, <strong>Key</strong>, and <strong>Value</strong>.</p>
+<p>Let’s consider at an analogy to understand this better. Imagine you’re on a quest to answer a profound question: “What’s the purpose of life?”. To find an answer, you decide to visit a library.</p>
+<p><img alt="" src="../_images/library-analogy.png" /></p>
+<p>In the context of self-attention:</p>
+<ul class="simple">
+<li><p><strong>Query</strong>: <em>the current focus of attention</em> when being compared to all previous inputs. This is something you are trying to understand more deeply.</p></li>
+<li><p><strong>Key</strong>: <em>a preceding input</em> being compared to the current focus of attention. These help determine which other words in the sequence are relevant for your query.</p></li>
+<li><p><strong>Value</strong>: used to compute the output for the current focus of attention. Once the relevant words are identified using keys, the actual content (embedding) from these words is used to construct the output</p></li>
+</ul>
+<p>For these three roles transformer introduces three weight matrices: <span class="math notranslate nohighlight">\(W^Q, W^K, W^V\)</span>. These weights will be used to project each input vector <span class="math notranslate nohighlight">\(x_i\)</span> into its role as a key, query, or value.</p>
+<div class="math notranslate nohighlight">
+\[q_i = W^Qx_i\]</div>
+<div class="math notranslate nohighlight">
+\[k_i = W^Kx_i\]</div>
+<div class="math notranslate nohighlight">
+\[v_i = W^Vx_i\]</div>
+<p>For now let’s assume that all these weight matrices have the same dimensionality and so the projected vectors in each case are going to be of the same size.</p>
+<p>With these projections our equations become:</p>
+<ul class="simple">
+<li><p>We score the <span class="math notranslate nohighlight">\(x_i\)</span> with all previous tokens <span class="math notranslate nohighlight">\(x_j\)</span> by taking the dot product between <span class="math notranslate nohighlight">\(x_i\)</span>’s query vector <span class="math notranslate nohighlight">\(q_i\)</span> and <span class="math notranslate nohighlight">\(x_j\)</span>’s key vector <span class="math notranslate nohighlight">\(k_j\)</span>:<br />
+$<span class="math notranslate nohighlight">\(\text{score}(x_i, x_j) = q_i \cdot k_j\)</span>$</p></li>
+<li><p>The softmax calculation remains the same but the output calculation for <span class="math notranslate nohighlight">\(y_i\)</span> is now based on a weighted sum over the projected vectors <span class="math notranslate nohighlight">\(v\)</span>:
+$<span class="math notranslate nohighlight">\(y_i = \sum_{j \leq i} \alpha_{ij}v_j\)</span>$</p></li>
+</ul>
+<p><img alt="" src="../_images/self_attention_ex.png" /></p>
+<!-- <img src="img/self_attention_ex.png" width="600" height="600"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/9.pdf">Source</a></p>
+<ul class="simple">
+<li><p>Let’s calculate the output of <em><strong>note</strong></em> in the following sequence with <span class="math notranslate nohighlight">\(K, Q, V\)</span> matrices.</p></li>
+</ul>
+<blockquote>
+<div><p>string melancholic note</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Suppose input embedding is of size 300.</p></li>
+<li><p>Suppose the projection matrices <span class="math notranslate nohighlight">\(W^k, W^q, W^v\)</span> are of shape <span class="math notranslate nohighlight">\(300 \times 100\)</span>.</p></li>
+<li><p>So word<span class="math notranslate nohighlight">\(_k\)</span>, word<span class="math notranslate nohighlight">\(_q\)</span>, word<span class="math notranslate nohighlight">\(_v\)</span> provide 100-dimensional projections of each word corresponding to the key, query and value roles. For example, note<span class="math notranslate nohighlight">\(_k\)</span>, note<span class="math notranslate nohighlight">\(_q\)</span>, bite<span class="math notranslate nohighlight">\(_v\)</span> represent 100-dimensional projections of the word <strong>note</strong> corresponding to its key, query, and value roles, respectively.</p></li>
+<li><p>The dot products will be calculated between the appropriate query and key projections. In this example, we will calculate the following dot products:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\text{note}_q \cdot \text{string}_k\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{note}_q \cdot \text{melancholic}_k\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\text{note}_q \cdot \text{note}_k\)</span></p></li>
+</ul>
+</li>
+<li><p>We apply softmax on these dot products. Suppose the softmax output in this toy example is</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-8320e204-d87b-4464-b364-e12fe13688b6">
+<span class="eqno">(15)<a class="headerlink" href="#equation-8320e204-d87b-4464-b364-e12fe13688b6" title="Permalink to this equation">#</a></span>\[\begin{bmatrix} 0.005 &amp; 0.085 &amp; 0.91 \end{bmatrix}\]</div>
+<ul class="simple">
+<li><p>So we have weights associated with three input words: <em>string</em> (0.005), <em>melancholic</em> (0.085) and <em>note</em> (0.91)</p></li>
+<li><p>We can calculate the output as the weighted sum of the inputs. Here we will use the value projections of the inputs: <span class="math notranslate nohighlight">\(0.005 \times \text{string}_v + 0.085 \times \text{melancholic}_v + 0.91 \times \text{note}_v\)</span></p></li>
+<li><p>Since we will be adding 100 dimensional vectors (size of our projections), the dimensionality of the output <span class="math notranslate nohighlight">\(y_3\)</span> is going to be 100.</p></li>
+</ul>
+<p><img alt="" src="../_images/self-attention-note2.png" /></p>
+<!-- <img src="img/self-attention-note2.png" width="500" height="500"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/9.pdf">Source</a></p>
+<p><strong>Scaling the dot products</strong></p>
+<ul class="simple">
+<li><p>The result of a dot product can be arbitrarily large and exponentiating such values can lead to numerical issues and problems during training.</p></li>
+<li><p>So the dot products are usually scaled before applying the softmax.</p></li>
+<li><p>The most common scaling is where we divide the dot product by the square root of the dimensionality of the query and the key vectors.
+$<span class="math notranslate nohighlight">\(\text{score}(x_i, x_j) = \frac{q_i \cdot k_j}{\sqrt{d_k}}\)</span>$</p></li>
+</ul>
+<ul class="simple">
+<li><p>This is how we calculate a single output of a single time step <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p>Would the output calculation at different time steps be dependent upon each other?</p></li>
+</ul>
+<p><strong>Efficient calculations with matrix multiplication</strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(X_{N \times d} \rightarrow\)</span> matrix of all tokens in a sequence of length <span class="math notranslate nohighlight">\(N\)</span> with each token represented with a <span class="math notranslate nohighlight">\(d\)</span> dimensional embedding. Each row of <span class="math notranslate nohighlight">\(X\)</span> is embedding representation of one token of the input. Then we can calculate <span class="math notranslate nohighlight">\(Q, K, V\)</span> as follows.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[Q = XW^Q\]</div>
+<div class="math notranslate nohighlight">
+\[K = XW^K\]</div>
+<div class="math notranslate nohighlight">
+\[V = XW^V\]</div>
+<ul class="simple">
+<li><p>With these, we can now calculate all the query-key scores simultaneously as <span class="math notranslate nohighlight">\(Q \times K\)</span>.</p></li>
+</ul>
+<p><img alt="" src="../_images/self_attention_calc_all.png" /></p>
+<!-- <img src="img/self_attention_calc_all.png" width="300" height="300"> -->
+<ul class="simple">
+<li><p>We can then apply softmax on all rows and multiply the resulting matrix by <span class="math notranslate nohighlight">\(V\)</span>.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[SelfAttention(Q, K, V) = \text{softmax}(\frac{QK}{\sqrt{d_k}})V\]</div>
+<ul class="simple">
+<li><p>Finally, we get output sequence <span class="math notranslate nohighlight">\(y_1, \dots, y_n\)</span>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>What’s the problem with the approach above?</p>
+<ul>
+<li><p>This process goes a bit too far since the calculation of the comparisons in <span class="math notranslate nohighlight">\(QK\)</span> results in a score for each value to each key value, <em>including those that follow the query</em>.</p></li>
+<li><p>Is this appropriate in the setting of language modeling?</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/self_attention_calc_partial.png" /></p>
+<!-- <img src="img/self_attention_calc_partial.png" width="300" height="300"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/9.pdf">Source</a></p>
+</section>
+<section id="break">
+<h3>Break<a class="headerlink" href="#break" title="Permalink to this heading">#</a></h3>
+<p><img alt="" src="../_images/eva-coffee.png" /></p>
+</section>
+</section>
+<section id="id1">
+<h2>❓❓ Questions for you<a class="headerlink" href="#id1" title="Permalink to this heading">#</a></h2>
+<section id="exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 7.2: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker" title="Permalink to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) The main difference between the RNN layer and a self-attention layer is that
+in self-attention, we pass the information without intermediate recurrent connections.</p></li>
+<li><p>(B) In self-attention, the output <span class="math notranslate nohighlight">\(y_i\)</span> of input <span class="math notranslate nohighlight">\(x_i\)</span> at time <span class="math notranslate nohighlight">\(i\)</span> is a scalar.</p></li>
+<li><p>(C) Calculating attention weights is quadratic in the length of the input
+since we need to compute dot products between each pair of tokens in
+the input.</p></li>
+<li><p>(D) Self-attention results in contextual embeddings.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 8.2: V’s Solutions!</p>
+<ul class="simple">
+<li><p>A, C, D</p></li>
+</ul>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="positional-embeddings">
+<h2>3. Positional embeddings<a class="headerlink" href="#positional-embeddings" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Also called <strong>positional encodings</strong>.</p></li>
+<li><p>Are we capturing word order when we calculate <span class="math notranslate nohighlight">\(y_3\)</span>? In other words if you scramble the order of the inputs, will you get exactly the same answer for <span class="math notranslate nohighlight">\(y_3\)</span>?</p></li>
+</ul>
+<p><img alt="" src="../_images/self-attention-note2.png" /></p>
+<!-- <img src="img/self-attention-note2.png" width="500" height="500"> -->
+<p><br><br><br><br></p>
+<p>How can we capture word order and positional information?</p>
+<ul class="simple">
+<li><p>A simple solution is positional embeddings!</p></li>
+<li><p>To produce an input embedding that captures positional information,</p>
+<ul>
+<li><p>We create positional embedding for each position (e.g., 1, 2, 3, …)</p></li>
+<li><p>We add it to the corresponding input embedding</p></li>
+<li><p>The resulting embedding has some information about the input along with its position in the text</p></li>
+</ul>
+</li>
+<li><p>Where do we get these positional embeddings? The simplest method is to start with randomly initialized embeddings corresponding to each possible input position and learn them along with other parameters during training.</p></li>
+</ul>
+<p><img alt="" src="../_images/positional-embeddings.png" /></p>
+<!-- <img src="img/positional-embeddings.png" width="500" height="500"> --><p><br><br><br><br></p>
+</section>
+<section id="multi-head-attention">
+<h2>4. Multi-head attention<a class="headerlink" href="#multi-head-attention" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Different words in a sentence can relate to each other in many different ways simultaneously.</p></li>
+<li><p>Consider the sentence below.</p></li>
+</ul>
+<blockquote>
+<div><p>The cat was scared because it didn’t recognize me in my mask.</p>
+</div></blockquote>
+<p>Let’s look at all the dependencies in this sentence.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">spacy</span>
+<span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">displacy</span>
+
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;en_core_web_md&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="s2">&quot;The cat was scared because it did n&#39;t recognize me in my mask .&quot;</span><span class="p">)</span>
+<span class="n">displacy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dep&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><span class="tex2jax_ignore"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en" id="c55b2101b99c4bdc890f26b8699d5155-0" class="displacy" width="2325" height="574.5" direction="ltr" style="max-width: none; height: 574.5px; color: #000000; background: #ffffff; font-family: Arial; direction: ltr">
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="50">The</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="50">DET</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="225">cat</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="225">NOUN</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="400">was</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="400">AUX</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="575">scared</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="575">ADJ</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="750">because</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="750">SCONJ</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="925">it</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="925">PRON</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1100">did</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1100">AUX</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1275">n't</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1275">PART</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1450">recognize</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1450">VERB</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1625">me</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1625">PRON</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1800">in</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1800">ADP</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="1975">my</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="1975">PRON</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="484.5">
+    <tspan class="displacy-word" fill="currentColor" x="2150">mask .</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="2150">NOUN</tspan>
+</text>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-0" stroke-width="2px" d="M70,439.5 C70,352.0 205.0,352.0 205.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-0" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">det</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M70,441.5 L62,429.5 78,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-1" stroke-width="2px" d="M245,439.5 C245,352.0 380.0,352.0 380.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-1" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">nsubj</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M245,441.5 L237,429.5 253,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-2" stroke-width="2px" d="M420,439.5 C420,352.0 555.0,352.0 555.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-2" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">acomp</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M555.0,441.5 L563.0,429.5 547.0,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-3" stroke-width="2px" d="M770,439.5 C770,89.5 1445.0,89.5 1445.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-3" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">mark</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M770,441.5 L762,429.5 778,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-4" stroke-width="2px" d="M945,439.5 C945,177.0 1440.0,177.0 1440.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-4" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">nsubj</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M945,441.5 L937,429.5 953,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-5" stroke-width="2px" d="M1120,439.5 C1120,264.5 1435.0,264.5 1435.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-5" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">aux</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M1120,441.5 L1112,429.5 1128,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-6" stroke-width="2px" d="M1295,439.5 C1295,352.0 1430.0,352.0 1430.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-6" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">neg</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M1295,441.5 L1287,429.5 1303,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-7" stroke-width="2px" d="M420,439.5 C420,2.0 1450.0,2.0 1450.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-7" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">advcl</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M1450.0,441.5 L1458.0,429.5 1442.0,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-8" stroke-width="2px" d="M1470,439.5 C1470,352.0 1605.0,352.0 1605.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-8" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">dobj</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M1605.0,441.5 L1613.0,429.5 1597.0,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-9" stroke-width="2px" d="M1470,439.5 C1470,264.5 1785.0,264.5 1785.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-9" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">prep</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M1785.0,441.5 L1793.0,429.5 1777.0,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-10" stroke-width="2px" d="M1995,439.5 C1995,352.0 2130.0,352.0 2130.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-10" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">poss</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M1995,441.5 L1987,429.5 2003,429.5" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-c55b2101b99c4bdc890f26b8699d5155-0-11" stroke-width="2px" d="M1820,439.5 C1820,264.5 2135.0,264.5 2135.0,439.5" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-c55b2101b99c4bdc890f26b8699d5155-0-11" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">pobj</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M2135.0,441.5 L2143.0,429.5 2127.0,429.5" fill="currentColor"/>
+</g>
+</svg></span></div></div>
+</div>
+<ul class="simple">
+<li><p>So a single attention layer usually is not enough to capture all different kinds of parallel relations between inputs.</p></li>
+<li><p>Transformers address this issue with <strong>multihead self-attention layers</strong>.</p></li>
+<li><p>These self-attention layers are called <strong>heads</strong>.</p></li>
+<li><p>They are at the same depth of the model, operate in parallel, each with a different set of parameters.</p></li>
+<li><p>The idea is that with these different sets of parameters, each head can learn different aspects of the relationships that exist among inputs.</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-5705ec21-43e6-4990-8744-718b7f7382d8">
+<span class="eqno">(16)<a class="headerlink" href="#equation-5705ec21-43e6-4990-8744-718b7f7382d8" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+MultiHeadAttn(X) &amp;= (\text{head}_1 \oplus \text{head}_2 \dots \oplus \text{head}_h)W^O\\
+               Q &amp;= XW_i^Q ; K = XW_i^K ; V = XW_i^V\\
+               \text{head}_i &amp;= SelfAttention(Q,K,V)
+\end{split}
+\end{equation}\]</div>
+<p><img alt="" src="../_images/multihead_attention.png" /></p>
+<!-- <img src="img/multihead_attention.png" width="600" height="600"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/9.pdf">Source</a></p>
+<p><strong>Visualization of multi-head attention</strong></p>
+<ul class="simple">
+<li><p>Similar to RNNs you can stack self-attention layers or multihead self-attention layers on the top of each other.</p></li>
+<li><p>Let’s look at this visualization which shows where the attention of different attention heads is going in multihead attention.</p>
+<ul>
+<li><p><a class="reference external" href="https://colab.research.google.com/github/tensorflow/tensor2tensor/blob/master/tensor2tensor/notebooks/hello_t2t.ipynb#scrollTo=OJKU36QAfqOC">Multi-head attention interactive visualization</a></p></li>
+</ul>
+</li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="transformer-blocks">
+<h2>5. Transformer blocks<a class="headerlink" href="#transformer-blocks" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>In many advanced architectures, you will see transformer blocks which consists of</p>
+<ul>
+<li><p>The multi-head self-attention layer</p></li>
+<li><p>Feedforward layer</p></li>
+<li><p>Residual connections</p></li>
+<li><p>Layer Norm</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../_images/transformer_block.png" /></p>
+<!-- <img src="img/transformer_block.png" width="400" height="400"> -->
+<p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/9.pdf">Source</a></p>
+<p><strong>Feedforward layer</strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(N\)</span> networks, one at each position.</p></li>
+<li><p>Each network is a fully-connected network with one hidden layer, i.e., two weight matrices</p></li>
+<li><p>The networks are independent for each position and so can be computed in parallel.</p></li>
+<li><p>It’s common to make the the dimensionality of the hidden layer <span class="math notranslate nohighlight">\(d_{ff}\)</span> larger than the input dimensionality <span class="math notranslate nohighlight">\(d_f\)</span></p></li>
+</ul>
+<p><strong>Residual connections</strong></p>
+<ul class="simple">
+<li><p>Connections that pass information from a lower layer to a higher layer without going through the intermediate layer.</p></li>
+<li><p>Why? It has been shown that skipping a layer improves learning and gives higher level layers direct access to information from lower layers.</p></li>
+<li><p>They are implemented simply by adding a layer’s input vector to its output vector before passing it forward.</p></li>
+<li><p>Typically, residual connections are used with both attention and feedforward layers.</p></li>
+</ul>
+<p><strong>Layer normalization or layer norm</strong></p>
+<ul class="simple">
+<li><p>The summed vectors are normalized in this layer.</p></li>
+<li><p>Layer norm applies something similar to <code class="docutils literal notranslate"><span class="pre">StandardScaler</span></code> so that the mean is 0 and standard deviation is 1 in the vector.</p></li>
+<li><p>This is done to keep the values of a hidden layer in a range that facilitates gradient-based training.</p></li>
+<li><p>For each poisition, the input is a <span class="math notranslate nohighlight">\(d-\)</span>dimensional vector and the output is a normalized <span class="math notranslate nohighlight">\(d-\)</span>dimensional vector.</p></li>
+</ul>
+<p><strong>Putting it all together:</strong></p>
+<p>Here is the function computed by a transformer.</p>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{align}
+T^1 &amp;= \text{SelfAttention}(X)\\
+T^2 &amp;= X + T^1\\
+T^3 &amp;= \text{LayerNorm}(T^2)\\
+T^4 &amp;= \text{FFN}(T^3)\\
+T^5 &amp;= T^4 + T^3\\
+H &amp;= \text{LayerNorm}(T^5)
+\end{align}
+\end{split}\]</div>
+<ul class="simple">
+<li><p>The input and output dimensions of these layers are matched so that they can be stacked.</p></li>
+<li><p>Each token <span class="math notranslate nohighlight">\(x_i\)</span> at the input to the block has dimensionality <span class="math notranslate nohighlight">\(d\)</span>.</p></li>
+<li><p>The input <span class="math notranslate nohighlight">\(X\)</span> and output <span class="math notranslate nohighlight">\(H\)</span> are both of shape <span class="math notranslate nohighlight">\(N \times d\)</span>, where <span class="math notranslate nohighlight">\(N\)</span> is the sequence length.</p></li>
+</ul>
+<section id="language-models-with-transformers">
+<h3>5.1 Language models with transformers<a class="headerlink" href="#language-models-with-transformers" title="Permalink to this heading">#</a></h3>
+<p><strong>Language models with single transformer block</strong></p>
+<ul class="simple">
+<li><p>The job of the language modeling head is to take the output <span class="math notranslate nohighlight">\(h_N^{L}\)</span>, which represents the output token embedding at position <span class="math notranslate nohighlight">\(N\)</span> from the final block <span class="math notranslate nohighlight">\(L\)</span>, and use it to predict the upcoming word at position <span class="math notranslate nohighlight">\(N+1\)</span></p></li>
+<li><p>The shape of <span class="math notranslate nohighlight">\(h_N^{L}\)</span> is <span class="math notranslate nohighlight">\(1 \times d\)</span>.</p></li>
+<li><p>We project it to the <strong>logit</strong> vector of shape <span class="math notranslate nohighlight">\(1 \times V\)</span>, where <span class="math notranslate nohighlight">\(V\)</span> is the vocabulary size.</p></li>
+<li><p>Recall the embedding layer at the beginning of the network. The input to our network is one-hot-encoding of tokens and the weight matrix between input and embedding layer is <span class="math notranslate nohighlight">\(V \times d\)</span></p></li>
+<li><p>Since this linear layer performs the reverse mapping from <span class="math notranslate nohighlight">\(d\)</span> dimensions to <span class="math notranslate nohighlight">\(V\)</span> dimensions, it is referred to as <strong>unembedding</strong> layer.</p></li>
+</ul>
+<p><br><br>
+<img alt="" src="../_images/transformers-single-layer-LM.png" /></p>
+<!-- <img src="img/transformers-single-layer-LM.png" width="700" height="700"> --><p><br><br></p>
+<p><strong>Language models with multiple transformer blocks</strong></p>
+<ul class="simple">
+<li><p>Transformers for large language models stack many of these blocks.</p></li>
+<li><p>T5 language model or GPT-3 small language models stack 12 such blocks.</p></li>
+<li><p>GPT-3 large stacks 96 blocks.</p></li>
+</ul>
+<p><img alt="" src="../_images/transformers-multi-layer-LM.png" /></p>
+<!-- <img src="img/transformers-multi-layer-LM.png" width="500" height="500"> -->
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="final-comments-and-summary">
+<h2>Final comments and summary<a class="headerlink" href="#final-comments-and-summary" title="Permalink to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Transformers are non-recurrent networks based on self-attention.</p></li>
+<li><p>There are two main components of transformers:</p>
+<ul>
+<li><p>A self-attention layer maps input sequences to output sequences of the same length using attention heads which model how the surrounding words are relevant for the processing of the current word.</p></li>
+<li><p>Positional embeddings/encodings</p></li>
+</ul>
+</li>
+<li><p>A transformer block consists of a  multi-head attention layer, followed by a feedforward layer with residual connections and layer normalizations. These blocks can be stacked together to create powerful networks.</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Permalink to this heading">#</a></h2>
+<p>Attention-mechanisms and transformers are quite new. But there are many resources on transformers. I’m listing a few resources here.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/pdf/1706.03762.pdf">Attention is all you need</a></p></li>
+<li><p><a class="reference external" href="https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html">Transformers</a></p></li>
+<li><p>3Blue1Brown has recently released some videos on transformers</p>
+<ul>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=wjZofJX0v4M">But what is a GPT? Visual intro to transformers | Chapter 5, Deep Learning</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=eMlx5fFNoYc">Attention in transformers</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="http://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/transformers/index.html">Transformers documentation</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=Y_NvR5dIaOY">A funny video: I taught an AI to make pasta</a></p></li>
+<li><p><a class="reference external" href="https://ai.googleblog.com/2018/11/open-sourcing-bert-state-of-art-pre.html">BERT</a></p></li>
+</ul>
+<p><br><br><br><br></p>
+<p>Coming up: Some applications of transformers</p>
+<p><img alt="" src="../_images/eva-excited.png" /></p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+                <footer class="bd-footer-article">
+                  
+<div class="footer-article-items footer-article__inner">
+  
+    <div class="footer-article-item"><!-- Previous / next buttons -->
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="06_intro-to-RNNs.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lecture 6: Introduction to Recurrent Neural Networks (RNNs)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="08_more-transformers.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lecture 8: More transformers</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div></div>
+  
+</div>
+
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-lo">Imports and LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributions">Attributions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#motivation">1. Motivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#problems-with-rnns">1.2 Problems with RNNs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#transformers-the-intuition">1.3 Transformers: the intuition</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#self-attention">2. Self-attention</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#intuition">2.1 Intuition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-key-operations-in-self-attention">2.2 The key operations in self-attention</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break">Break</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.2: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#positional-embeddings">3. Positional embeddings</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#multi-head-attention">4. Multi-head attention</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#transformer-blocks">5. Transformer blocks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#language-models-with-transformers">5.1 Language models with transformers</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-and-summary">Final comments and summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By Varada Kolhatkar
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  <p class="copyright">
+    
+      © Copyright 2022.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../_static/scripts/bootstrap.js?digest=e353d410970836974a52"></script>
+<script src="../_static/scripts/pydata-sphinx-theme.js?digest=e353d410970836974a52"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
