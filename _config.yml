@@ -4,7 +4,7 @@ logo: lectures/img/mds-hex-sticker.png
 exclude_patterns: ["release/*", "*.py","labs/*", "docs/*", "_build/*"]
 
 repository:
-  url: https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students
+  url: https://github.com/UBC-MDS/DSCI_575_adv-mach-learn
 
 sphinx:
   config:

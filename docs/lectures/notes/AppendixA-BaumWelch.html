@@ -32,7 +32,7 @@
     <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
     <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
     <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
-    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
     <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
   
@@ -244,7 +244,7 @@
 <div class="article-header-buttons">
 
 
-<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+<a href="https://github.com/UBC-MDS/DSCI_575_adv-mach-learn" target="_blank"
    class="btn btn-sm btn-source-repository-button"
    title="Source repository"
    data-bs-placement="bottom" data-bs-toggle="tooltip"
@@ -521,8 +521,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>Probability of being at state 🙂 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing everything to follow.</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-edd20893-915a-49b1-a146-7688aab7b7d4">
-<span class="eqno">(16)<a class="headerlink" href="#equation-edd20893-915a-49b1-a146-7688aab7b7d4" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-e0111994-ef92-46d0-9c43-9a0421deb0f2">
+<span class="eqno">(16)<a class="headerlink" href="#equation-e0111994-ef92-46d0-9c43-9a0421deb0f2" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \beta_🙂(2) = &amp; a_{🙂🙂}b_🙂(C)\beta_🙂(3) + a_{🙂😔}b_😔(C)\beta_😔(3)\\
              = &amp; 0.7 \times 0.1 \times 1.0 + 0.3 \times 0.6 \times 1.0\\ 
@@ -538,8 +538,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>Probability of being at state 😔 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing everything to follow.</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-75d4cfd5-438a-4350-92b1-087ff519f115">
-<span class="eqno">(17)<a class="headerlink" href="#equation-75d4cfd5-438a-4350-92b1-087ff519f115" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-8de5f4d2-c830-4a2c-ab92-b73471d760e2">
+<span class="eqno">(17)<a class="headerlink" href="#equation-8de5f4d2-c830-4a2c-ab92-b73471d760e2" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \beta_😔(2) = &amp; a_{😔🙂}b_🙂(C)\beta_🙂(3) + a_{😔😔}b_😔(C)\beta_😔(3)\\
              = &amp; 0.4 \times 0.1 \times 1.0 + 0.6 \times 0.6 \times 1.0\\ 
@@ -674,8 +674,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>What’s the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> and given the <strong>entire observation sequence</strong> <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-3f4377f8-2e9c-4031-8130-eef7e2717878">
-<span class="eqno">(18)<a class="headerlink" href="#equation-3f4377f8-2e9c-4031-8130-eef7e2717878" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-64bc728b-762c-4390-9b12-52ca020015c8">
+<span class="eqno">(18)<a class="headerlink" href="#equation-64bc728b-762c-4390-9b12-52ca020015c8" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \gamma_i(t) = &amp; \frac{P(q_t = i, O; \theta)}{P(O;\theta)}\\
               = &amp; \frac{\alpha_i(t) \beta_i(t)}{\sum_{i=1}^{N}\alpha_i(t)\beta_i(t)}
@@ -706,8 +706,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>We define a new probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> as the probability of transitioning from state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> to state <span class="math notranslate nohighlight">\(j\)</span> at time <span class="math notranslate nohighlight">\(t+1\)</span> based on our current model, <span class="math notranslate nohighlight">\(\theta_k\)</span> and given the entire observation sequence <span class="math notranslate nohighlight">\(O\)</span>.</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-d740faa3-5fb1-42ab-ac0c-66b54b30ad1b">
-<span class="eqno">(19)<a class="headerlink" href="#equation-d740faa3-5fb1-42ab-ac0c-66b54b30ad1b" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-f98c2dca-e849-4f83-b486-f3994511b7ee">
+<span class="eqno">(19)<a class="headerlink" href="#equation-f98c2dca-e849-4f83-b486-f3994511b7ee" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \xi_{ij}(t) = &amp; P(q_t = i, q_{t+1}=j \mid O;\theta ) \\
               = &amp; \frac{\alpha_i(t)a_{ij}b_j(o_{t+1})\beta_j(t+1)}{P(O;\theta)}
