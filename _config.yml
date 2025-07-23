@@ -1,0 +1,51 @@
+# Book settings
+title: DSCI 575 Advanced Machine Learning 
+logo: lectures/img/mds-hex-sticker.png
+exclude_patterns: ["release/*", "*.py","labs/*", "docs/*", "_build/*"]
+
+repository:
+  url: https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students
+
+sphinx:
+  config:
+    html_js_files:
+    - https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js
+    mathjax_path: https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js 
+
+latex:
+  latex_documents:
+    targetname: book.tex
+
+parse:
+  myst_enable_extensions:
+    # don't forget to list any other extensions you want enabled,
+    # including those that are enabled by default!
+    - html_admonition
+    - deflist    
+    - dollarmath 
+    - amsmath    
+    - html_image    
+
+# Force re-execution of notebooks on each build.
+# See https://jupyterbook.org/content/execute.html
+execute:
+  execute_notebooks: 'force'
+
+# HTML-specific settings
+html:
+  favicon                   : "lectures/img/favicon.png"  # A path to a favicon image
+  navbar_number_sections    : false  # Add a number to each section in your left navbar
+  use_edit_page_button      : false  # Whether to add an "edit this page" button to pages. If `true`, repository information in repository: must be filled in
+  use_repository_button     : true  # Whether to add a link to your repository button
+  use_issues_button         : false  # Whether to add an "open an issue" button
+  extra_navbar              : MDS 2024-25<br>Powered by <a href="https://jupyterbook.org">Jupyter Book</a>   # Will be displayed underneath the left navbar.
+  extra_footer              : ""  # Will be displayed underneath the footer.
+  google_analytics_id       : ""  # A GA id that can be used to track book views.
+  home_page_in_navbar       : false  # Whether to include your home page in the left Navigation Bar
+  baseurl                   : ""  # The base URL where your book will be hosted. Used for creating image previews and social links. e.g.: https://mypage.com/mybook/
+
+myst_enable_extensions:
+# don't forget to list any other extensions you want enabled,
+# including those that are enabled by default!
+- html_image
+- dollarmath    

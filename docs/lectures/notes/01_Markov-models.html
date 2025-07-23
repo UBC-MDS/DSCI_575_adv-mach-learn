@@ -1,0 +1,2386 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lecture 1: Markov Models &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/notes/01_Markov-models';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lecture 2: Applications of Markov Models and Text Preprocessing" href="02_LMs-text-preprocessing.html" />
+    <link rel="prev" title="Course Information" href="00_course-information.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/mds-hex-sticker.png" class="logo__image only-light" alt="DSCI 575 Advanced Machine Learning - Home"/>
+    <script>document.write(`<img src="../../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="DSCI 575 Advanced Machine Learning - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_More-HMMs.html">Lecture 4: More HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_intro-to-RNNs.html">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-transformers.html">Lecture 6: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_more-transformers.html">Lecture 7: More transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_llms-applications.html">Lecture 8: Applications of Large Language Models</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../demos/transformers-recipe-generation.html">Recipe Generation using Transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/lectures/notes/01_Markov-models.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lecture 1: Markov Models</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-lo">Imports and LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#language-models-motivation">1. Language models: motivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-a-language-model">1.1 What is a language model?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity">🧠 Activity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#language-modeling-why-should-we-care">1.2 Language modeling: Why should we care?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-model-intuition">2. Markov model intuition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-of-markov-chains">2.1 Examples of Markov chains</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-is-this-text-generated">How is this text generated?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chain-idea">2.2 Markov chain idea</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-assumption">2.3 Markov assumption</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#aside-markovs-own-application-of-his-chains-1913">2.4 (ASIDE) Markov’s own application of his chains  (1913)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-for-you">❓❓ Question for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-1-1-conditioning-and-marginalization-revision">Exercise 1.1 Conditioning and marginalization (revision)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chains-definition-and-tasks">3. Markov chains definition and tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discrete-markov-chain-ingredients">3.1 Discrete Markov chain ingredients</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chains-tasks">3.2 Markov chains tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-probabilities-of-sequences-of-states">3.2.1 Predict probabilities of sequences of states</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#computing-probability-of-being-in-a-particular-state-at-time-t">3.2.2 Computing probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break-5-mins">Break (~5 mins)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-1-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 1.1 Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chains-tasks-stationary-distribution">4. Markov chains tasks: Stationary distribution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stationary-distribution-toy-google-matrix-example">4.1 Stationary distribution: Toy Google Matrix example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditions-for-stationary-distribution">4.2 Conditions for stationary distribution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irreducibility-and-aperiodicity">4.3 Irreducibility and aperiodicity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-estimate-the-stationary-distribution">4.4 How to estimate the stationary distribution?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-1-2-select-all-of-the-following-statements-which-are-true">Exercise 1.2: Select all of the following statements which are <strong>True</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-thoughts-summary-reflection">Final thoughts, summary, reflection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources-and-fun-things-with-markov-chains">Resources and fun things with Markov chains</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p><img alt="" src="../../_images/575_banner.png" /></p>
+<section class="tex2jax_ignore mathjax_ignore" id="lecture-1-markov-models">
+<h1>Lecture 1: Markov Models<a class="headerlink" href="#lecture-1-markov-models" title="Link to this heading">#</a></h1>
+<p>UBC Master of Data Science program, 2024-25</p>
+<section id="imports-and-lo">
+<h2>Imports and LO<a class="headerlink" href="#imports-and-lo" title="Link to this heading">#</a></h2>
+<section id="imports">
+<h3>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">IPython</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span><span class="p">,</span> <span class="n">display</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">sent_tokenize</span><span class="p">,</span> <span class="n">word_tokenize</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="learning-outcomes">
+<h3>Learning outcomes<a class="headerlink" href="#learning-outcomes" title="Link to this heading">#</a></h3>
+<p>From this lesson you will be able to</p>
+<ul class="simple">
+<li><p>Explain the general idea of a language model and name some of its applications.</p></li>
+<li><p>Define Markov chains and explain terminology (states, initial probability distribution over states, and transition matrix) related to Markov chains.</p></li>
+<li><p>State Markov assumption.</p></li>
+<li><p>Compute the probability of a sequence of states.</p></li>
+<li><p>Compute the probability of being in a state at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>Explain the general idea of a stationary distribution.</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="language-models-motivation">
+<h2>1. Language models: motivation<a class="headerlink" href="#language-models-motivation" title="Link to this heading">#</a></h2>
+<section id="what-is-a-language-model">
+<h3>1.1 What is a language model?<a class="headerlink" href="#what-is-a-language-model" title="Link to this heading">#</a></h3>
+</section>
+<section id="activity">
+<h3>🧠 Activity<a class="headerlink" href="#activity" title="Link to this heading">#</a></h3>
+<p>Let’s play a quick game. I’ll give you a phrase, for example:</p>
+<blockquote>
+<div><p><strong><em>too much</em></strong></p>
+</div></blockquote>
+<p>Now, I want you to guess what word might come next. You can suggest multiple options and even assign rough probabilities to each one.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Next word</strong></p></th>
+<th class="head"><p><strong>probability</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>work</p></td>
+<td><p>0.10</p></td>
+</tr>
+<tr class="row-odd"><td><p>butter</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr class="row-even"><td><p>rain</p></td>
+<td><p></p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Great! What you just did is what a language model does. It assigns probabilities to possible next words.</p>
+<p>We just guessed those numbers based on our intuition. But out in the real world, we’re surrounded by massive amounts of text such as books, websites, social media, and more.</p>
+<p>We can use that real data to compute actual probability distributions. For example:</p>
+<div class="math notranslate nohighlight">
+\[ P(\text{work} \mid \text{too much}) = \frac{\text{count(too much work)}}{\text{count(too much)}}\]</div>
+<p>More formally, a language model computes <strong>the probability distribution over sequences of tokens or subtokens</strong>. Given some vocabulary <span class="math notranslate nohighlight">\(V\)</span>, a language model assigns a probability (a number between 0 and 1) to all sequences of tokens or subtokens in <span class="math notranslate nohighlight">\(V\)</span>.</p>
+<p>Intuitively, this probability tells us how “good” or plausible a sequence of tokens is.</p>
+<p><img alt="" src="../../_images/voice-assistant-ex.png" /></p>
+<p>For example:</p>
+<ul class="simple">
+<li><p>P(I have read this book) &gt; P(eye have red this book) or P(book | read this) &gt; P(book | red this)</p></li>
+<li><p>P(How do I start a savings habit?) &gt; P(How to start shaving a rabbit?)</p></li>
+</ul>
+<!-- <img src="img/voice-assistant-ex.png" height="1400" width="1400"> --><p>One of the most common applications for predicting the next word is the ‘smart compose’ feature in your emails, text messages, and search engines.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://2.bp.blogspot.com/-KlBuhzV_oFw/WvxP_OAkJ1I/AAAAAAAACu0/T0F6lFZl-2QpS0O7VBMhf8wkUPvnRaPIACLcBGAs/s1600/image2.gif&quot;</span>
+
+<span class="n">IPython</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">IFrame</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">500</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">500</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+        <iframe
+            width="500"
+            height="500"
+            src="https://2.bp.blogspot.com/-KlBuhzV_oFw/WvxP_OAkJ1I/AAAAAAAACu0/T0F6lFZl-2QpS0O7VBMhf8wkUPvnRaPIACLcBGAs/s1600/image2.gif"
+            frameborder="0"
+            allowfullscreen
+            
+        ></iframe>
+        </div></div>
+</div>
+<p><br><br></p>
+</section>
+<section id="language-modeling-why-should-we-care">
+<h3>1.2 Language modeling: Why should we care?<a class="headerlink" href="#language-modeling-why-should-we-care" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Powerful idea in NLP and helps in many tasks.</p></li>
+<li><p>From simple Markov models to advanced systems like ChatGPT, all language models are doing this at their core – computing probability distributions over words or tokens or subtokens to predict what comes next.</p></li>
+<li><p>In old days language models were used as a component of a larger system.</p>
+<ul>
+<li><p>Machine translation</p>
+<ul>
+<li><p>P(In the age of data algorithms have the answer) &gt; P(the age data of in algorithms answer the have)</p></li>
+</ul>
+</li>
+<li><p>Spelling correction</p>
+<ul>
+<li><p>My office is a 10  <span style="color:red">minuet</span> bike ride from my home.</p>
+<ul>
+<li><p>P(10 <span style="color:blue">minute</span> bike ride from my home) &gt; P(10 <span style="color:red">minuet</span> bike ride from my home)</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Speech recognition</p>
+<ul>
+<li><p>P(<span style="color:blue">I read</span> a book) &gt; P(<span style="color:red">Eye red</span> a book)</p></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><p>Now they are capable of being a standalone systems (e.g., ChatGPT)</p>
+<ul>
+<li><p>Question answering (e.g., Andrei Markov was born in __)</p></li>
+<li><p>Content generation (e.g., Generating news articles)</p></li>
+<li><p>Summarization</p></li>
+<li><p>Writing assistants (e.g., https://www.ai21.com/)</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Why is this hard?</strong></p>
+<ul class="simple">
+<li><p>Language modeling requires not only linguistic expertise but also extensive world knowledge.</p></li>
+<li><p>The machine learning models we’ve studied so far may not be directly suitable because language modeling demands sequence modeling capabilities.</p></li>
+<li><p><strong>In this course, we will explore models specifically designed to model sequences effectively.</strong></p></li>
+<li><p>We’ll start with the simplest kind of language model: <strong>the Markov model of language</strong>.</p></li>
+<li><p>Later in the course, we will talk about neural language models.</p></li>
+<li><p>Today’s lecture will delve into the theory behind Markov models. Our next lecture will examine some real-world applications of Markov models.</p></li>
+</ul>
+<p><strong>Markov chains you have seen in MDS so far</strong></p>
+<ul class="simple">
+<li><p>DSCI 512</p>
+<ul>
+<li><p>You wrote code to generate text using Markov models of language.</p></li>
+</ul>
+</li>
+<li><p>DSCI 553</p>
+<ul>
+<li><p>You used it as a simulation tool to approximate the posterior distribution of your Bayesian modeling parameters of interest.</p></li>
+</ul>
+</li>
+</ul>
+<p>The model we are going to look at is similar to what you’ve seen in DSCI 512.</p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="markov-model-intuition">
+<h2>2. Markov model intuition<a class="headerlink" href="#markov-model-intuition" title="Link to this heading">#</a></h2>
+<section id="examples-of-markov-chains">
+<h3>2.1 Examples of Markov chains<a class="headerlink" href="#examples-of-markov-chains" title="Link to this heading">#</a></h3>
+<p><strong>🧠 Activity</strong></p>
+<p>Each of you will receive a sticky note with a word on it. Here’s what you’ll do:</p>
+<ul class="simple">
+<li><p><strong>Carefully remove the sticky note to see the word</strong>. This word is for your eyes only; don’t show it to your neighbours!</p></li>
+<li><p>Think quickly: what word would logically follow the word on the sticky note? <strong>Write this next word on a new sticky note</strong>. You have about 20 seconds for this step, so trust your instincts!</p></li>
+<li><p><strong>Pass your predicted word to the person next to you</strong>. Do not pass the word you received from your neighbour forward. Keep the chain going!</p></li>
+<li><p>Stop after the last person in your row/table has finished.</p></li>
+</ul>
+<p>Whichever row generates the most captivating sentence will be rewarded with treats! 🍫</p>
+<p><br><br></p>
+<ul class="simple">
+<li><p>You’ve just created a simple Markov model of language!</p></li>
+<li><p>In predicting the next word from a minimal context, you likely used your linguistic intuition and familiarity with common two-word phrases or collocations.</p></li>
+<li><p>You could create more coherent sentences by taking into account more context e.g., previous two words or four words or 100 words.</p></li>
+</ul>
+<p>This idea was first used by Shannon in The Shannon’s game. See this video by <a class="reference external" href="https://www.youtube.com/watch?v=0shft1gokac">Jordan Boyd-Graber</a> for more information on this.</p>
+<p><strong>Example: Does this look like Python code?</strong></p>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">warnings</span>
+<span class="kn">import</span> <span class="nn">ast</span>
+<span class="kn">import</span> <span class="nn">numpy.core.overrides</span> <span class="kn">import</span> <span class="nn">set_module</span>
+<span class="c1"># While not in __all__, matrix_power used to be defined here, so we import</span>
+<span class="c1"># it for backward compatibility</span>
+    <span class="n">getT</span> <span class="o">=</span> <span class="n">T</span><span class="o">.</span><span class="n">fget</span>
+    <span class="n">getI</span> <span class="o">=</span> <span class="n">I</span><span class="o">.</span><span class="n">fget</span>
+</pre></div>
+</div>
+<div class="highlight-default notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">_from_string</span><span class="p">(</span><span class="n">data</span><span class="p">):</span>
+    <span class="k">for</span> <span class="n">char</span> <span class="ow">in</span> <span class="s1">&#39;[]&#39;</span><span class="p">:</span>
+        <span class="n">data</span> <span class="o">=</span> <span class="n">data</span><span class="o">.</span><span class="n">replace</span><span class="p">(</span><span class="n">char</span><span class="p">,</span> <span class="s1">&#39;&#39;</span><span class="p">)</span>
+    <span class="n">rows</span> <span class="o">=</span> <span class="nb">str</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s1">&#39;;&#39;</span><span class="p">)</span>
+    <span class="n">rowtup</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">row</span> <span class="ow">in</span> <span class="n">rows</span><span class="p">:</span>
+        <span class="n">trow</span> <span class="o">=</span> <span class="n">newrow</span>
+        <span class="n">coltup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">thismat</span><span class="p">)</span>
+        <span class="n">rowtup</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">concatenate</span><span class="p">(</span><span class="n">coltup</span><span class="p">,</span> <span class="n">axis</span><span class="o">=-</span><span class="mi">1</span><span class="p">))</span>
+            <span class="k">return</span> <span class="bp">NotImplemented</span>
+</pre></div>
+</div>
+</section>
+<section id="how-is-this-text-generated">
+<h3>How is this text generated?<a class="headerlink" href="#how-is-this-text-generated" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Imagine you have a peculiar kind of memory, like a strange form of amnesia.</p></li>
+<li><p>You can only remember <strong>one word at a time</strong>: the current word.</p></li>
+<li><p>Now picture writing a Python program with this limitation. After writing a word, you forget everything that came before. Your next word choice depends only on the one you just wrote.</p></li>
+<li><p>To decide what comes next, you consult a list, built from a large collection of Python code,  that tells you which words are most likely to follow the current one.</p></li>
+<li><p>You repeat this step for each word, gradually generating a new sequence.</p></li>
+<li><p>This is how a <strong>Markov model</strong> works: it generates text one word at a time, using only the previous word.</p></li>
+<li><p>You can think of each word as a <strong>state</strong>, and at each time step, you <strong>transition</strong> from one state to another based on learned probabilities.</p></li>
+</ul>
+<p><img alt="" src="../../_images/Python_generation_Markov.png" /></p>
+<!-- <img src="img/Python_generation_Markov.png" height="550" width="550">  -->
+<p><strong>Example with daily activities as states</strong></p>
+<ul class="simple">
+<li><p>What kinds of activities does a typical MDS student carry out on a daily basis?</p></li>
+</ul>
+<p><img alt="" src="../../_images/activity-seqs.png" /></p>
+<p><br><br></p>
+</section>
+<section id="markov-chain-idea">
+<h3>2.2 Markov chain idea<a class="headerlink" href="#markov-chain-idea" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Often we need to model systems or processes that evolve over time.</p></li>
+<li><p>We want to represent the state of the world at each specific point via a series of snapshots.</p></li>
+<li><p>Markov chain idea: Predict future depending upon</p>
+<ul>
+<li><p>the current state</p></li>
+<li><p>the probability of change</p></li>
+</ul>
+</li>
+<li><p>Examples:</p>
+<ul>
+<li><p>Weather: Given that today is cold, what will be the weather tomorrow?</p></li>
+<li><p>Stock prices: Given the current market conditions what will be the stock prices tomorrow?</p></li>
+<li><p>Text: Given that the speaker has uttered the word <strong>data</strong> what will be the next word?</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="markov-assumption">
+<h3>2.3 Markov assumption<a class="headerlink" href="#markov-assumption" title="Link to this heading">#</a></h3>
+<p>Suppose we want to calculate probability of a sequence “there is a crack in everything that ‘s how the light gets in” (a phrase from Leonard Cohen’s poem <a class="reference external" href="https://genius.com/Leonard-cohen-anthem-lyrics">Anthem</a>). A naive approach to calculate this probability would be:</p>
+<div class="amsmath math notranslate nohighlight" id="equation-2752dead-f032-4a62-a332-19c2f215479a">
+<span class="eqno">(1)<a class="headerlink" href="#equation-2752dead-f032-4a62-a332-19c2f215479a" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+P(\text{there is a crack in everything that 's how the light gets in}) = &amp;P(\text{there}) \times P(\text{is}\mid \text{there})\\ 
+                                              &amp; \times P(\text{a} \mid \text{there is}) \times P(\text{crack}\mid \text{there is a})\\
+                                              &amp; \times P(\text{in}\mid \text{there is a crack})\\
+                                              &amp; \times P(\text{everything} \mid \text{there is a crack in}) \\
+                                              &amp; \times P(\text{that} \mid \text{there is a crack in everything}) \\                                              
+                                              &amp; \dots\\        
+\end{split}
+\end{equation}\]</div>
+<p>You can also express it as a product of conditional probabilities.
+$<span class="math notranslate nohighlight">\(P(w_{1:n}) = \prod_{i=1}^n  P(\text{word}_i \mid \text{word}_{1:i-1})\)</span>$</p>
+<p>But this doesn’t take us too far, as calculating probability of a word given the entire history (e.g., <span class="math notranslate nohighlight">\(P(\text{light} \mid \text{there is a crack in everything that 's how the})\)</span>) is not easy because
+language is creative and any particular context might not have occurred before.</p>
+<p>The intuition of Markov models of language (ngram models) is that instead of computing the probability of the next word given its entire history we <strong>approximate</strong> it by considering just the last few words.</p>
+<p><strong>Markov assumption: The future is conditionally independent of the past given present</strong></p>
+<p><img alt="" src="../../_images/bigram-ex.png" /></p>
+<!-- <img src="img/bigram-ex.png" height="700" width="700"> -->
+<div class="math notranslate nohighlight">
+\[
+P(\text{everything} \mid \text{a crack in}) \approx P(\text{everything}\mid\text{in})
+\]</div>
+<p><img alt="" src="../../_images/Markov_assumption.png" /></p>
+<!-- <img src="img/Markov_assumption.png" height="550" width="550">  -->
+<p><strong>Markov assumption: The future is conditionally independent of the past given present</strong></p>
+<ul class="simple">
+<li><p>In the example above</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(S_{3} \mid S_0, S_1, S_2) \approx P(S_{3} \mid S_2)\]</div>
+<ul class="simple">
+<li><p>Generalizing it to <span class="math notranslate nohighlight">\(t\)</span> time steps</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(S_{t+1} \mid S_0, \dots, S_t) \approx P(S_{t+1} \mid S_t)\]</div>
+<p>With Markov’s assumption, the probability of the following sequence would be easier to calculate:</p>
+<div class="amsmath math notranslate nohighlight" id="equation-cc1e4b9e-3509-4b0b-a820-9395f2531f81">
+<span class="eqno">(2)<a class="headerlink" href="#equation-cc1e4b9e-3509-4b0b-a820-9395f2531f81" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+P(\text{there is a crack in everything that 's how the light gets in}) \approx &amp;P(\text{there}) \times P(\text{is}\mid \text{there})\\ 
+                                              &amp; \times P(\text{a} \mid \text{is}) \times P(\text{crack}\mid \text{a})\\
+                                              &amp; \times P(\text{in}\mid \text{crack})\\
+                                              &amp; \times P(\text{everything} \mid \text{in}) \\
+                                              &amp; \times P(\text{that} \mid \text{everything}) \\                                              
+                                              &amp; \dots\\        
+\end{split}
+\end{equation}\]</div>
+<p><strong>Simplistic auto-complete</strong></p>
+<ul class="simple">
+<li><p>Supposed we have typed “und” so far and we want to predict the next letter, i.e., the state we would be in in the next time step.</p></li>
+<li><p>Imagine that you have access to the conditional probability distribution for the next letter given the current letter.</p></li>
+<li><p>We sample the next letter from this distribution.</p></li>
+</ul>
+<p><img alt="" src="../../_images/autocomplete_Markov.png" /></p>
+<!-- <img src="img/autocomplete_Markov.png" height="1200" width="1200">  --><p><br><br></p>
+</section>
+<section id="aside-markovs-own-application-of-his-chains-1913">
+<h3>2.4 (ASIDE) Markov’s own application of his chains  (1913)<a class="headerlink" href="#aside-markovs-own-application-of-his-chains-1913" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Studied the sequence of 20,000 letters in A. S. Pushkin’s poem <em>Eugeny Onegin</em>.</p></li>
+<li><p>Markov also studied the sequence of 100,000 letters in S. T. Aksakov’s novel “The Childhood of Bagrov, the Grandson”.</p></li>
+</ul>
+<p><img alt="" src="../../_images/Markov_Pushkin.png" /></p>
+<!-- <img src="img/Markov_Pushkin.png" height="800" width="800">  -->
+<p><br><br></p>
+</section>
+</section>
+<section id="question-for-you">
+<h2>❓❓ Question for you<a class="headerlink" href="#question-for-you" title="Link to this heading">#</a></h2>
+<section id="exercise-1-1-conditioning-and-marginalization-revision">
+<h3>Exercise 1.1 Conditioning and marginalization (revision)<a class="headerlink" href="#exercise-1-1-conditioning-and-marginalization-revision" title="Link to this heading">#</a></h3>
+<p>We will be using the following concepts from probability a lot. So let’s revise them.</p>
+<ul class="simple">
+<li><p>Conditioning</p>
+<ul>
+<li><p>The process of calculating the probability of an event or variable given certain conditions</p></li>
+<li><p>If you already know that today is Cloudy, what’s the probability of rain tomorrow?</p></li>
+</ul>
+</li>
+<li><p>Marginalization</p>
+<ul>
+<li><p>The process of summing over all possible values of a variable to obtain the probability of another variable</p></li>
+<li><p>What’s the overall probability of rain tomorrow regardless of today’s weather?</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>🧠 Activity</strong></p>
+<p>Imagine you’re trying to forecast if the upcoming days will be <strong>HOT</strong>, <strong>WARM</strong>, or <strong>COLD</strong>, based on recent weather patterns. You have observed the following weather sequences (each represents consecutive days of weather in a different location):</p>
+<ul class="simple">
+<li><p><strong>Sequence 1:</strong> HOT <span class="math notranslate nohighlight">\(\rightarrow\)</span> HOT <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM<span class="math notranslate nohighlight">\( \rightarrow\)</span> COLD <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM</p></li>
+<li><p><strong>Sequence 2:</strong> HOT <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM</p></li>
+<li><p><strong>Sequence 3:</strong> COLD <span class="math notranslate nohighlight">\(\rightarrow\)</span> COLD <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> HOT</p></li>
+<li><p><strong>Sequence 4:</strong> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> HOT <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> WARM <span class="math notranslate nohighlight">\(\rightarrow\)</span> HOT</p></li>
+</ul>
+<p><strong>Transition counts</strong></p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>From \ To</p></th>
+<th class="head"><p>COLD</p></th>
+<th class="head"><p>HOT</p></th>
+<th class="head"><p>WARM</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>COLD</strong></p></td>
+<td><p>1</p></td>
+<td><p>0</p></td>
+<td><p>2</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>HOT</strong></p></td>
+<td><p>0</p></td>
+<td><p>1</p></td>
+<td><p>3</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>WARM</strong></p></td>
+<td><p>1</p></td>
+<td><p>3</p></td>
+<td><p>6</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<hr class="docutils" />
+<p><strong>Questions</strong></p>
+<ol class="arabic simple">
+<li><p><strong>Conditional Probability</strong><br />
+What is the estimated probability of HOT <strong>given</strong> that the previous day was WARM? In other words, estimate <span class="math notranslate nohighlight">\(P(\text{HOT} \mid \text{WARM})\)</span>?</p>
+<ul class="simple">
+<li><p>Answer: <span class="math notranslate nohighlight">\(\frac{3}{10}\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Marginal Probability</strong><br />
+What is the estimated probability that Day 1 (i.e., the second day, assuming indexing starts at <span class="math notranslate nohighlight">\(T = 0\)</span>) is HOT, across all sequences?</p>
+<ul class="simple">
+<li><p>Answer: <span class="math notranslate nohighlight">\(\frac{2}{4}\)</span></p></li>
+</ul>
+</li>
+</ol>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="markov-chains-definition-and-tasks">
+<h2>3. Markov chains definition and tasks<a class="headerlink" href="#markov-chains-definition-and-tasks" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Let’s continue with the same example: forecasting whether the upcoming days will be <strong>HOT</strong>, <strong>WARM</strong>, or <strong>COLD</strong>, based on recent weather patterns.</p></li>
+<li><p>Now, imagine you have access to <strong>many more sequences</strong>, and you’ve used them to estimate <strong>transition probabilities</strong> more reliably.</p></li>
+<li><p>We can model this situation using a <strong>Markov chain</strong>. A Markov chain provides a visual representation that shows:</p>
+<ul>
+<li><p>The <strong>states</strong> (e.g., HOT, WARM, COLD)</p></li>
+<li><p>Their <strong>initial probabilities</strong>, represented as a vector denoted by <span class="math notranslate nohighlight">\(\pi\)</span></p></li>
+<li><p>The <strong>transition probabilities</strong> between states</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<ul class="simple">
+<li><p>This is an unrolled version or a single realization of a Markov chain.</p></li>
+</ul>
+<p><img alt="" src="../../_images/weather-unrolled.png" /></p>
+<!-- <img src="img/weather-unrolled.png" height="1000" width="1000">  -->
+<!-- <img src="img/Markov_chain_small.png" height="400" width="400">  --><section id="discrete-markov-chain-ingredients">
+<h3>3.1 Discrete Markov chain ingredients<a class="headerlink" href="#discrete-markov-chain-ingredients" title="Link to this heading">#</a></h3>
+<p><strong>State space</strong></p>
+<ul class="simple">
+<li><p>We have discrete timesteps: <span class="math notranslate nohighlight">\(t = 0, t = 1, \dots\)</span>.</p></li>
+<li><p><strong>State space</strong>: We have a finite set of possible states we can be in at time <span class="math notranslate nohighlight">\(t\)</span></p>
+<ul>
+<li><p>Represent the unique observations in the world.</p></li>
+<li><p>We can be in only one state at a given time.</p></li>
+<li><p>In our toy example, the state space <span class="math notranslate nohighlight">\(S = \{HOT, COLD, WARM\}\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+<br><p><strong>Initial probability distribution over states</strong></p>
+<ul class="simple">
+<li><p>State space: <span class="math notranslate nohighlight">\(S = \{\text{HOT, COLD, WARM}\}\)</span>,</p></li>
+<li><p>We could start in any state. The probability of starting with a particular state is given by an <strong>initial discrete probability distribution over states</strong>. In our toy example,<br />
+$<span class="math notranslate nohighlight">\(\pi_0 = \begin{bmatrix} P(\text{HOT at time 0}) &amp; P(\text{COLD at time 0}) &amp; P(\text{WARM at time 0}) \end{bmatrix} = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\)</span>$</p></li>
+</ul>
+<br><p><strong>Transition probability matrix</strong></p>
+<!-- <img src="img/Markov_chain.png" height="300" width="300">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<ul class="simple">
+<li><p>State space: <span class="math notranslate nohighlight">\(S = \{\text{HOT, COLD, WARM}\}\)</span>, initial probability distribution: <span class="math notranslate nohighlight">\(\pi_0 = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\)</span></p></li>
+<li><p><strong>Transition probability matrix</strong> <span class="math notranslate nohighlight">\(T\)</span>, where each <span class="math notranslate nohighlight">\(a_{ij}\)</span> represents the probability of moving from state <span class="math notranslate nohighlight">\(s_i\)</span> to state <span class="math notranslate nohighlight">\(s_j\)</span>, such that <span class="math notranslate nohighlight">\(\sum_{j=1}^{n} a_{ij} = 1, \forall i\)</span></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split} T = 
+\begin{bmatrix}
+P(\text{HOT} \mid \text{HOT}) &amp; P(\text{COLD} \mid \text{HOT}) &amp; P(\text{WARM} \mid \text{HOT})\\
+P(\text{HOT} \mid \text{COLD}) &amp; P(\text{COLD} \mid \text{COLD}) &amp; P(\text{WARM} \mid \text{COLD})\\
+P(\text{HOT} \mid \text{WARM}) &amp; P(\text{COLD} \mid \text{WARM}) &amp; P(\text{WARM} \mid \text{WARM})\\
+\end{bmatrix}
+=
+\begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix}
+\end{split}\]</div>
+<ul class="simple">
+<li><p>Note that each row sums to 1.0.</p></li>
+<li><p>Each state has a probability of staying in the same state (or transitioning to itself).</p></li>
+<li><p><em>Note that some people use the the notation where the columns sum to one.</em></p></li>
+<li><p>You can think of transition matrix as a data structure used to organize all the conditional probabilities concisely and efficiently.</p></li>
+</ul>
+<p>In our weather example state space, initial probability distribution, transition probability matrix are as follows:</p>
+<div class="math notranslate nohighlight">
+\[S = \{\text{HOT, COLD, WARM}\}, \pi_0 = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}T = \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix}\end{split}\]</div>
+<p><br><br></p>
+<p><strong>Markov chain general definition</strong></p>
+<ul class="simple">
+<li><p>A set of <span class="math notranslate nohighlight">\(n\)</span> states: <span class="math notranslate nohighlight">\(S = \{s_1, s_2, ..., s_n\}\)</span></p></li>
+<li><p>A set of discrete initial probability distribution over states <span class="math notranslate nohighlight">\(\pi_0 = \begin{bmatrix} \pi_0(s_1) &amp; \pi_0(s_2) &amp; \dots &amp; \pi_0(s_n) \end{bmatrix}\)</span></p></li>
+<li><p>Transition probability matrix <span class="math notranslate nohighlight">\(T\)</span>, where each <span class="math notranslate nohighlight">\(a_{ij}\)</span> represents the probability of moving from state <span class="math notranslate nohighlight">\(s_i\)</span> to state <span class="math notranslate nohighlight">\(s_j\)</span>, such that <span class="math notranslate nohighlight">\(\sum_{j=1}^{n} a_{ij} = 1, \forall i\)</span></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split} T = 
+\begin{bmatrix}
+    a_{11}       &amp; a_{12} &amp; a_{13} &amp; \dots &amp; a_{1n} \\
+    a_{21}       &amp; a_{22} &amp; a_{23} &amp; \dots &amp; a_{2n} \\
+    \dots \\
+    a_{n1}       &amp; a_{n2} &amp; a_{n3} &amp; \dots &amp; a_{nn}
+\end{bmatrix}
+\end{split}\]</div>
+<p><br><br></p>
+<p><strong>Homogeneous Markov chains</strong></p>
+<ul class="simple">
+<li><p>Transition probabilities tell you how your state probabilities are going to change over time.</p></li>
+<li><p>In this course, we assume <strong>homogeneous Markov chain</strong> where transition probabilities are the same for all time steps <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="markov-chains-tasks">
+<h3>3.2 Markov chains tasks<a class="headerlink" href="#markov-chains-tasks" title="Link to this heading">#</a></h3>
+<p>What can we do with Markov chains?</p>
+<ul class="simple">
+<li><p><strong>Predict probabilities of sequences of states.</strong></p></li>
+<li><p><strong>Compute probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span></strong>.</p></li>
+<li><p><strong>Stationary distribution</strong>: Find the steady state after running the chain for a long time.</p></li>
+<li><p><strong>Generation</strong>: generate sequences that follow the probabilities of the states.</p>
+<ul>
+<li><p>You will be doing this in the lab.</p></li>
+</ul>
+</li>
+</ul>
+<section id="predict-probabilities-of-sequences-of-states">
+<h4>3.2.1 Predict probabilities of sequences of states<a class="headerlink" href="#predict-probabilities-of-sequences-of-states" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Given the Markov model: <span class="math notranslate nohighlight">\(S = \{\text{HOT, COLD, WARM}\}\)</span>,
+<span class="math notranslate nohighlight">\(\pi_0 = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\)</span>,
+$<span class="math notranslate nohighlight">\(T = \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix}\)</span>$</p></li>
+<li><p>Compute the probability of the sequences: HOT, HOT, WARM, COLD</p>
+<ul>
+<li><p>Markov assumption: <span class="math notranslate nohighlight">\(P(S_{t+1}\mid S_{0}, S_1, \dots, S_t) \approx P(S_{t+1} \mid S_t)\)</span></p></li>
+</ul>
+</li>
+</ul>
+<!-- <img src="img/Markov_chain.png" height="400" width="400">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<div class="amsmath math notranslate nohighlight" id="equation-e7b76def-5348-4284-b386-dc5622cd1815">
+<span class="eqno">(3)<a class="headerlink" href="#equation-e7b76def-5348-4284-b386-dc5622cd1815" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+P(\textrm{HOT, HOT, WARM, COLD}) \approx &amp; P(\text{HOT}) \times P(\text{HOT} \mid \text{HOT})\\ 
+                                  &amp; \times P(\text{WARM} \mid \text{HOT})\\
+                                  &amp; \times P(\text{COLD}\mid \text{WARM})\\
+                                 =&amp; 0.5  \times 0.5 \times 0.3 \times 0.1\\
+\end{split}
+\end{equation}\]</div>
+<p><strong>Your turn (Activity: 3 minutes)</strong></p>
+<ul class="simple">
+<li><p>Predict probabilities of the following sequences of states on your own.</p>
+<ol class="arabic simple">
+<li><p>COLD, COLD, WARM</p></li>
+<li><p>HOT, COLD, HOT, COLD</p></li>
+</ol>
+</li>
+</ul>
+<p>Hint: If we want to predict the future, all that matters is the current state.</p>
+<p><span class="math notranslate nohighlight">\(S = \{\text{HOT, COLD, WARM}\}\)</span>,
+<span class="math notranslate nohighlight">\(\pi_0 = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\)</span>,
+$<span class="math notranslate nohighlight">\(T = \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix}\)</span>$</p>
+<!-- <img src="img/Markov_chain.png" height="300" width="300">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<p><br><br></p>
+</section>
+<section id="computing-probability-of-being-in-a-particular-state-at-time-t">
+<h4>3.2.2 Computing probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span><a class="headerlink" href="#computing-probability-of-being-in-a-particular-state-at-time-t" title="Link to this heading">#</a></h4>
+<ul class="simple">
+<li><p>Example: Assuming that the time starts at 0, what is the probability of HOT at time 1?</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{equation}
+\begin{split}
+P(\textrm{HOT at time 1}) =&amp; P(\textrm{HOT at time 0}) \times P(\textrm{HOT} \mid \textrm{HOT})\\ 
+                                  &amp; + P(\textrm{COLD at time 0}) \times P(\textrm{HOT} \mid \textrm{COLD})\\
+                                  &amp;  + P(\textrm{WARM at time 0}) \times P(\textrm{HOT} \mid \textrm{WARM})\\
+                                 =&amp; 0.5 \times 0.5 + 0.3 \times 0.2 + 0.2\times 0.3 = 0.37\\
+\end{split}
+\end{equation}\end{split}\]</div>
+<!-- <img src="img/Markov_chain.png" height="400" width="400">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<p><strong>What is the probability of HOT at time 1?</strong></p>
+<ul class="simple">
+<li><p>You can conveniently calculate it as the dot product between <span class="math notranslate nohighlight">\(\pi_0\)</span> and the first column of the transition matrix!</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\pi_0 = \begin{bmatrix} P(\text{HOT at time 0}) &amp; P(\text{COLD at time 0}) &amp; P(\text{WARM at time 0}) \end{bmatrix} = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split} T = 
+\begin{bmatrix}
+P(\text{HOT} \mid \text{HOT}) &amp; P(\text{COLD} \mid \text{HOT}) &amp; P(\text{WARM} \mid \text{HOT})\\
+P(\text{HOT} \mid \text{COLD}) &amp; P(\text{COLD} \mid \text{COLD}) &amp; P(\text{WARM} \mid \text{COLD})\\
+P(\text{HOT} \mid \text{WARM}) &amp; P(\text{COLD} \mid \text{WARM}) &amp; P(\text{WARM} \mid \text{WARM})\\
+\end{bmatrix}
+= \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix} \end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}P(\text{HOT at time 1}) = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}  \begin{bmatrix} 0.5 \\ 0.2 \\ 0.3 \end{bmatrix} = 0.37\end{split}\]</div>
+<!-- <img src="img/Markov_chain.png" height="400" width="400">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<p><strong>What is the probability of HOT, COLD, WARM at time 1?</strong></p>
+<ul class="simple">
+<li><p>You can get probabilities of all states HOT, COLD, WARM at time 1 by multiplying <span class="math notranslate nohighlight">\(\pi_0\)</span> by the transition matrix.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\pi_1 = \pi_0T\]</div>
+<div class="math notranslate nohighlight">
+\[\pi_0 = \begin{bmatrix} P(\text{HOT at time 0}) &amp; P(\text{COLD at time 0}) &amp; P(\text{WARM at time 0}) \end{bmatrix} = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}T = 
+\begin{bmatrix}
+P(\text{HOT} \mid \text{HOT}) &amp; P(\text{COLD} \mid \text{HOT}) &amp; P(\text{WARM} \mid \text{HOT})\\
+P(\text{HOT} \mid \text{COLD}) &amp; P(\text{COLD} \mid \text{COLD}) &amp; P(\text{WARM} \mid \text{COLD})\\
+P(\text{HOT} \mid \text{WARM}) &amp; P(\text{COLD} \mid \text{WARM}) &amp; P(\text{WARM} \mid \text{WARM})\\
+\end{bmatrix}
+= \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix}\end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}\pi_1 = \begin{bmatrix} P(\text{HOT at time 1}) &amp; P(\text{COLD at time 1}) &amp; P(\text{WARM at time 1}) \end{bmatrix} =  \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\begin{bmatrix} 0.5 &amp; 0.2 &amp; 0.3\\ 0.2 &amp; 0.5 &amp; 0.3\\ 0.3 &amp; 0.1 &amp; 0.6\\ \end{bmatrix} = \begin{bmatrix}0.37 &amp; 0.27 &amp; 0.36\end{bmatrix}\end{split}\]</div>
+<!-- <img src="img/Markov_chain.png" height="300" width="300">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<p><strong>What is the probability of HOT, COLD, WARM at time 2?</strong></p>
+<ul class="simple">
+<li><p>Similarly can get probabilities of all states HOT, COLD, WARM at time 2 by multiplying <span class="math notranslate nohighlight">\(\pi_1\)</span> by the transition matrix.
+$<span class="math notranslate nohighlight">\(\pi_2 = \pi_1T\)</span>$</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\pi_1 = \begin{bmatrix} P(\text{HOT at time 1}) &amp; P(\text{COLD at time 1}) &amp; P(\text{WARM at time 1}) \end{bmatrix} =  \begin{bmatrix}0.37 &amp; 0.27 &amp; 0.36\end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split} T = 
+\begin{bmatrix}
+P(\text{HOT} \mid \text{HOT}) &amp; P(\text{COLD} \mid \text{HOT}) &amp; P(\text{WARM} \mid \text{HOT})\\
+P(\text{HOT} \mid \text{COLD}) &amp; P(\text{COLD} \mid \text{COLD}) &amp; P(\text{WARM} \mid \text{COLD})\\
+P(\text{HOT} \mid \text{WARM}) &amp; P(\text{COLD} \mid \text{WARM}) &amp; P(\text{WARM} \mid \text{WARM})\\
+\end{bmatrix}
+= \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix} \end{split}\]</div>
+<div class="math notranslate nohighlight">
+\[\pi_2 = \begin{bmatrix} P(\text{HOT at time 2}) &amp; P(\text{COLD at time 2}) &amp; P(\text{WARM at time 2} \end{bmatrix} = \pi_1T = \begin{bmatrix}0.347 &amp; 0.245 &amp; 0.408\end{bmatrix}\]</div>
+<!-- <img src="img/Markov_chain.png" height="300" width="300">  -->
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<p><strong>Probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span></strong></p>
+<ul class="simple">
+<li><p>Calculate</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\pi_t = \pi_{t-1} \times \text{transition probability matrix } T\]</div>
+<ul class="simple">
+<li><p>Applying the matrix multiplication to the current state probabilities does an <strong>update</strong> to the state probabilities!</p></li>
+</ul>
+<p>Let’s try it out with numpy.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>  <span class="c1"># initial state probability dist</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]])</span>  <span class="c1"># transition matrix</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Initial probability distribution over states: &quot;</span><span class="p">,</span> <span class="n">pi_0</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The transition probability matrix: </span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">T</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Initial probability distribution over states:  [0.5 0.3 0.2]
+The transition probability matrix: 
+ [[0.5 0.2 0.3]
+ [0.2 0.5 0.3]
+ [0.3 0.1 0.6]]
+</pre></div>
+</div>
+</div>
+</div>
+<p>You can also get state probabilities at time <span class="math notranslate nohighlight">\(t\)</span> by multiplying <code class="docutils literal notranslate"><span class="pre">pi_0</span></code> by the <span class="math notranslate nohighlight">\(t^{th}\)</span> power of the transition matrix. For example, you can estimate state probabilities at time step 18 as:</p>
+<div class="math notranslate nohighlight">
+\[\pi_{18} = \pi_{0} \times T^{18}\]</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">18</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.34693878, 0.2244898 , 0.42857143])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">panel</span> <span class="k">as</span> <span class="nn">pn</span>
+<span class="kn">from</span> <span class="nn">panel</span> <span class="kn">import</span> <span class="n">widgets</span>
+<span class="kn">from</span> <span class="nn">panel.interact</span> <span class="kn">import</span> <span class="n">interact</span>
+<span class="kn">import</span> <span class="nn">matplotlib</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">clear_output</span>
+
+<span class="n">pn</span><span class="o">.</span><span class="n">extension</span><span class="p">()</span>
+
+<span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">time_steps</span><span class="p">):</span>
+    <span class="k">return</span> <span class="sa">f</span><span class="s2">&quot;State probabilities at time step </span><span class="si">{</span><span class="n">time_steps</span><span class="si">}</span><span class="s2"> (pi_</span><span class="si">{</span><span class="n">time_steps</span><span class="si">}</span><span class="s2"> = pi_0@T^</span><span class="si">{</span><span class="n">time_steps</span><span class="si">}</span><span class="s2">) = </span><span class="si">{</span><span class="n">pi_0</span><span class="w"> </span><span class="o">@</span><span class="w"> </span><span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span><span class="w"> </span><span class="n">time_steps</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+
+<span class="n">interact</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">time_steps</span><span class="o">=</span><span class="n">widgets</span><span class="o">.</span><span class="n">IntSlider</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Time step&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">max_opts</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><script type="esms-options">{"shimMode": true}</script><style>*[data-root-id],
+*[data-root-id] > * {
+  box-sizing: border-box;
+  font-family: var(--jp-ui-font-family);
+  font-size: var(--jp-ui-font-size1);
+  color: var(--vscode-editor-foreground, var(--jp-ui-font-color1));
+}
+
+/* Override VSCode background color */
+.cell-output-ipywidget-background:has(
+    > .cell-output-ipywidget-background > .lm-Widget > *[data-root-id]
+  ),
+.cell-output-ipywidget-background:has(> .lm-Widget > *[data-root-id]) {
+  background-color: transparent !important;
+}
+</style></div><script type="application/javascript">(function(root) {
+  function now() {
+    return new Date();
+  }
+
+  const force = true;
+  const py_version = '3.6.3'.replace('rc', '-rc.').replace('.dev', '-dev.');
+  const reloading = false;
+  const Bokeh = root.Bokeh;
+
+  // Set a timeout for this load but only if we are not already initializing
+  if (typeof (root._bokeh_timeout) === "undefined" || (force || !root._bokeh_is_initializing)) {
+    root._bokeh_timeout = Date.now() + 5000;
+    root._bokeh_failed_load = false;
+  }
+
+  function run_callbacks() {
+    try {
+      root._bokeh_onload_callbacks.forEach(function(callback) {
+        if (callback != null)
+          callback();
+      });
+    } finally {
+      delete root._bokeh_onload_callbacks;
+    }
+    console.debug("Bokeh: all callbacks have finished");
+  }
+
+  function load_libs(css_urls, js_urls, js_modules, js_exports, callback) {
+    if (css_urls == null) css_urls = [];
+    if (js_urls == null) js_urls = [];
+    if (js_modules == null) js_modules = [];
+    if (js_exports == null) js_exports = {};
+
+    root._bokeh_onload_callbacks.push(callback);
+
+    if (root._bokeh_is_loading > 0) {
+      // Don't load bokeh if it is still initializing
+      console.debug("Bokeh: BokehJS is being loaded, scheduling callback at", now());
+      return null;
+    } else if (js_urls.length === 0 && js_modules.length === 0 && Object.keys(js_exports).length === 0) {
+      // There is nothing to load
+      run_callbacks();
+      return null;
+    }
+
+    function on_load() {
+      root._bokeh_is_loading--;
+      if (root._bokeh_is_loading === 0) {
+        console.debug("Bokeh: all BokehJS libraries/stylesheets loaded");
+        run_callbacks()
+      }
+    }
+    window._bokeh_on_load = on_load
+
+    function on_error(e) {
+      const src_el = e.srcElement
+      console.error("failed to load " + (src_el.href || src_el.src));
+    }
+
+    const skip = [];
+    if (window.requirejs) {
+      window.requirejs.config({'packages': {}, 'paths': {}, 'shim': {}});
+      root._bokeh_is_loading = css_urls.length + 0;
+    } else {
+      root._bokeh_is_loading = css_urls.length + js_urls.length + js_modules.length + Object.keys(js_exports).length;
+    }
+
+    const existing_stylesheets = []
+    const links = document.getElementsByTagName('link')
+    for (let i = 0; i < links.length; i++) {
+      const link = links[i]
+      if (link.href != null) {
+        existing_stylesheets.push(link.href)
+      }
+    }
+    for (let i = 0; i < css_urls.length; i++) {
+      const url = css_urls[i];
+      const escaped = encodeURI(url)
+      if (existing_stylesheets.indexOf(escaped) !== -1) {
+        on_load()
+        continue;
+      }
+      const element = document.createElement("link");
+      element.onload = on_load;
+      element.onerror = on_error;
+      element.rel = "stylesheet";
+      element.type = "text/css";
+      element.href = url;
+      console.debug("Bokeh: injecting link tag for BokehJS stylesheet: ", url);
+      document.body.appendChild(element);
+    }    var existing_scripts = []
+    const scripts = document.getElementsByTagName('script')
+    for (let i = 0; i < scripts.length; i++) {
+      var script = scripts[i]
+      if (script.src != null) {
+        existing_scripts.push(script.src)
+      }
+    }
+    for (let i = 0; i < js_urls.length; i++) {
+      const url = js_urls[i];
+      const escaped = encodeURI(url)
+      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+        if (!window.requirejs) {
+          on_load();
+        }
+        continue;
+      }
+      const element = document.createElement('script');
+      element.onload = on_load;
+      element.onerror = on_error;
+      element.async = false;
+      element.src = url;
+      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
+      document.head.appendChild(element);
+    }
+    for (let i = 0; i < js_modules.length; i++) {
+      const url = js_modules[i];
+      const escaped = encodeURI(url)
+      if (skip.indexOf(escaped) !== -1 || existing_scripts.indexOf(escaped) !== -1) {
+        if (!window.requirejs) {
+          on_load();
+        }
+        continue;
+      }
+      var element = document.createElement('script');
+      element.onload = on_load;
+      element.onerror = on_error;
+      element.async = false;
+      element.src = url;
+      element.type = "module";
+      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
+      document.head.appendChild(element);
+    }
+    for (const name in js_exports) {
+      const url = js_exports[name];
+      const escaped = encodeURI(url)
+      if (skip.indexOf(escaped) >= 0 || root[name] != null) {
+        if (!window.requirejs) {
+          on_load();
+        }
+        continue;
+      }
+      var element = document.createElement('script');
+      element.onerror = on_error;
+      element.async = false;
+      element.type = "module";
+      console.debug("Bokeh: injecting script tag for BokehJS library: ", url);
+      element.textContent = `
+      import ${name} from "${url}"
+      window.${name} = ${name}
+      window._bokeh_on_load()
+      `
+      document.head.appendChild(element);
+    }
+    if (!js_urls.length && !js_modules.length) {
+      on_load()
+    }
+  };
+
+  function inject_raw_css(css) {
+    const element = document.createElement("style");
+    element.appendChild(document.createTextNode(css));
+    document.body.appendChild(element);
+  }
+
+  const js_urls = ["https://cdn.holoviz.org/panel/1.5.2/dist/bundled/reactiveesm/es-module-shims@^1.10.0/dist/es-module-shims.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-3.6.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-gl-3.6.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-widgets-3.6.3.min.js", "https://cdn.bokeh.org/bokeh/release/bokeh-tables-3.6.3.min.js", "https://cdn.holoviz.org/panel/1.5.2/dist/panel.min.js"];
+  const js_modules = [];
+  const js_exports = {};
+  const css_urls = [];
+  const inline_js = [    function(Bokeh) {
+      Bokeh.set_log_level("info");
+    },
+function(Bokeh) {} // ensure no trailing comma for IE
+  ];
+
+  function run_inline_js() {
+    if ((root.Bokeh !== undefined) || (force === true)) {
+      for (let i = 0; i < inline_js.length; i++) {
+        try {
+          inline_js[i].call(root, root.Bokeh);
+        } catch(e) {
+          if (!reloading) {
+            throw e;
+          }
+        }
+      }
+      // Cache old bokeh versions
+      if (Bokeh != undefined && !reloading) {
+        var NewBokeh = root.Bokeh;
+        if (Bokeh.versions === undefined) {
+          Bokeh.versions = new Map();
+        }
+        if (NewBokeh.version !== Bokeh.version) {
+          Bokeh.versions.set(NewBokeh.version, NewBokeh)
+        }
+        root.Bokeh = Bokeh;
+      }
+    } else if (Date.now() < root._bokeh_timeout) {
+      setTimeout(run_inline_js, 100);
+    } else if (!root._bokeh_failed_load) {
+      console.log("Bokeh: BokehJS failed to load within specified timeout.");
+      root._bokeh_failed_load = true;
+    }
+    root._bokeh_is_initializing = false
+  }
+
+  function load_or_wait() {
+    // Implement a backoff loop that tries to ensure we do not load multiple
+    // versions of Bokeh and its dependencies at the same time.
+    // In recent versions we use the root._bokeh_is_initializing flag
+    // to determine whether there is an ongoing attempt to initialize
+    // bokeh, however for backward compatibility we also try to ensure
+    // that we do not start loading a newer (Panel>=1.0 and Bokeh>3) version
+    // before older versions are fully initialized.
+    if (root._bokeh_is_initializing && Date.now() > root._bokeh_timeout) {
+      // If the timeout and bokeh was not successfully loaded we reset
+      // everything and try loading again
+      root._bokeh_timeout = Date.now() + 5000;
+      root._bokeh_is_initializing = false;
+      root._bokeh_onload_callbacks = undefined;
+      root._bokeh_is_loading = 0
+      console.log("Bokeh: BokehJS was loaded multiple times but one version failed to initialize.");
+      load_or_wait();
+    } else if (root._bokeh_is_initializing || (typeof root._bokeh_is_initializing === "undefined" && root._bokeh_onload_callbacks !== undefined)) {
+      setTimeout(load_or_wait, 100);
+    } else {
+      root._bokeh_is_initializing = true
+      root._bokeh_onload_callbacks = []
+      const bokeh_loaded = root.Bokeh != null && (root.Bokeh.version === py_version || (root.Bokeh.versions !== undefined && root.Bokeh.versions.has(py_version)));
+      if (!reloading && !bokeh_loaded) {
+        if (root.Bokeh) {
+          root.Bokeh = undefined;
+        }
+        console.debug("Bokeh: BokehJS not loaded, scheduling load and callback at", now());
+      }
+      load_libs(css_urls, js_urls, js_modules, js_exports, function() {
+        console.debug("Bokeh: BokehJS plotting callback run at", now());
+        run_inline_js();
+      });
+    }
+  }
+  // Give older versions of the autoload script a head-start to ensure
+  // they initialize before we start loading newer version.
+  setTimeout(load_or_wait, 100)
+}(window));</script><script type="application/javascript">
+if ((window.PyViz === undefined) || (window.PyViz instanceof HTMLElement)) {
+  window.PyViz = {comms: {}, comm_status:{}, kernels:{}, receivers: {}, plot_index: []}
+}
+
+
+    function JupyterCommManager() {
+    }
+
+    JupyterCommManager.prototype.register_target = function(plot_id, comm_id, msg_handler) {
+      if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
+        var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
+        comm_manager.register_target(comm_id, function(comm) {
+          comm.on_msg(msg_handler);
+        });
+      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
+        window.PyViz.kernels[plot_id].registerCommTarget(comm_id, function(comm) {
+          comm.onMsg = msg_handler;
+        });
+      } else if (typeof google != 'undefined' && google.colab.kernel != null) {
+        google.colab.kernel.comms.registerTarget(comm_id, (comm) => {
+          var messages = comm.messages[Symbol.asyncIterator]();
+          function processIteratorResult(result) {
+            var message = result.value;
+            console.log(message)
+            var content = {data: message.data, comm_id};
+            var buffers = []
+            for (var buffer of message.buffers || []) {
+              buffers.push(new DataView(buffer))
+            }
+            var metadata = message.metadata || {};
+            var msg = {content, buffers, metadata}
+            msg_handler(msg);
+            return messages.next().then(processIteratorResult);
+          }
+          return messages.next().then(processIteratorResult);
+        })
+      }
+    }
+
+    JupyterCommManager.prototype.get_client_comm = function(plot_id, comm_id, msg_handler) {
+      if (comm_id in window.PyViz.comms) {
+        return window.PyViz.comms[comm_id];
+      } else if (window.comm_manager || ((window.Jupyter !== undefined) && (Jupyter.notebook.kernel != null))) {
+        var comm_manager = window.comm_manager || Jupyter.notebook.kernel.comm_manager;
+        var comm = comm_manager.new_comm(comm_id, {}, {}, {}, comm_id);
+        if (msg_handler) {
+          comm.on_msg(msg_handler);
+        }
+      } else if ((plot_id in window.PyViz.kernels) && (window.PyViz.kernels[plot_id])) {
+        var comm = window.PyViz.kernels[plot_id].connectToComm(comm_id);
+        comm.open();
+        if (msg_handler) {
+          comm.onMsg = msg_handler;
+        }
+      } else if (typeof google != 'undefined' && google.colab.kernel != null) {
+        var comm_promise = google.colab.kernel.comms.open(comm_id)
+        comm_promise.then((comm) => {
+          window.PyViz.comms[comm_id] = comm;
+          if (msg_handler) {
+            var messages = comm.messages[Symbol.asyncIterator]();
+            function processIteratorResult(result) {
+              var message = result.value;
+              var content = {data: message.data};
+              var metadata = message.metadata || {comm_id};
+              var msg = {content, metadata}
+              msg_handler(msg);
+              return messages.next().then(processIteratorResult);
+            }
+            return messages.next().then(processIteratorResult);
+          }
+        }) 
+        var sendClosure = (data, metadata, buffers, disposeOnDone) => {
+          return comm_promise.then((comm) => {
+            comm.send(data, metadata, buffers, disposeOnDone);
+          });
+        };
+        var comm = {
+          send: sendClosure
+        };
+      }
+      window.PyViz.comms[comm_id] = comm;
+      return comm;
+    }
+    window.PyViz.comm_manager = new JupyterCommManager();
+    
+
+
+var JS_MIME_TYPE = 'application/javascript';
+var HTML_MIME_TYPE = 'text/html';
+var EXEC_MIME_TYPE = 'application/vnd.holoviews_exec.v0+json';
+var CLASS_NAME = 'output';
+
+/**
+ * Render data to the DOM node
+ */
+function render(props, node) {
+  var div = document.createElement("div");
+  var script = document.createElement("script");
+  node.appendChild(div);
+  node.appendChild(script);
+}
+
+/**
+ * Handle when a new output is added
+ */
+function handle_add_output(event, handle) {
+  var output_area = handle.output_area;
+  var output = handle.output;
+  if ((output.data == undefined) || (!output.data.hasOwnProperty(EXEC_MIME_TYPE))) {
+    return
+  }
+  var id = output.metadata[EXEC_MIME_TYPE]["id"];
+  var toinsert = output_area.element.find("." + CLASS_NAME.split(' ')[0]);
+  if (id !== undefined) {
+    var nchildren = toinsert.length;
+    var html_node = toinsert[nchildren-1].children[0];
+    html_node.innerHTML = output.data[HTML_MIME_TYPE];
+    var scripts = [];
+    var nodelist = html_node.querySelectorAll("script");
+    for (var i in nodelist) {
+      if (nodelist.hasOwnProperty(i)) {
+        scripts.push(nodelist[i])
+      }
+    }
+
+    scripts.forEach( function (oldScript) {
+      var newScript = document.createElement("script");
+      var attrs = [];
+      var nodemap = oldScript.attributes;
+      for (var j in nodemap) {
+        if (nodemap.hasOwnProperty(j)) {
+          attrs.push(nodemap[j])
+        }
+      }
+      attrs.forEach(function(attr) { newScript.setAttribute(attr.name, attr.value) });
+      newScript.appendChild(document.createTextNode(oldScript.innerHTML));
+      oldScript.parentNode.replaceChild(newScript, oldScript);
+    });
+    if (JS_MIME_TYPE in output.data) {
+      toinsert[nchildren-1].children[1].textContent = output.data[JS_MIME_TYPE];
+    }
+    output_area._hv_plot_id = id;
+    if ((window.Bokeh !== undefined) && (id in Bokeh.index)) {
+      window.PyViz.plot_index[id] = Bokeh.index[id];
+    } else {
+      window.PyViz.plot_index[id] = null;
+    }
+  } else if (output.metadata[EXEC_MIME_TYPE]["server_id"] !== undefined) {
+    var bk_div = document.createElement("div");
+    bk_div.innerHTML = output.data[HTML_MIME_TYPE];
+    var script_attrs = bk_div.children[0].attributes;
+    for (var i = 0; i < script_attrs.length; i++) {
+      toinsert[toinsert.length - 1].childNodes[1].setAttribute(script_attrs[i].name, script_attrs[i].value);
+    }
+    // store reference to server id on output_area
+    output_area._bokeh_server_id = output.metadata[EXEC_MIME_TYPE]["server_id"];
+  }
+}
+
+/**
+ * Handle when an output is cleared or removed
+ */
+function handle_clear_output(event, handle) {
+  var id = handle.cell.output_area._hv_plot_id;
+  var server_id = handle.cell.output_area._bokeh_server_id;
+  if (((id === undefined) || !(id in PyViz.plot_index)) && (server_id !== undefined)) { return; }
+  var comm = window.PyViz.comm_manager.get_client_comm("hv-extension-comm", "hv-extension-comm", function () {});
+  if (server_id !== null) {
+    comm.send({event_type: 'server_delete', 'id': server_id});
+    return;
+  } else if (comm !== null) {
+    comm.send({event_type: 'delete', 'id': id});
+  }
+  delete PyViz.plot_index[id];
+  if ((window.Bokeh !== undefined) & (id in window.Bokeh.index)) {
+    var doc = window.Bokeh.index[id].model.document
+    doc.clear();
+    const i = window.Bokeh.documents.indexOf(doc);
+    if (i > -1) {
+      window.Bokeh.documents.splice(i, 1);
+    }
+  }
+}
+
+/**
+ * Handle kernel restart event
+ */
+function handle_kernel_cleanup(event, handle) {
+  delete PyViz.comms["hv-extension-comm"];
+  window.PyViz.plot_index = {}
+}
+
+/**
+ * Handle update_display_data messages
+ */
+function handle_update_output(event, handle) {
+  handle_clear_output(event, {cell: {output_area: handle.output_area}})
+  handle_add_output(event, handle)
+}
+
+function register_renderer(events, OutputArea) {
+  function append_mime(data, metadata, element) {
+    // create a DOM node to render to
+    var toinsert = this.create_output_subarea(
+    metadata,
+    CLASS_NAME,
+    EXEC_MIME_TYPE
+    );
+    this.keyboard_manager.register_events(toinsert);
+    // Render to node
+    var props = {data: data, metadata: metadata[EXEC_MIME_TYPE]};
+    render(props, toinsert[0]);
+    element.append(toinsert);
+    return toinsert
+  }
+
+  events.on('output_added.OutputArea', handle_add_output);
+  events.on('output_updated.OutputArea', handle_update_output);
+  events.on('clear_output.CodeCell', handle_clear_output);
+  events.on('delete.Cell', handle_clear_output);
+  events.on('kernel_ready.Kernel', handle_kernel_cleanup);
+
+  OutputArea.prototype.register_mime_type(EXEC_MIME_TYPE, append_mime, {
+    safe: true,
+    index: 0
+  });
+}
+
+if (window.Jupyter !== undefined) {
+  try {
+    var events = require('base/js/events');
+    var OutputArea = require('notebook/js/outputarea').OutputArea;
+    if (OutputArea.prototype.mime_types().indexOf(EXEC_MIME_TYPE) == -1) {
+      register_renderer(events, OutputArea);
+    }
+  } catch(err) {
+  }
+}
+</script><div class="output text_html"><div id='aab7435a-2734-4932-81f3-618bf774adae'>
+  <div id="dac45036-7376-4181-9d1a-ee1d60d89d57" data-root-id="aab7435a-2734-4932-81f3-618bf774adae" style="display: contents;"></div>
+</div>
+<script type="application/javascript">(function(root) {
+  var docs_json = {"ff74205f-015c-46f9-9fb4-d58efd0b7a2f":{"version":"3.6.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.browser.BrowserInfo","id":"aab7435a-2734-4932-81f3-618bf774adae"},{"type":"object","name":"panel.models.comm_manager.CommManager","id":"a461b23a-213e-4c1a-9452-df72cbe91313","attributes":{"plot_id":"aab7435a-2734-4932-81f3-618bf774adae","comm_id":"d2ad8a213695447e956e7beff2042e40","client_comm_id":"31b3dcdfd60444368fb374914a4dc8f4"}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"mode","kind":"Any","default":"warn"},{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationAreaBase1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1"},{"type":"model","name":"JSComponent1"},{"type":"model","name":"ReactComponent1"},{"type":"model","name":"AnyWidgetComponent1"},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"ff74205f-015c-46f9-9fb4-d58efd0b7a2f","roots":{"aab7435a-2734-4932-81f3-618bf774adae":"dac45036-7376-4181-9d1a-ee1d60d89d57"},"root_ids":["aab7435a-2734-4932-81f3-618bf774adae"]}];
+  var docs = Object.values(docs_json)
+  if (!docs) {
+    return
+  }
+  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  async function embed_document(root) {
+    var Bokeh = get_bokeh(root)
+    await Bokeh.embed.embed_items_notebook(docs_json, render_items);
+    for (const render_item of render_items) {
+      for (const root_id of render_item.root_ids) {
+	const id_el = document.getElementById(root_id)
+	if (id_el.children.length && id_el.children[0].hasAttribute('data-root-id')) {
+	  const root_el = id_el.children[0]
+	  root_el.id = root_el.id + '-rendered'
+	  for (const child of root_el.children) {
+            // Ensure JupyterLab does not capture keyboard shortcuts
+            // see: https://jupyterlab.readthedocs.io/en/4.1.x/extension/notebook.html#keyboard-interaction-model
+	    child.setAttribute('data-lm-suppress-shortcuts', 'true')
+	  }
+	}
+      }
+    }
+  }
+  function get_bokeh(root) {
+    if (root.Bokeh === undefined) {
+      return null
+    } else if (root.Bokeh.version !== py_version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+	return null
+      }
+      return root.Bokeh.versions.get(py_version);
+    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh
+    }
+    return null
+  }
+  function is_loaded(root) {
+    var Bokeh = get_bokeh(root)
+    return (Bokeh != null && Bokeh.Panel !== undefined)
+  }
+  if (is_loaded(root)) {
+    embed_document(root);
+  } else {
+    var attempts = 0;
+    var timer = setInterval(function(root) {
+      if (is_loaded(root)) {
+        clearInterval(timer);
+        embed_document(root);
+      } else if (document.readyState == "complete") {
+        attempts++;
+        if (attempts > 200) {
+          clearInterval(timer);
+	  var Bokeh = get_bokeh(root)
+	  if (Bokeh == null || Bokeh.Panel == null) {
+            console.warn("Panel: ERROR: Unable to run Panel code because Bokeh or Panel library is missing");
+	  } else {
+	    console.warn("Panel: WARNING: Attempting to render but not all required libraries could be resolved.")
+	    embed_document(root)
+	  }
+        }
+      }
+    }, 25, root)
+  }
+})(window);</script></div><div class="output text_html"><div id='ac0ec83e-1958-4d76-940e-4a763eef4519'>
+  <div id="b8f86955-870a-4846-82ea-e5aefbac793b" data-root-id="ac0ec83e-1958-4d76-940e-4a763eef4519" style="display: contents;"></div>
+</div>
+<script type="application/javascript">(function(root) {
+  var docs_json = {"8d91b6a5-4e23-42c2-9a8f-7bcd09db7f32":{"version":"3.6.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.layout.Column","id":"ac0ec83e-1958-4d76-940e-4a763eef4519","attributes":{"name":"Column00123","tags":["embedded"],"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"582557af-9d1e-4651-8352-2117ad768e1b","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/css/listpanel.css"}},{"type":"object","name":"ImportedStyleSheet","id":"1cec6c97-4898-44ee-8bed-33fa4447868f","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"391ec699-3de0-4e30-9666-73a4f8d71b04","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/bundled/theme/native.css"}}],"margin":0,"align":"start","children":[{"type":"object","name":"panel.models.layout.Column","id":"7dcf07e3-7d26-4da4-b9dd-c0a542b55588","attributes":{"name":"Column00128","stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e"},{"id":"582557af-9d1e-4651-8352-2117ad768e1b"},{"id":"1cec6c97-4898-44ee-8bed-33fa4447868f"},{"id":"391ec699-3de0-4e30-9666-73a4f8d71b04"}],"margin":0,"align":"start","children":[{"type":"object","name":"panel.models.layout.Column","id":"3cbdcce6-cb8b-4cb8-ba0c-6bfa04f31eb6","attributes":{"name":"Column00138","stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e"},{"id":"582557af-9d1e-4651-8352-2117ad768e1b"},{"id":"1cec6c97-4898-44ee-8bed-33fa4447868f"},{"id":"391ec699-3de0-4e30-9666-73a4f8d71b04"}],"margin":0,"align":"start","children":[{"type":"object","name":"Div","id":"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac","attributes":{"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e"},{"id":"1cec6c97-4898-44ee-8bed-33fa4447868f"},{"id":"391ec699-3de0-4e30-9666-73a4f8d71b04"}],"margin":[5,0,0,10],"align":"start","text":"Time step: <b>0</b>"}},{"type":"object","name":"Slider","id":"b2ed8398-0644-4424-a5fc-d2d42067f8aa","attributes":{"js_property_callbacks":{"type":"map","entries":[["change:value",[{"type":"object","name":"CustomJS","id":"7ff2f280-3874-4acd-b80b-7b23045e23cf","attributes":{"args":{"type":"map","entries":[["source",{"id":"b2ed8398-0644-4424-a5fc-d2d42067f8aa"}],["target",{"id":"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac"}]]},"code":"\n    var labels = ['Time step: <b>0</b>', 'Time step: <b>2</b>', 'Time step: <b>4</b>', 'Time step: <b>6</b>', 'Time step: <b>8</b>', 'Time step: <b>10</b>', 'Time step: <b>12</b>', 'Time step: <b>14</b>', 'Time step: <b>16</b>', 'Time step: <b>18</b>', 'Time step: <b>20</b>', 'Time step: <b>22</b>', 'Time step: <b>24</b>', 'Time step: <b>26</b>', 'Time step: <b>28</b>', 'Time step: <b>30</b>']\n    target.text = labels[source.value]\n    "}},{"type":"object","name":"CustomJS","id":"f2544623-17a5-4efe-ba4d-ed3902e79cdf","attributes":{"code":"\nvar state = null\nfor (var root of cb_obj.document.roots()) {\n  if (root.id == 'a97e94cd-87ca-400a-9a18-0539f4684f58') {\n    state = root;\n    break;\n  }\n}\nif (!state) { return; }\nstate.set_state(cb_obj, cb_obj.value)\n"}}]]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e"},{"id":"1cec6c97-4898-44ee-8bed-33fa4447868f"},{"id":"391ec699-3de0-4e30-9666-73a4f8d71b04"}],"margin":[0,10,5,10],"align":"start","show_value":false,"tooltips":false,"start":0,"end":15,"value":0}}]}}]}},{"type":"object","name":"Row","id":"82681c9b-5d37-4827-b4c8-76035cd8e23a","attributes":{"name":"Row00127","stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e"},{"id":"582557af-9d1e-4651-8352-2117ad768e1b"},{"id":"1cec6c97-4898-44ee-8bed-33fa4447868f"},{"id":"391ec699-3de0-4e30-9666-73a4f8d71b04"}],"margin":0,"align":"start","children":[{"type":"object","name":"panel.models.markup.HTML","id":"f710a256-fcce-446e-982e-50017fa9c7ef","attributes":{"css_classes":["markdown"],"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"892ed1a9-b7e5-4e19-8417-7cd5163be95e"},{"type":"object","name":"ImportedStyleSheet","id":"b9261a58-0bfd-4971-9258-66c543e55f2a","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/css/markdown.css"}},{"id":"1cec6c97-4898-44ee-8bed-33fa4447868f"},{"id":"391ec699-3de0-4e30-9666-73a4f8d71b04"}],"margin":[5,10],"align":"start","text":"&lt;p&gt;State probabilities at time step 0 (pi_0 = pi_0@T^0) = [0.5 0.3 0.2]&lt;/p&gt;\n"}}]}}]}},{"type":"object","name":"panel.models.state.State","id":"a97e94cd-87ca-400a-9a18-0539f4684f58","attributes":{"state":{"type":"map","entries":[[15,{"type":"map","entries":[["header","{\"msgid\": \"29bc3dfa-7af5-4558-a9da-6207d9b6b91e\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>30</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 30 (pi_30 = pi_0@T^30) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[14,{"type":"map","entries":[["header","{\"msgid\": \"441317ab-def3-4f43-825f-e571faa480a6\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>28</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 28 (pi_28 = pi_0@T^28) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[13,{"type":"map","entries":[["header","{\"msgid\": \"d76f3d97-4cbd-4e0c-9b66-35759c62c003\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>26</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 26 (pi_26 = pi_0@T^26) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[12,{"type":"map","entries":[["header","{\"msgid\": \"58f51eda-a8cd-4fe0-8bd6-f75ac5ed06df\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>24</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 24 (pi_24 = pi_0@T^24) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[11,{"type":"map","entries":[["header","{\"msgid\": \"7d6bf543-ac1c-4d8d-8419-bb36c8f5e147\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>22</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 22 (pi_22 = pi_0@T^22) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[10,{"type":"map","entries":[["header","{\"msgid\": \"691b714a-f007-4735-9966-d3484e1c509e\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>20</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 20 (pi_20 = pi_0@T^20) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[9,{"type":"map","entries":[["header","{\"msgid\": \"426a10c8-f035-4fd3-89e7-178c07be5c85\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>18</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 18 (pi_18 = pi_0@T^18) = [0.34693878 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[8,{"type":"map","entries":[["header","{\"msgid\": \"0f8db8e1-f245-4b3b-90ee-07348d907cc0\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>16</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 16 (pi_16 = pi_0@T^16) = [0.34693877 0.2244898  0.42857143]&lt;/p&gt;\\n\"}]}"]]}],[7,{"type":"map","entries":[["header","{\"msgid\": \"c4fea495-b0d4-4ebc-8f8a-189ba16c563f\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>14</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 14 (pi_14 = pi_0@T^14) = [0.34693873 0.22448985 0.42857142]&lt;/p&gt;\\n\"}]}"]]}],[6,{"type":"map","entries":[["header","{\"msgid\": \"287a26ea-db6c-42ab-9f86-b2c4625259d7\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>12</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 12 (pi_12 = pi_0@T^12) = [0.34693837 0.22449032 0.42857131]&lt;/p&gt;\\n\"}]}"]]}],[5,{"type":"map","entries":[["header","{\"msgid\": \"7aea7c3c-e2d7-4c75-be21-1e29224e01e7\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>10</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 10 (pi_10 = pi_0@T^10) = [0.34693518 0.22449474 0.42857008]&lt;/p&gt;\\n\"}]}"]]}],[4,{"type":"map","entries":[["header","{\"msgid\": \"837cf32c-615a-4bb8-97ec-3fa05a94ac81\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>8</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 8 (pi_8 = pi_0@T^8) = [0.34690883 0.22453474 0.42855643]&lt;/p&gt;\\n\"}]}"]]}],[3,{"type":"map","entries":[["header","{\"msgid\": \"ca97be61-9e4c-4e7c-a52c-51bab4da110e\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>6</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 6 (pi_6 = pi_0@T^6) = [0.3467171 0.2248781 0.4284048]&lt;/p&gt;\\n\"}]}"]]}],[2,{"type":"map","entries":[["header","{\"msgid\": \"6c0af486-db7b-40c3-98c6-603490f85eb3\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>4</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 4 (pi_4 = pi_0@T^4) = [0.34571 0.22757 0.42672]&lt;/p&gt;\\n\"}]}"]]}],[1,{"type":"map","entries":[["header","{\"msgid\": \"a1d7747c-dbf3-4e2e-89b0-1b140ec636dc\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>2</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 2 (pi_2 = pi_0@T^2) = [0.347 0.245 0.408]&lt;/p&gt;\\n\"}]}"]]}],[0,{"type":"map","entries":[["header","{\"msgid\": \"b1d23783-0f8a-4bd9-9647-95467eb332e8\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"4f8ad203-5e2d-4c0e-a444-bfc81e0e3cac\"},\"attr\":\"text\",\"new\":\"Time step: <b>0</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"f710a256-fcce-446e-982e-50017fa9c7ef\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;State probabilities at time step 0 (pi_0 = pi_0@T^0) = [0.5 0.3 0.2]&lt;/p&gt;\\n\"}]}"]]}]]},"widgets":{"type":"map","entries":[["b2ed8398-0644-4424-a5fc-d2d42067f8aa",0]]},"values":[0]}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"mode","kind":"Any","default":"warn"},{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationAreaBase1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1"},{"type":"model","name":"JSComponent1"},{"type":"model","name":"ReactComponent1"},{"type":"model","name":"AnyWidgetComponent1"},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"8d91b6a5-4e23-42c2-9a8f-7bcd09db7f32","roots":{"ac0ec83e-1958-4d76-940e-4a763eef4519":"b8f86955-870a-4846-82ea-e5aefbac793b"},"root_ids":["ac0ec83e-1958-4d76-940e-4a763eef4519"]}];
+  var docs = Object.values(docs_json)
+  if (!docs) {
+    return
+  }
+  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  async function embed_document(root) {
+    var Bokeh = get_bokeh(root)
+    await Bokeh.embed.embed_items_notebook(docs_json, render_items);
+    for (const render_item of render_items) {
+      for (const root_id of render_item.root_ids) {
+	const id_el = document.getElementById(root_id)
+	if (id_el.children.length && id_el.children[0].hasAttribute('data-root-id')) {
+	  const root_el = id_el.children[0]
+	  root_el.id = root_el.id + '-rendered'
+	  for (const child of root_el.children) {
+            // Ensure JupyterLab does not capture keyboard shortcuts
+            // see: https://jupyterlab.readthedocs.io/en/4.1.x/extension/notebook.html#keyboard-interaction-model
+	    child.setAttribute('data-lm-suppress-shortcuts', 'true')
+	  }
+	}
+      }
+    }
+  }
+  function get_bokeh(root) {
+    if (root.Bokeh === undefined) {
+      return null
+    } else if (root.Bokeh.version !== py_version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+	return null
+      }
+      return root.Bokeh.versions.get(py_version);
+    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh
+    }
+    return null
+  }
+  function is_loaded(root) {
+    var Bokeh = get_bokeh(root)
+    return (Bokeh != null && Bokeh.Panel !== undefined)
+  }
+  if (is_loaded(root)) {
+    embed_document(root);
+  } else {
+    var attempts = 0;
+    var timer = setInterval(function(root) {
+      if (is_loaded(root)) {
+        clearInterval(timer);
+        embed_document(root);
+      } else if (document.readyState == "complete") {
+        attempts++;
+        if (attempts > 200) {
+          clearInterval(timer);
+	  var Bokeh = get_bokeh(root)
+	  if (Bokeh == null || Bokeh.Panel == null) {
+            console.warn("Panel: ERROR: Unable to run Panel code because Bokeh or Panel library is missing");
+	  } else {
+	    console.warn("Panel: WARNING: Attempting to render but not all required libraries could be resolved.")
+	    embed_document(root)
+	  }
+        }
+      }
+    }, 25, root)
+  }
+})(window);</script></div></div>
+</div>
+<p>Any interesting observations?</p>
+<p><br><br></p>
+</section>
+</section>
+<section id="break-5-mins">
+<h3>Break (~5 mins)<a class="headerlink" href="#break-5-mins" title="Link to this heading">#</a></h3>
+<p><img alt="" src="../../_images/eva-coffee.png" /></p>
+<p><br><br></p>
+</section>
+</section>
+<section id="questions-for-you">
+<h2>❓❓ Questions for you<a class="headerlink" href="#questions-for-you" title="Link to this heading">#</a></h2>
+<section id="exercise-1-1-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 1.1 Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-1-1-select-all-of-the-following-statements-which-are-true-iclicker" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) According to the Markov assumption the probability of being at a future state <span class="math notranslate nohighlight">\(s_{t+1}\)</span> is independent of the past states <span class="math notranslate nohighlight">\(s_1\)</span> to <span class="math notranslate nohighlight">\(s_{t-1}\)</span>.</p></li>
+<li><p>(B) In a Markov model, the sum of the conditional probabilities of transitioning from one state to all other states is equal to 1.0.</p></li>
+<li><p>(C) In a Markov chain, the probabilities associated with self loops (staying in the same state) of all states should sum to one.</p></li>
+<li><p>(D) Given <span class="math notranslate nohighlight">\(\pi_0\)</span> as initial state probability distribution, and <span class="math notranslate nohighlight">\(T\)</span> as transition matrix, we can calculate the probability distribution over states at time step <span class="math notranslate nohighlight">\(k\)</span> by multiplying <span class="math notranslate nohighlight">\(\pi_0\)</span> and <span class="math notranslate nohighlight">\(T^k\)</span>.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 1.1: V’s Solutions!</p>
+<ul class="simple">
+<li><p>(A) False. The probability of being in a future state is conditionally independent of the past given present.</p></li>
+<li><p>(B) True</p></li>
+<li><p>(C) False</p></li>
+<li><p>(D) True</p></li>
+</ul>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="markov-chains-tasks-stationary-distribution">
+<h2>4. Markov chains tasks: Stationary distribution<a class="headerlink" href="#markov-chains-tasks-stationary-distribution" title="Link to this heading">#</a></h2>
+<p>In the example above, after time step 18 or so, the state probabilities stopped changing!!</p>
+<ul class="simple">
+<li><p>A <strong>stationary distribution of a Markov chain</strong> is a probability distribution over states that remains unchanged in the Markov chain as time progresses.</p></li>
+<li><p>A probability distribution <span class="math notranslate nohighlight">\(\pi\)</span> on states <span class="math notranslate nohighlight">\(S\)</span> is stationary where the following holds for the transition matrix <span class="math notranslate nohighlight">\(T\)</span>.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\pi T=\pi\]</div>
+<p>Why is this useful? This tells us about the behaviour of a Markov chain in the long run.</p>
+<section id="stationary-distribution-toy-google-matrix-example">
+<h3>4.1 Stationary distribution: Toy Google Matrix example<a class="headerlink" href="#stationary-distribution-toy-google-matrix-example" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Imagine a toy internet with three webpages: Prajeet webpage, Varada webpage, MDS webpage</p></li>
+<li><p>We’ll build a toy Markov model where the states are the above three web pages.</p></li>
+<li><p>Transitions represent a web surfer clicking on a link and moving to a different page.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[S = \{\text{Prajeet webpage, Varada webpage, MDS webpage}\}, \pi_0 = \begin{bmatrix} 0.1 &amp; 0.5 &amp; 0.4 \end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split} T = \begin{bmatrix}
+1/8 &amp; 3/8 &amp; 4/8\\
+1/8 &amp; 1/8 &amp; 6/8\\
+3/8 &amp; 1/8 &amp; 4/8
+\end{bmatrix}\end{split}\]</div>
+<p>Questions we might want to answer?</p>
+<ul class="simple">
+<li><p>What’s the behaviour of web surfers in the long run? Which webpages should get a high <strong>rank</strong> based on this behaviour?</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+
+<span class="n">pi_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">])</span>
+
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">3</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="o">/</span><span class="mi">8</span><span class="p">],</span>
+              <span class="p">[</span><span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">6</span><span class="o">/</span><span class="mi">8</span><span class="p">],</span>
+              <span class="p">[</span><span class="mi">3</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="o">/</span><span class="mi">8</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Do all the rows sum to 1? </span>
+
+<span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">np</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="mf">1.0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">2</span><span class="p">)</span> 
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.28125, 0.18125, 0.5375 ])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">30</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.26190476, 0.19047619, 0.54761905])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">31</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.26190476, 0.19047619, 0.54761905])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">f</span><span class="p">(</span><span class="n">time_step</span><span class="p">):</span>
+    <span class="n">pi_time_step</span> <span class="o">=</span> <span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="n">time_step</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">pi_time_step</span> <span class="o">@</span> <span class="n">T</span><span class="p">,</span> <span class="n">pi_time_step</span><span class="p">,</span> <span class="n">atol</span><span class="o">=</span><span class="mf">1e-04</span><span class="p">):</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;NO STEADDY STATE YET</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">pi_time_step</span><span class="si">}</span><span class="s2"> @T != </span><span class="si">{</span><span class="n">pi_time_step</span><span class="si">}</span><span class="s2">&quot;</span> 
+    <span class="k">else</span><span class="p">:</span>
+        <span class="n">s</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;STEADY STATE</span><span class="se">\n</span><span class="s2"> </span><span class="si">{</span><span class="n">pi_time_step</span><span class="si">}</span><span class="s2">@T == </span><span class="si">{</span><span class="n">pi_time_step</span><span class="si">}</span><span class="s2">&quot;</span> 
+    <span class="k">return</span> <span class="n">s</span>
+
+<span class="n">interact</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">time_step</span><span class="o">=</span><span class="n">widgets</span><span class="o">.</span><span class="n">IntSlider</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="s1">&#39;Time step&#39;</span><span class="p">,</span> <span class="n">start</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span> <span class="n">end</span><span class="o">=</span><span class="mi">40</span><span class="p">,</span> <span class="n">step</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">value</span><span class="o">=</span><span class="mi">0</span><span class="p">))</span><span class="o">.</span><span class="n">embed</span><span class="p">(</span><span class="n">max_opts</span><span class="o">=</span><span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div id='93ffe6ea-6388-4186-8004-5b12719179b1'>
+  <div id="d9e44cbd-184d-4e07-a344-868a6b1583cc" data-root-id="93ffe6ea-6388-4186-8004-5b12719179b1" style="display: contents;"></div>
+</div>
+<script type="application/javascript">(function(root) {
+  var docs_json = {"9a176182-81f5-4aee-aad5-9d17e752c841":{"version":"3.6.3","title":"Bokeh Application","roots":[{"type":"object","name":"panel.models.layout.Column","id":"93ffe6ea-6388-4186-8004-5b12719179b1","attributes":{"name":"Column00196","tags":["embedded"],"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"type":"object","name":"ImportedStyleSheet","id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/css/loading.css"}},{"type":"object","name":"ImportedStyleSheet","id":"cffebeda-d1f8-4028-be2e-6f45bb65f113","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/css/listpanel.css"}},{"type":"object","name":"ImportedStyleSheet","id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/bundled/theme/default.css"}},{"type":"object","name":"ImportedStyleSheet","id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/bundled/theme/native.css"}}],"margin":0,"align":"start","children":[{"type":"object","name":"panel.models.layout.Column","id":"d2614117-1a72-485a-b46a-829ed254dc0c","attributes":{"name":"Column00201","stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782"},{"id":"cffebeda-d1f8-4028-be2e-6f45bb65f113"},{"id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564"},{"id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca"}],"margin":0,"align":"start","children":[{"type":"object","name":"panel.models.layout.Column","id":"1d969e20-b44e-436e-a472-d3968965425d","attributes":{"name":"Column00211","stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782"},{"id":"cffebeda-d1f8-4028-be2e-6f45bb65f113"},{"id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564"},{"id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca"}],"margin":0,"align":"start","children":[{"type":"object","name":"Div","id":"99ed878c-0522-4b00-b436-204e7ca2fb69","attributes":{"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782"},{"id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564"},{"id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca"}],"margin":[5,0,0,10],"align":"start","text":"Time step: <b>0</b>"}},{"type":"object","name":"Slider","id":"d18d7174-8271-4fba-b709-33459afb8458","attributes":{"js_property_callbacks":{"type":"map","entries":[["change:value",[{"type":"object","name":"CustomJS","id":"427b6094-8a76-426b-875d-d346ff7a2de8","attributes":{"args":{"type":"map","entries":[["source",{"id":"d18d7174-8271-4fba-b709-33459afb8458"}],["target",{"id":"99ed878c-0522-4b00-b436-204e7ca2fb69"}]]},"code":"\n    var labels = ['Time step: <b>0</b>', 'Time step: <b>2</b>', 'Time step: <b>4</b>', 'Time step: <b>6</b>', 'Time step: <b>8</b>', 'Time step: <b>10</b>', 'Time step: <b>12</b>', 'Time step: <b>14</b>', 'Time step: <b>16</b>', 'Time step: <b>18</b>', 'Time step: <b>20</b>', 'Time step: <b>22</b>', 'Time step: <b>24</b>', 'Time step: <b>26</b>', 'Time step: <b>28</b>', 'Time step: <b>30</b>', 'Time step: <b>32</b>', 'Time step: <b>34</b>', 'Time step: <b>36</b>', 'Time step: <b>38</b>', 'Time step: <b>40</b>']\n    target.text = labels[source.value]\n    "}},{"type":"object","name":"CustomJS","id":"df1fd576-4283-4bd9-ae02-1ed694387ecf","attributes":{"code":"\nvar state = null\nfor (var root of cb_obj.document.roots()) {\n  if (root.id == '4a11af90-f74b-4939-944d-14ea80d9a1c9') {\n    state = root;\n    break;\n  }\n}\nif (!state) { return; }\nstate.set_state(cb_obj, cb_obj.value)\n"}}]]]},"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782"},{"id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564"},{"id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca"}],"margin":[0,10,5,10],"align":"start","show_value":false,"tooltips":false,"start":0,"end":20,"value":0}}]}}]}},{"type":"object","name":"Row","id":"1d6ae9cb-6771-4d74-b5dd-e628560b1190","attributes":{"name":"Row00200","stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782"},{"id":"cffebeda-d1f8-4028-be2e-6f45bb65f113"},{"id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564"},{"id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca"}],"margin":0,"align":"start","children":[{"type":"object","name":"panel.models.markup.HTML","id":"b3e3cee0-afaa-45cc-a237-087f8c877068","attributes":{"css_classes":["markdown"],"stylesheets":["\n:host(.pn-loading):before, .pn-loading:before {\n  background-color: #c3c3c3;\n  mask-size: auto calc(min(50%, 400px));\n  -webkit-mask-size: auto calc(min(50%, 400px));\n}",{"id":"aa5bcd0d-f56e-4f6f-b2d6-284e80867782"},{"type":"object","name":"ImportedStyleSheet","id":"de6b2020-60a1-4ce5-8f5b-55f5c201fc98","attributes":{"url":"https://cdn.holoviz.org/panel/1.5.2/dist/css/markdown.css"}},{"id":"0da5a6a7-565d-49ec-a9a9-1a5db1b2c564"},{"id":"9a78e375-0f89-4b58-9358-25f6ce52d2ca"}],"margin":[5,10],"align":"start","text":"&lt;p&gt;NO STEADDY STATE YET&lt;br /&gt;\n[0.1 0.5 0.4] @T != [0.1 0.5 0.4]&lt;/p&gt;\n"}}]}}]}},{"type":"object","name":"panel.models.state.State","id":"4a11af90-f74b-4939-944d-14ea80d9a1c9","attributes":{"state":{"type":"map","entries":[[20,{"type":"map","entries":[["header","{\"msgid\": \"d39cc9de-9084-4f58-912f-1257bb345da0\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>40</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;STEADY STATE&lt;br /&gt;\\n[0.26190476 0.19047619 0.54761905]@T == [0.26190476 0.19047619 0.54761905]&lt;/p&gt;\\n\"}]}"]]}],[19,{"type":"map","entries":[["header","{\"msgid\": \"21be4c3c-feba-49ea-b903-c2ca54bd9c7c\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>38</b>\"}]}"]]}],[18,{"type":"map","entries":[["header","{\"msgid\": \"fa7372d5-6add-46d2-829f-a5ba2013fae0\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>36</b>\"}]}"]]}],[17,{"type":"map","entries":[["header","{\"msgid\": \"27414c67-6f4f-4965-8d45-310e2c3b1601\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>34</b>\"}]}"]]}],[16,{"type":"map","entries":[["header","{\"msgid\": \"6339e21e-6865-4bb5-979e-442072ec00d4\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>32</b>\"}]}"]]}],[15,{"type":"map","entries":[["header","{\"msgid\": \"68669512-0cf5-4508-b3f5-0a643093b754\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>30</b>\"}]}"]]}],[14,{"type":"map","entries":[["header","{\"msgid\": \"168d575f-c6b9-45dd-91c9-4416e2330c87\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>28</b>\"}]}"]]}],[13,{"type":"map","entries":[["header","{\"msgid\": \"13a2b629-c81c-4e28-b92b-4b34a181368d\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>26</b>\"}]}"]]}],[12,{"type":"map","entries":[["header","{\"msgid\": \"79be6125-ea61-4eef-b054-487746163d29\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>24</b>\"}]}"]]}],[11,{"type":"map","entries":[["header","{\"msgid\": \"c16756d5-1418-422f-9678-f991939e73a2\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>22</b>\"}]}"]]}],[10,{"type":"map","entries":[["header","{\"msgid\": \"83e105b1-b48e-4f76-8c1d-e90aad8830e1\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>20</b>\"}]}"]]}],[9,{"type":"map","entries":[["header","{\"msgid\": \"d1884059-17d8-4a14-8af9-69b8ed642440\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>18</b>\"}]}"]]}],[8,{"type":"map","entries":[["header","{\"msgid\": \"b3cc9c67-0945-4f33-8c3b-b29ec6591310\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>16</b>\"}]}"]]}],[7,{"type":"map","entries":[["header","{\"msgid\": \"71b01f1c-817a-460a-a289-018b55a63737\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>14</b>\"}]}"]]}],[6,{"type":"map","entries":[["header","{\"msgid\": \"2b4cc230-8deb-41e4-8707-56075b00e467\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>12</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;STEADY STATE&lt;br /&gt;\\n[0.26190475 0.19047621 0.54761904]@T == [0.26190475 0.19047621 0.54761904]&lt;/p&gt;\\n\"}]}"]]}],[5,{"type":"map","entries":[["header","{\"msgid\": \"33b8a13c-cd18-40ef-8e6b-3f39dbb53c8a\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>10</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;STEADY STATE&lt;br /&gt;\\n[0.26190462 0.19047604 0.54761934]@T == [0.26190462 0.19047604 0.54761934]&lt;/p&gt;\\n\"}]}"]]}],[4,{"type":"map","entries":[["header","{\"msgid\": \"c655f466-4438-4e63-ac20-f10492144c58\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>8</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;STEADY STATE&lt;br /&gt;\\n[0.26190948 0.19047394 0.54761658]@T == [0.26190948 0.19047394 0.54761658]&lt;/p&gt;\\n\"}]}"]]}],[3,{"type":"map","entries":[["header","{\"msgid\": \"f3c35c38-8e80-4c87-bb82-691512623db0\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>6</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;STEADY STATE&lt;br /&gt;\\n[0.26186523 0.19055176 0.54758301]@T == [0.26186523 0.19055176 0.54758301]&lt;/p&gt;\\n\"}]}"]]}],[2,{"type":"map","entries":[["header","{\"msgid\": \"db7ef70b-8a40-42da-bbf7-025753e0fc3e\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>4</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;NO STEADDY STATE YET&lt;br /&gt;\\n[0.26132813 0.18984375 0.54882812] @T != [0.26132813 0.18984375 0.54882812]&lt;/p&gt;\\n\"}]}"]]}],[1,{"type":"map","entries":[["header","{\"msgid\": \"5fb98483-1867-4c00-b216-8ec8a12cd0fa\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>2</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;NO STEADDY STATE YET&lt;br /&gt;\\n[0.28125 0.18125 0.5375 ] @T != [0.28125 0.18125 0.5375 ]&lt;/p&gt;\\n\"}]}"]]}],[0,{"type":"map","entries":[["header","{\"msgid\": \"7440742d-4e72-4f4c-a0ec-579a361c6924\", \"msgtype\": \"PATCH-DOC\"}"],["metadata","{\"use_buffers\": false}"],["content","{\"events\":[{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"99ed878c-0522-4b00-b436-204e7ca2fb69\"},\"attr\":\"text\",\"new\":\"Time step: <b>0</b>\"},{\"kind\":\"ModelChanged\",\"model\":{\"id\":\"b3e3cee0-afaa-45cc-a237-087f8c877068\"},\"attr\":\"text\",\"new\":\"&lt;p&gt;NO STEADDY STATE YET&lt;br /&gt;\\n[0.1 0.5 0.4] @T != [0.1 0.5 0.4]&lt;/p&gt;\\n\"}]}"]]}]]},"widgets":{"type":"map","entries":[["d18d7174-8271-4fba-b709-33459afb8458",0]]},"values":[0]}}],"defs":[{"type":"model","name":"ReactiveHTML1"},{"type":"model","name":"FlexBox1","properties":[{"name":"align_content","kind":"Any","default":"flex-start"},{"name":"align_items","kind":"Any","default":"flex-start"},{"name":"flex_direction","kind":"Any","default":"row"},{"name":"flex_wrap","kind":"Any","default":"wrap"},{"name":"gap","kind":"Any","default":""},{"name":"justify_content","kind":"Any","default":"flex-start"}]},{"type":"model","name":"FloatPanel1","properties":[{"name":"config","kind":"Any","default":{"type":"map"}},{"name":"contained","kind":"Any","default":true},{"name":"position","kind":"Any","default":"right-top"},{"name":"offsetx","kind":"Any","default":null},{"name":"offsety","kind":"Any","default":null},{"name":"theme","kind":"Any","default":"primary"},{"name":"status","kind":"Any","default":"normalized"}]},{"type":"model","name":"GridStack1","properties":[{"name":"mode","kind":"Any","default":"warn"},{"name":"ncols","kind":"Any","default":null},{"name":"nrows","kind":"Any","default":null},{"name":"allow_resize","kind":"Any","default":true},{"name":"allow_drag","kind":"Any","default":true},{"name":"state","kind":"Any","default":[]}]},{"type":"model","name":"drag1","properties":[{"name":"slider_width","kind":"Any","default":5},{"name":"slider_color","kind":"Any","default":"black"},{"name":"value","kind":"Any","default":50}]},{"type":"model","name":"click1","properties":[{"name":"terminal_output","kind":"Any","default":""},{"name":"debug_name","kind":"Any","default":""},{"name":"clears","kind":"Any","default":0}]},{"type":"model","name":"FastWrapper1","properties":[{"name":"object","kind":"Any","default":null},{"name":"style","kind":"Any","default":null}]},{"type":"model","name":"NotificationAreaBase1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0}]},{"type":"model","name":"NotificationArea1","properties":[{"name":"js_events","kind":"Any","default":{"type":"map"}},{"name":"notifications","kind":"Any","default":[]},{"name":"position","kind":"Any","default":"bottom-right"},{"name":"_clear","kind":"Any","default":0},{"name":"types","kind":"Any","default":[{"type":"map","entries":[["type","warning"],["background","#ffc107"],["icon",{"type":"map","entries":[["className","fas fa-exclamation-triangle"],["tagName","i"],["color","white"]]}]]},{"type":"map","entries":[["type","info"],["background","#007bff"],["icon",{"type":"map","entries":[["className","fas fa-info-circle"],["tagName","i"],["color","white"]]}]]}]}]},{"type":"model","name":"Notification","properties":[{"name":"background","kind":"Any","default":null},{"name":"duration","kind":"Any","default":3000},{"name":"icon","kind":"Any","default":null},{"name":"message","kind":"Any","default":""},{"name":"notification_type","kind":"Any","default":null},{"name":"_destroyed","kind":"Any","default":false}]},{"type":"model","name":"TemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"BootstrapTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"TemplateEditor1","properties":[{"name":"layout","kind":"Any","default":[]}]},{"type":"model","name":"MaterialTemplateActions1","properties":[{"name":"open_modal","kind":"Any","default":0},{"name":"close_modal","kind":"Any","default":0}]},{"type":"model","name":"ReactiveESM1"},{"type":"model","name":"JSComponent1"},{"type":"model","name":"ReactComponent1"},{"type":"model","name":"AnyWidgetComponent1"},{"type":"model","name":"request_value1","properties":[{"name":"fill","kind":"Any","default":"none"},{"name":"_synced","kind":"Any","default":null},{"name":"_request_sync","kind":"Any","default":0}]}]}};
+  var render_items = [{"docid":"9a176182-81f5-4aee-aad5-9d17e752c841","roots":{"93ffe6ea-6388-4186-8004-5b12719179b1":"d9e44cbd-184d-4e07-a344-868a6b1583cc"},"root_ids":["93ffe6ea-6388-4186-8004-5b12719179b1"]}];
+  var docs = Object.values(docs_json)
+  if (!docs) {
+    return
+  }
+  const py_version = docs[0].version.replace('rc', '-rc.').replace('.dev', '-dev.')
+  async function embed_document(root) {
+    var Bokeh = get_bokeh(root)
+    await Bokeh.embed.embed_items_notebook(docs_json, render_items);
+    for (const render_item of render_items) {
+      for (const root_id of render_item.root_ids) {
+	const id_el = document.getElementById(root_id)
+	if (id_el.children.length && id_el.children[0].hasAttribute('data-root-id')) {
+	  const root_el = id_el.children[0]
+	  root_el.id = root_el.id + '-rendered'
+	  for (const child of root_el.children) {
+            // Ensure JupyterLab does not capture keyboard shortcuts
+            // see: https://jupyterlab.readthedocs.io/en/4.1.x/extension/notebook.html#keyboard-interaction-model
+	    child.setAttribute('data-lm-suppress-shortcuts', 'true')
+	  }
+	}
+      }
+    }
+  }
+  function get_bokeh(root) {
+    if (root.Bokeh === undefined) {
+      return null
+    } else if (root.Bokeh.version !== py_version) {
+      if (root.Bokeh.versions === undefined || !root.Bokeh.versions.has(py_version)) {
+	return null
+      }
+      return root.Bokeh.versions.get(py_version);
+    } else if (root.Bokeh.version === py_version) {
+      return root.Bokeh
+    }
+    return null
+  }
+  function is_loaded(root) {
+    var Bokeh = get_bokeh(root)
+    return (Bokeh != null && Bokeh.Panel !== undefined)
+  }
+  if (is_loaded(root)) {
+    embed_document(root);
+  } else {
+    var attempts = 0;
+    var timer = setInterval(function(root) {
+      if (is_loaded(root)) {
+        clearInterval(timer);
+        embed_document(root);
+      } else if (document.readyState == "complete") {
+        attempts++;
+        if (attempts > 200) {
+          clearInterval(timer);
+	  var Bokeh = get_bokeh(root)
+	  if (Bokeh == null || Bokeh.Panel == null) {
+            console.warn("Panel: ERROR: Unable to run Panel code because Bokeh or Panel library is missing");
+	  } else {
+	    console.warn("Panel: WARNING: Attempting to render but not all required libraries could be resolved.")
+	    embed_document(root)
+	  }
+        }
+      }
+    }, 25, root)
+  }
+})(window);</script></div></div>
+</div>
+<ul class="simple">
+<li><p>Seems like after the <span class="math notranslate nohighlight">\(10^{th}\)</span> time step, the state probabilities stay the same (within a tolerance).</p></li>
+<li><p>So we have reached a steady state at <span class="math notranslate nohighlight">\(\pi = \begin{bmatrix} 0.26190462 &amp; 0.19047604 &amp; 0.54761934 \end{bmatrix}\)</span> such that</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\pi \begin{bmatrix}
+1/8 &amp; 3/8 &amp; 4/8\\
+1/8 &amp; 1/8 &amp; 6/8\\
+3/8 &amp; 1/8 &amp; 4/8
+\end{bmatrix} = \pi
+\end{split}\]</div>
+<ul class="simple">
+<li><p>So the distribution <span class="math notranslate nohighlight">\(\pi = \begin{bmatrix} 0.26190462 &amp; 0.19047604 &amp; 0.54761934 \end{bmatrix}\)</span> is a stationary distribution in this case because we have <span class="math notranslate nohighlight">\(\pi T = \pi\)</span>.</p></li>
+<li><p>In the long run, MDS webpage is going to be visited more often followed by Prajeet’s webpage. Varada webpage is not going to be visited much 😀.</p></li>
+</ul>
+<p>This is a high-level idea of Google’s famous PageRank algorithm. The question is how do we create the transition matrix? We’ll talk about this a bit in the next lecture.</p>
+</section>
+<section id="conditions-for-stationary-distribution">
+<h3>4.2 Conditions for stationary distribution<a class="headerlink" href="#conditions-for-stationary-distribution" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Stationary distribution looks like a desirable property.</p></li>
+<li><p>Does a stationary distribution <span class="math notranslate nohighlight">\(\pi\)</span> exist and is it unique?</p></li>
+<li><p>Under mild assumptions, a Markov chain has a stationary distribution.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Sufficient condition for existence/uniqueness is positive transitions.</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(s_t \mid s_{t-1}) &gt; 0\)</span></p></li>
+</ul>
+</li>
+<li><p>But very often at least some of the transition probabilities are non-positive (e.g., zero).</p></li>
+</ul>
+<ul class="simple">
+<li><p>Weaker sufficient conditions for existence/uniqueness</p>
+<ul>
+<li><p><em>Irreducibility</em> ✅</p>
+<ul>
+<li><p>A finite Markov chain is <strong>irreducible</strong> if it is possible to get to any state from any state, potentially over multiple steps. This means that the state space is fully connected.</p></li>
+<li><p>In other words, a finite Markov chain is irreducible if and only if its corresponding graph is strongly connected.</p></li>
+</ul>
+</li>
+<li><p><em>Aperiodicity</em> ✅</p>
+<ul>
+<li><p>A Markov chain is <strong>aperiodic</strong> if there’s no fixed cycle over which the transitions occur. Loosely speaking, this means the chain doesn’t fall into a repetitive loop over a specific number of steps.</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="irreducibility-and-aperiodicity">
+<h3>4.3 Irreducibility and aperiodicity<a class="headerlink" href="#irreducibility-and-aperiodicity" title="Link to this heading">#</a></h3>
+<p>Consider the Markov chains shown below. Which chains are irreducible? Which ones are aperiodic?</p>
+<ul class="simple">
+<li><p>A chain is <strong>irreducible</strong> if every state can be reached from every other state (possibly over multiple steps).</p></li>
+<li><p>A chain is <strong>aperiodic</strong> if the system doesn’t fall into a fixed rhythm. Formally, the greatest common divisor (GCD) of return times to any state is 1.</p></li>
+</ul>
+<p><img alt="" src="../../_images/Markov-chains.png" /></p>
+<!-- <img src="../img/Markov-chains.png" height="500" width="500">  --><div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Chain</strong></p></th>
+<th class="head"><p><strong>Irreducible</strong></p></th>
+<th class="head"><p><strong>Aperiodic</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>B</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-even"><td><p>C</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>D</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>➡️ Irreducible and aperiodic Markov chains guarantee</p>
+<ul class="simple">
+<li><p>The existence of a <strong>unique stationary distribution</strong></p></li>
+<li><p>That long-run behaviour <strong>doesn’t depend on initial state</strong></p></li>
+</ul>
+<p>In general:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><strong>Chain type</strong></p></th>
+<th class="head"><p><strong>Irreducible</strong></p></th>
+<th class="head"><p><strong>Aperiodic</strong></p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>Self-loops everywhere, fully conntected chain</p></td>
+<td><p>✅</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>Cycles (A <span class="math notranslate nohighlight">\(\rightarrow\)</span> B <span class="math notranslate nohighlight">\(\rightarrow\)</span> C <span class="math notranslate nohighlight">\(\rightarrow\)</span> A)</p></td>
+<td><p>✅</p></td>
+<td><p>❌</p></td>
+</tr>
+<tr class="row-even"><td><p>Absorbing state only</p></td>
+<td><p>❌</p></td>
+<td><p>✅</p></td>
+</tr>
+<tr class="row-odd"><td><p>One-way transitions</p></td>
+<td><p>❌</p></td>
+<td><p>❌</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><br><br></p>
+<p><strong>(Optional) Periodicity formal definition</strong></p>
+<p>A state in a Markov chain is periodic if the chain can return to the state only at multiples of some integer larger than 1. Thus, starting in state <span class="math notranslate nohighlight">\(i\)</span>, the chain can return to <span class="math notranslate nohighlight">\(i\)</span> only at multiples of the period <span class="math notranslate nohighlight">\(k\)</span>, and <span class="math notranslate nohighlight">\(k\)</span> is the largest such integer. State <span class="math notranslate nohighlight">\(i\)</span> is aperiodic if <span class="math notranslate nohighlight">\(k = 1\)</span> and periodic if <span class="math notranslate nohighlight">\(k &gt; 1\)</span>.</p>
+<p>The period of a state is the greatest common divisor (GCD) of the number of steps in which you can return to it.</p>
+<ul class="simple">
+<li><p>If the GCD &gt; 1, the state is periodic</p></li>
+<li><p>If the GCD = 1, the state is aperiodic</p></li>
+<li><p>✅ Self-loops (e.g., A <span class="math notranslate nohighlight">\(\rightarrow\)</span> A) help break periodicity</p></li>
+<li><p>❌ Fixed cycles (e.g., A <span class="math notranslate nohighlight">\(\rightarrow\)</span> B <span class="math notranslate nohighlight">\(\rightarrow\)</span> C <span class="math notranslate nohighlight">\(\rightarrow\)</span> A <span class="math notranslate nohighlight">\(\rightarrow\)</span> B <span class="math notranslate nohighlight">\(\rightarrow\)</span> C <span class="math notranslate nohighlight">\(\rightarrow\)</span> A) introduce periodicity</p></li>
+</ul>
+<p><strong>(Optional) Some ways to examine irreducibility</strong></p>
+<ul class="simple">
+<li><p>Power method: Compute higher powers of the transition matrix <span class="math notranslate nohighlight">\(T^k\)</span>. If the chain is irreducible, for some <span class="math notranslate nohighlight">\(k\)</span>, all the elements of <span class="math notranslate nohighlight">\(T^k\)</span> should be positive. This means there’s a positive probability of going from any state to any other state in k steps.</p></li>
+<li><p>Check whether the graph is strongly connected or not.</p>
+<ul>
+<li><p>Check out <a class="reference external" href="https://en.wikipedia.org/wiki/Kosaraju%27s_algorithm">Kosaraju’s algorithm</a>.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>(Optional) Some ways to examine aperiodicity</strong></p>
+<p>Check diagonal of powers:</p>
+<ul class="simple">
+<li><p>Take higher powers of the transition matrix <span class="math notranslate nohighlight">\(T^k\)</span>.</p></li>
+<li><p>If you find a power where all diagonal elements (which correspond to returning to the same state) are positive, it indicates that there’s no fixed cycle length for returning to any state, suggesting that the chain is aperiodic.</p></li>
+</ul>
+</section>
+<section id="how-to-estimate-the-stationary-distribution">
+<h3>4.4 How to estimate the stationary distribution?<a class="headerlink" href="#how-to-estimate-the-stationary-distribution" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Power iteration method</p>
+<ul>
+<li><p>Multiply <span class="math notranslate nohighlight">\(\pi_0\)</span> by powers of the transition matrix <span class="math notranslate nohighlight">\(T\)</span> until the product looks stable.</p></li>
+</ul>
+</li>
+<li><p>Taking the eigenvalue decomposition of the transpose of the transition matrix <span class="math notranslate nohighlight">\(\pi T=\pi\)</span></p></li>
+<li><p>Through Monte Carlo simulation.</p></li>
+<li><p>In some cases (not always) simply counting the occurrences (lab 1).</p></li>
+</ul>
+<p>There are other ways too!</p>
+<p><strong>(Optional) Eigendecomposition to get stationary distribution</strong></p>
+<ul class="simple">
+<li><p>Note that <span class="math notranslate nohighlight">\(\pi T = \pi\)</span> looks very similar to the eigenvalue equation <span class="math notranslate nohighlight">\(Av = \lambda v\)</span> for eigenvalues and eigenvectors, with <span class="math notranslate nohighlight">\(\lambda = 1\)</span>.</p></li>
+<li><p>If you transpose the matrix</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[(\pi T)^T = \pi^T \implies T^T \pi^T = \pi^T\]</div>
+<p>In other words, if we transpose the transition matrix and take its eigendecomposition, the eigenvector with eigenvalue 1 is going to be the stationary distribution.</p>
+<p>If there are multiple eigenvectors with eigenvalue 1.0, then the stationary distribution is not unique.</p>
+</section>
+</section>
+<section id="id1">
+<h2>❓❓ Questions for you<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="exercise-1-2-select-all-of-the-following-statements-which-are-true">
+<h3>Exercise 1.2: Select all of the following statements which are <strong>True</strong><a class="headerlink" href="#exercise-1-2-select-all-of-the-following-statements-which-are-true" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) For a stationary distribution, the initial state probability distribution <span class="math notranslate nohighlight">\(\pi_0\)</span> must satisfy  <span class="math notranslate nohighlight">\(\pi_0T \approx \pi_0\)</span>.</p></li>
+<li><p>(B) If a state has only one possible transition, the transition probability for that transition would be 1.0.</p></li>
+<li><p>(C) If each row in the transition matrix of a Markov chain has only one possible transition, the chain would be deterministic.</p></li>
+<li><p>(D) If we have a self loop transition with probability 1.0 for state A in a Markov chain and we happen to be at state A, the chain is going to get stuck in that state forever.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 1.2: V’s Solutions!</p>
+<ul class="simple">
+<li><p>B, C, D</p></li>
+</ul>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="final-thoughts-summary-reflection">
+<h2>Final thoughts, summary, reflection<a class="headerlink" href="#final-thoughts-summary-reflection" title="Link to this heading">#</a></h2>
+<p>We define a discrete Markov chain as</p>
+<ul class="simple">
+<li><p>a set of finite states</p></li>
+<li><p>an initial probability distribution over states</p></li>
+<li><p>a transition probability matrix</p></li>
+</ul>
+<p>We can do a number of things with Markov chains</p>
+<ul class="simple">
+<li><p>Calculate the probability of a sequence.</p></li>
+<li><p>Compute the probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>Calculate stationary distribution which is a probability distribution that remains unchanged in the Markov chain as time progresses.</p></li>
+<li><p>Generate a sequence of states.</p></li>
+</ul>
+<ul class="simple">
+<li><p>Learning Markov chains is just counting (next lecture).</p></li>
+<li><p>Example applications of Markov chains in NLP (next lecture)</p>
+<ul>
+<li><p>Language modeling</p></li>
+<li><p>PageRank</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br><br><br></p>
+<section id="resources-and-fun-things-with-markov-chains">
+<h3>Resources and fun things with Markov chains<a class="headerlink" href="#resources-and-fun-things-with-markov-chains" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.stat.auckland.ac.nz/~wild/MarkovChains/">Create and visualize Markov chains</a></p></li>
+<li><p><a class="reference external" href="http://setosa.io/ev/markov-chains">Markov chains “explained visually”</a></p></li>
+<li><p><a class="reference external" href="http://datagenetics.com/blog/november12011/index.html">Snakes and ladders</a></p></li>
+<li><p><a class="reference external" href="http://www.datagenetics.com/blog/december12011/index.html">Candyland</a></p></li>
+<li><p><a class="reference external" href="http://www.datagenetics.com/blog/january42012">Yahtzee</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=63HHmjlh794">Chess pieces returning home and K-pop vs. ska</a></p></li>
+<li><p><a class="reference external" href="http://www.meyn.ece.ufl.edu/archive/spm_files/Markov-Work-and-life.pdf">The Life and Work of A. A. Markov</a></p></li>
+</ul>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures/notes"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="00_course-information.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Course Information</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="02_LMs-text-preprocessing.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lecture 2: Applications of Markov Models and Text Preprocessing</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-and-lo">Imports and LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#language-models-motivation">1. Language models: motivation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-is-a-language-model">1.1 What is a language model?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#activity">🧠 Activity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#language-modeling-why-should-we-care">1.2 Language modeling: Why should we care?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-model-intuition">2. Markov model intuition</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#examples-of-markov-chains">2.1 Examples of Markov chains</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-is-this-text-generated">How is this text generated?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chain-idea">2.2 Markov chain idea</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-assumption">2.3 Markov assumption</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#aside-markovs-own-application-of-his-chains-1913">2.4 (ASIDE) Markov’s own application of his chains  (1913)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-for-you">❓❓ Question for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-1-1-conditioning-and-marginalization-revision">Exercise 1.1 Conditioning and marginalization (revision)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chains-definition-and-tasks">3. Markov chains definition and tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#discrete-markov-chain-ingredients">3.1 Discrete Markov chain ingredients</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chains-tasks">3.2 Markov chains tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#predict-probabilities-of-sequences-of-states">3.2.1 Predict probabilities of sequences of states</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#computing-probability-of-being-in-a-particular-state-at-time-t">3.2.2 Computing probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span></a></li>
+</ul>
+</li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break-5-mins">Break (~5 mins)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-1-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 1.1 Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#markov-chains-tasks-stationary-distribution">4. Markov chains tasks: Stationary distribution</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#stationary-distribution-toy-google-matrix-example">4.1 Stationary distribution: Toy Google Matrix example</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#conditions-for-stationary-distribution">4.2 Conditions for stationary distribution</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#irreducibility-and-aperiodicity">4.3 Irreducibility and aperiodicity</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-estimate-the-stationary-distribution">4.4 How to estimate the stationary distribution?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-1-2-select-all-of-the-following-statements-which-are-true">Exercise 1.2: Select all of the following statements which are <strong>True</strong></a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-thoughts-summary-reflection">Final thoughts, summary, reflection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#resources-and-fun-things-with-markov-chains">Resources and fun things with Markov chains</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

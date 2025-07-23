@@ -1,21 +1,20 @@
 ![](lectures/img/575_banner.png)
 
-## Important links 
-
-- [Course Jupyter book](https://pages.github.ubc.ca/mds-2023-24/DSCI_575_adv-mach-learn_students/README.html)
-- [YouTube videos](https://www.youtube.com/playlist?list=PLHofvQE1VlGtZoAULxcHb7lOsMved0CuM)
 
 ## Course learning outcomes    
-In this course, we will learn some advanced machine learning methods in the context of natural language processing (NLP) applications. Markov chains, hidden Markov models, topic modeling, recurrent neural networks.
+In this course, we will learn some advanced machine learning methods in the context of natural language processing (NLP) applications, including Markov chains, hidden Markov models, recurrent neural networks, and self-attention and transformers. 
+<details>
+  <summary>Click to expand!</summary>     
+    
+By the end of the course, students will be able to:
 
-- Carry out basic text preprocessing.  
-- Specify Markov chains and carry out generation and inference with them. 
-- Explain the general idea of stationary distribution in Markov chains.
-- Explain what are hidden Markov models and carry out inference and decoding with them. 
-- Broadly explain Latent Dirichlet Allocation (LDA) approach to topic modeling and carry out topic modeling on text data. 
-- Broadly explain Recurrent Neural Networks (RNNs) and different types of RNNs. 
-- Broadly explain the idea of self-attention and transformers
-
+- Perform basic text preprocessing.
+- Define Markov chains and apply them for generation and inference.
+- Explain the concept of stationary distribution in Markov chains.
+- Describe Hidden Markov Models (HMMs) and perform inference and decoding.
+- Summarize Recurrent Neural Networks (RNNs) and their variations.
+- Explain self-attention and transformers and apply them in NLP tasks.
+</details>
 
 ## Deliverables
 
@@ -26,53 +25,37 @@ The following deliverables will determine your course grade:
 
 | Assessment       | Weight  | Where to submit|
 | :---:            | :---:   |:---:  | 
-| Lab Assignment 1 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
-| Lab Assignment 2 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
-| Lab Assignment 3 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
-| Lab Assignment 4 | 15%     | [Gradescope](https://www.gradescope.ca/courses/12076) |
-| Quiz 1           | 20%     | [Canvas](https://canvas.ubc.ca/courses/130315)     |
-| Quiz 2           | 20%     | [Canvas](https://canvas.ubc.ca/courses/130315)     |
+| Lab Assignment 1 | 12%     | [Gradescope](https://www.gradescope.ca/courses/26525) |
+| Lab Assignment 2 | 12%     | [Gradescope](https://www.gradescope.ca/courses/26525) |
+| Lab Assignment 3 | 12%     | [Gradescope](https://www.gradescope.ca/courses/26525) |
+| Lab Assignment 4 | 12%     | [Gradescope](https://www.gradescope.ca/courses/26525) |
+| Class participation  |  2%     | iClicker Cloud |
+| Quiz 1           | 25%     | [Canvas](https://canvas.ubc.ca/courses/154208)     |
+| Quiz 2           | 25%     | [Canvas](https://canvas.ubc.ca/courses/154208)     |
 
 See [Calendar](https://ubc-mds.github.io/calendar/) for the due dates. 
 </details>
-
-## Teaching team
-<details>
-  <summary>Click to expand!</summary>
-    
-    
-| Role | Name  | 
-| :------: | :---: |
-| Lecture instructor | Varada Kolhatkar |
-| Lab instructor | Varada Kolhatkar and Vincent Liu|
-| Teaching assistant | Daniel Ramandi |
-| Teaching assistant | Harsh Sharma |
-| Teaching assistant | Mohit Pandey |
-| Teaching assistant | Ngoc Bui |
-
-</details>  
-
 
 ## Lecture schedule
 
 This course will be run in person. We will meet three times every week: twice for lectures and once for the lab. You can refer to the [Calendar](https://ubc-mds.github.io/calendar/) for lecture and lab times and locations. Lectures of this course will be a combination traditional live lecturing, class activities, and pre-recorded videos. Drafts of the lecture notes for each week will be made available earlier in the week.  
 
-This course occurs during **Block 6** in the 2023/24 school year.
+This course occurs during **Block 6** in the 2024/25 school year.
 
 | Lecture  | Topic  | Assigned videos/Readings | Resources and optional readings |
 |-------|------------|-----------|-----------|
-|   0   | [Course Information](lectures/00_course-information.ipynb) | 📹  <li> Videos: [16.1](https://youtu.be/GTC_iLPCjdY) | |
-|   1   | [Markov Models](lectures/01_Markov-models.ipynb) | | <li> [Markov chains in action](http://setosa.io/ev/markov-chains/) </li> | 
-|   2   | [Language models, PageRank, text preprocessing](lectures/02_LMs-text-preprocessing.ipynb) | 📹  <li> Videos: [16.2](https://youtu.be/7W5Q8gzNPBc) | <li>[OpenAI GPT3 demo](https://www.youtube.com/embed/fZSFNUT6iY8)</li><li> [Dan Jurafsky's videos on PageRank](https://www.youtube.com/playlist?list=PLaZQkZp6WhWzSy3WKExE7656jBxfXJh3I)</li> <li>[Dan Jurafsky's video on tokenization](https://www.youtube.com/watch?v=pEwBjcYdcKw)</li>|
-|   3  | [Hidden Markov models](lectures/03_HMMs-intro.ipynb) |  |<li>[Nando de Freitas' lecture on HMMs](https://www.youtube.com/watch?v=jY2E6ExLxaw)</li> <li>[A gentle intro to HMMs by Eric Fosler-Lussier](http://di.ubi.pt/~jpaulo/competence/tutorials/hmm-tutorial-1.pdf)</li>|
-|   4  | [HMMs decoding and inference](lectures/04_Viterbi-Baum-Welch.ipynb)) | (optional) [HMM Baum-Welch](https://youtu.be/_m5KuZGOOVI) (unlisted) | <li>[Nando de Freitas' lecture on HMMs](https://www.youtube.com/watch?v=jY2E6ExLxaw)</li> <li>[A gentle intro to HMMs by Eric Fosler-Lussier](http://di.ubi.pt/~jpaulo/competence/tutorials/hmm-tutorial-1.pdf)</li>|
-|   5   | [Topic modeling](lectures/05_topic-modeling.ipynb) | | <li>Dave Blei [video lecture](https://www.youtube.com/watch?v=DDq3OVp9dNA&t=98s), [paper](http://menome.com/wp/wp-content/uploads/2014/12/Blei2011.pdf)</li> |
-|   6   | [Introduction to Recurrent Neural Networks (RNNs)](lectures/06_intro-to-RNNs.ipynb) |  | <li>[The Unreasonable Effectiveness of Recurrent Neural  Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)</li><li>Highly recommended: [Sequence Processing with Recurrent Networks](https://web.stanford.edu/~jurafsky/slp3/9.pdf)</li>|  
-|   7   | [Introduction to Transformers](lectures/07_intro-to-transformers.ipynb) |  | |
-|   8   | [Applications of Transformers](lectures/08_transformers-applications.ipynb) |  | |
+|   0   | [Course Information](lectures/notes/00_course-information.ipynb) | 📹  <li> Videos: [16.1](https://youtu.be/GTC_iLPCjdY) | |
+|   1   | [Markov Models](lectures/notes/01_Markov-models.ipynb) | | <li> [Markov chains in action](http://setosa.io/ev/markov-chains/) </li> | 
+|   2   | [Language models, PageRank, text preprocessing](lectures/notes/02_LMs-text-preprocessing.ipynb) | 📹  <li> Videos: [16.2](https://youtu.be/7W5Q8gzNPBc) | <li>[OpenAI GPT3 demo](https://www.youtube.com/embed/fZSFNUT6iY8)</li><li> [Dan Jurafsky's videos on PageRank](https://www.youtube.com/playlist?list=PLaZQkZp6WhWzSy3WKExE7656jBxfXJh3I)</li> <li>[Dan Jurafsky's video on tokenization](https://www.youtube.com/watch?v=pEwBjcYdcKw)</li>|
+|   3  | [Hidden Markov models](lectures/notes/03_HMMs-intro.ipynb) |  |<li>[Nando de Freitas' lecture on HMMs](https://www.youtube.com/watch?v=jY2E6ExLxaw)</li> <li>[A gentle intro to HMMs by Eric Fosler-Lussier](http://di.ubi.pt/~jpaulo/competence/tutorials/hmm-tutorial-1.pdf)</li>|
+|   4  | [HMMs decoding and inference](lectures/notes/04_Viterbi-Baum-Welch.ipynb)) | (optional) [HMM Baum-Welch](https://youtu.be/_m5KuZGOOVI) (unlisted) | <li>[Nando de Freitas' lecture on HMMs](https://www.youtube.com/watch?v=jY2E6ExLxaw)</li> <li>[A gentle intro to HMMs by Eric Fosler-Lussier](http://di.ubi.pt/~jpaulo/competence/tutorials/hmm-tutorial-1.pdf)</li>|
+|   5   | [Introduction to Recurrent Neural Networks (RNNs)](lectures/notes/05_intro-to-RNNs.ipynb) |  | <li>[The Unreasonable Effectiveness of Recurrent Neural  Networks](http://karpathy.github.io/2015/05/21/rnn-effectiveness/)</li><li>Highly recommended: [Sequence Processing with Recurrent Networks](https://web.stanford.edu/~jurafsky/slp3/9.pdf)</li>|  
+|   6   | [Introduction to Transformers](lectures/notes/06_intro-to-transformers.ipynb) |   📹  <li> Videos: [Introduction to Self-Attention](https://youtu.be/NJ_kTPwcaJU) | |
+|   7   | [Applications of Transformers](lectures/notes/07_transformers-applications.ipynb) |  | |
+|   8   | [Large Language Models](lectures/notes/08_LLMs.ipynb) |  | |
 
 
-The labs are going to be in person. We will also be holding a short 1-hour parallel Zoom session for each lab run by the TAs so that people who cannot join in person have an opportunity to ask questions and get help. You will be able to access appropriate Zoom links via [Canvas](https://canvas.ubc.ca/courses/130315). There will be a lot of opportunity for discussion and getting help during lab sessions. Please make good use of this time.  
+The labs are going to be in person. There will be a lot of opportunity for discussion and getting help during lab sessions. Please make good use of this time.  
 
 ## Installation
 
@@ -83,11 +66,9 @@ conda env create -f env-dsci-575.yml
 conda activate 575
 ```
 
-In order to use this environment in `Jupyter`, you will have to install `nb_conda_kernels` in the environment where you have installed `Jupyter` (typically the `base` environment). You will then be able to select this new environment in `Jupyter`. If you're unable to see the environment in Jupyter, you might have to install the kernel manually. See the documentation [here](https://ipython.readthedocs.io/en/stable/install/kernel_install.html). For more details on this, refer to your [521 lecture 7](https://pages.github.ubc.ca/MDS-2023-24/DSCI_521_platforms-dsci_students/lectures/7-virtual-environments.html#).
+We've only attempted to install this environment file on a few machines, and you may encounter issues with certain packages from the `yml` file when executing the commands above. This is not uncommon and may suggest that the specified package version is not yet available for your operating system via `conda`. When this occurs, you have a couple of options:
 
-I've only attempted to install this environment file on a few machines, and you may encounter issues with certain packages from the `yaml` file when executing the commands above. This is not uncommon and may suggest that the specified package version is not yet available for your operating system via `conda`. When this occurs, you have a couple of options:
-
-1. Modify the local version of the `yaml` file to remove the line containing that package.
+1. Modify the local version of the `yml` file to remove the line containing that package.
 2. Create the environment without that package. 
 3. Activate the environment and install the package manually either with `conda install` or `pip install` in the environment.   
 
@@ -102,7 +83,7 @@ We all are here to help you learn and succeed in the course and the program. Her
 
 ### Clarifications on the lecture notes or lab questions
 
-If there is any clarification on the lecture material or lab questions, I'll post a message on the course Slack channel and tag you. **It is your responsibility to read the messages whenever you are tagged.** (I know that there are too many things for you to keep track of. You do not have to read all the messages but please make sure to carefully read the messages whenever you are tagged.) 
+If there is any clarification on the lecture material or lab questions, I'll post a message on our course channel and tag you. **It is your responsibility to read the messages whenever you are tagged.** (I know that there are too many things for you to keep track of. You do not have to read all the messages but please make sure to carefully read the messages whenever you are tagged.) 
 
 ### Questions on lecture material or labs
 

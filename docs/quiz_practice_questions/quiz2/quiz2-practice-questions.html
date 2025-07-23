@@ -1,0 +1,716 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>DSCI 575 - Quiz 2 practice questions &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css?v=be8a1c11" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'quiz_practice_questions/quiz2/quiz2-practice-questions';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Baum-Welch (BW) algorithm" href="../../lectures/notes/AppendixA-BaumWelch.html" />
+    <link rel="prev" title="DSCI 575 - Quiz 1 practice questions" href="../quiz1/quiz1-practice-questions.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/mds-hex-sticker.png" class="logo__image only-light" alt="DSCI 575 Advanced Machine Learning - Home"/>
+    <script>document.write(`<img src="../../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="DSCI 575 Advanced Machine Learning - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/04_More-HMMs.html">Lecture 4: More HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/05_intro-to-RNNs.html">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/06_intro-to-transformers.html">Lecture 6: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/07_more-transformers.html">Lecture 7: More transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/08_llms-applications.html">Lecture 8: Applications of Large Language Models</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/demos/transformers-recipe-generation.html">Recipe Generation using Transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Quiz practice questions</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../quiz1/quiz1-practice-questions.html">DSCI 575 - Quiz 1 practice questions</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">DSCI 575 - Quiz 2 practice questions</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../lectures/notes/AppendixA-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/quiz_practice_questions/quiz2/quiz2-practice-questions.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>DSCI 575 - Quiz 2 practice questions</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-1">Question 1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-2">Question 2:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-3">Question 3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-4">Question 4</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-5">Question 5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-6">Question 6</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-7">Question 7</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#question-8">Question 8</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="dsci-575-quiz-2-practice-questions">
+<h1>DSCI 575 - Quiz 2 practice questions<a class="headerlink" href="#dsci-575-quiz-2-practice-questions" title="Link to this heading">#</a></h1>
+<p>Please note that these are sample questions intended to give you an idea of what to expect in the quiz. They do not cover all the topics we have covered in the last four lectures, nor do they indicate the exact number of questions in the actual quiz.</p>
+<p><br><br></p>
+<section id="question-1">
+<h2>Question 1<a class="headerlink" href="#question-1" title="Link to this heading">#</a></h2>
+<p>Which of the following are <strong>true</strong> about Recurrent Neural Networks (RNNs)?</p>
+<ul class="simple">
+<li><p>(A) RNNs can process inputs of varying lengths.</p></li>
+<li><p>(B) RNNs can capture long-term dependencies without any issues.</p></li>
+<li><p>(C) RNNs maintain a hidden state that carries information from previous steps.</p></li>
+<li><p>(D) RNNs are well-suited for parallelization during training.</p></li>
+<li><p>(E) RNNs are suitable for sequential data such as text or speech.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<ul class="simple">
+<li><p>A, C, E</p></li>
+</ul>
+</div>
+<p><br><br></p>
+</section>
+<section id="question-2">
+<h2>Question 2:<a class="headerlink" href="#question-2" title="Link to this heading">#</a></h2>
+<p>Match each architecture to its most common application.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Architecture</p></th>
+<th class="head"><p>Application</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A. Decoder-only</p></td>
+<td><p>1. Text classification</p></td>
+</tr>
+<tr class="row-odd"><td><p>B. Encoder-only</p></td>
+<td><p>2. Text generation (e.g., GPT)</p></td>
+</tr>
+<tr class="row-even"><td><p>C. Encoder-Decoder</p></td>
+<td><p>3. Machine translation</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<ul class="simple">
+<li><p>A: 2</p></li>
+<li><p>B: 1</p></li>
+<li><p>C: 3</p></li>
+</ul>
+</div>
+<p><br><br></p>
+</section>
+<section id="question-3">
+<h2>Question 3<a class="headerlink" href="#question-3" title="Link to this heading">#</a></h2>
+<p>Give one similarity and one difference between RNNs and Transformers.</p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<p>(Many possible answers)</p>
+<p>Both RNNs and transformer models handle sequential data with variable length inputs and outputs. One key difference between them is in their architecture. RNNs use recurrent connections to capture long-distance dependencies, while transformers employ self-attention mechanisms. RNNs often suffer from the problem of vanishing gradients, whereas transformers use self-attention to effectively capture local and global dependencies, including long-distance dependencies. Another advantage of transformers is that they can be parallelized, while RNNs cannot.</p>
+</div>
+<p><br><br></p>
+</section>
+<section id="question-4">
+<h2>Question 4<a class="headerlink" href="#question-4" title="Link to this heading">#</a></h2>
+<p>Consider a toy transformer model where</p>
+<ul class="simple">
+<li><p>the sequence length is 20</p></li>
+<li><p>each token is represented by a 512-dimensional embedding (<code class="docutils literal notranslate"><span class="pre">d_model</span></code> in Pytorch)</p></li>
+<li><p>the model uses multihead self-attention with 4 attention heads, each head with its own set of trainable parameters to transform input embeddings into queries, keys, and values</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Component</p></th>
+<th class="head"><p>Shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A. <span class="math notranslate nohighlight">\(W^Q\)</span> (Query matrix)</p></td>
+<td><p>1. (512, 512)</p></td>
+</tr>
+<tr class="row-odd"><td><p>B. <span class="math notranslate nohighlight">\(W^K\)</span> (Key matrix)</p></td>
+<td><p>2. (512, 512)</p></td>
+</tr>
+<tr class="row-even"><td><p>C. <span class="math notranslate nohighlight">\(Q\)</span> (Query vectors)</p></td>
+<td><p>3. (batch_size, 20, 20)</p></td>
+</tr>
+<tr class="row-odd"><td><p>D. Attention scores</p></td>
+<td><p>4. (batch_size, 20, 512)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<ul class="simple">
+<li><p>A: 1</p></li>
+<li><p>B: 2</p></li>
+<li><p>C: 4</p></li>
+<li><p>D: 3</p></li>
+</ul>
+</div>
+<p><br><br></p>
+</section>
+<section id="question-5">
+<h2>Question 5<a class="headerlink" href="#question-5" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Name two differences between a single-head and multihead attention.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<p>(Many possible answers)</p>
+<ol class="arabic simple">
+<li><p>Multihead attention is capable of capturing diverse parallel relations among input elements.</p></li>
+<li><p>Multi-head attention typically requires more parameters compared to single-head attention.</p></li>
+<li><p>If <span class="math notranslate nohighlight">\(d\)</span> is the input dimension, in a single-head attention layer, the output after weighted summation is a vector of dimension <span class="math notranslate nohighlight">\(d\)</span>. However, in a multi-head attention layer, there will be <span class="math notranslate nohighlight">\(h\)</span> <span class="math notranslate nohighlight">\(d\)</span>-dimensional vectors, where <span class="math notranslate nohighlight">\(h\)</span> is the number of heads. These vectors need to be concatenated and passed through a linear layer to obtain a <span class="math notranslate nohighlight">\(d\)</span>-dimensional representation.</p></li>
+</ol>
+</div>
+<p><br><br></p>
+</section>
+<section id="question-6">
+<h2>Question 6<a class="headerlink" href="#question-6" title="Link to this heading">#</a></h2>
+<p>You’re designing a system to identify which customer reviews are expressing <strong>fear</strong>, <strong>joy</strong>, or <strong>sadness</strong>, but you don’t have any labeled training data.</p>
+<p>Which tool or approach is best suited?</p>
+<ul class="simple">
+<li><p>(A) Fine-tuning a BERT model</p></li>
+<li><p>(B) Using <code class="docutils literal notranslate"><span class="pre">zero-shot-classification</span></code> with a pretrained model like <code class="docutils literal notranslate"><span class="pre">bart-large-mnli</span></code></p></li>
+<li><p>(C) Training an RNN from scratch</p></li>
+<li><p>(D) Using a summarization pipeline</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<ul class="simple">
+<li><p>B</p></li>
+</ul>
+</div>
+<p><br><br></p>
+</section>
+<section id="question-7">
+<h2>Question 7<a class="headerlink" href="#question-7" title="Link to this heading">#</a></h2>
+<p>Consider the language modeling task. Given the text below, you want to predict the word followed by the word in.</p>
+<blockquote>
+<div><p>She was born in Italy. She spent most of her childhood and teenage years there. She even worked as a school teacher there. She moved to North America only when she was 30. That’s why she is so fluent in  ____.</p>
+</div></blockquote>
+<p>Would a Markov model of language (i.e., an n-gram language model) be a reasonable choice in this language modeling task to successfully predict the word Italian? Why or why not?</p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<p>No. The relevant word Italy occurs around 40+ words away from the word to be predicted. If we train a Markov model with such a large n, the model will be very sparse; it’s very unlikely that the exact sequence of the 40 words above occurs more than once in the corpus. Large n also means higher RAM requirements.</p>
+</div>
+<p><br><br></p>
+<section id="question-8">
+<h3>Question 8<a class="headerlink" href="#question-8" title="Link to this heading">#</a></h3>
+<p>Suppose you are using a basic (vanilla) RNN layer with the following:</p>
+<ul class="simple">
+<li><p>Input size = 100 (i.e., each input token is a 100-dimensional vector)</p></li>
+<li><p>Hidden size = 64 (i.e., the hidden state has 64 units)</p></li>
+<li><p>Sequence length = 10</p></li>
+<li><p>Batch size = 32</p></li>
+</ul>
+<p>What are the shapes of the following matrices?</p>
+<p>Match each weight matrix with its shape:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Matrix</p></th>
+<th class="head"><p>Shape</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>A. <code class="docutils literal notranslate"><span class="pre">W_ih</span></code> (input to hidden)</p></td>
+<td><p>1. (64, 64)</p></td>
+</tr>
+<tr class="row-odd"><td><p>B. <code class="docutils literal notranslate"><span class="pre">W_hh</span></code> (hidden to hidden)</p></td>
+<td><p>2. (64, 1)</p></td>
+</tr>
+<tr class="row-even"><td><p>C. <code class="docutils literal notranslate"><span class="pre">b_hh</span></code> (bias between hidden to hidden)</p></td>
+<td><p>3. (64, 100)</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<div class="tip dropdown admonition">
+<p class="admonition-title">V’s Solutions!</p>
+<ul class="simple">
+<li><p>A: 3</p></li>
+<li><p>B: 1</p></li>
+<li><p>C: 2</p></li>
+</ul>
+</div>
+<p><br><br></p>
+<p><em>Other than these sample questions, there are many questions in the lecture notes which you can go through to assess your understanding of the material. There won’t be tedious calculations in the quiz. Make sure you understand the dimensionality of different weight matrices in the context of RNNs and transformers.</em></p>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./quiz_practice_questions/quiz2"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../quiz1/quiz1-practice-questions.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">DSCI 575 - Quiz 1 practice questions</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../lectures/notes/AppendixA-BaumWelch.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Baum-Welch (BW) algorithm</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-1">Question 1</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-2">Question 2:</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-3">Question 3</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-4">Question 4</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-5">Question 5</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-6">Question 6</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#question-7">Question 7</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#question-8">Question 8</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

@@ -1,0 +1,1739 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lecture 4: More HMMs &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/notes/04_More-HMMs';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lecture 5: Introduction to Recurrent Neural Networks (RNNs)" href="05_intro-to-RNNs.html" />
+    <link rel="prev" title="Lecture 3: Introduction to Hidden Markov Models (HMMs)" href="03_HMMs-intro.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/mds-hex-sticker.png" class="logo__image only-light" alt="DSCI 575 Advanced Machine Learning - Home"/>
+    <script>document.write(`<img src="../../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="DSCI 575 Advanced Machine Learning - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lecture 4: More HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_intro-to-RNNs.html">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-transformers.html">Lecture 6: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_more-transformers.html">Lecture 7: More transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_llms-applications.html">Lecture 8: Applications of Large Language Models</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../demos/transformers-recipe-generation.html">Recipe Generation using Transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/lectures/notes/04_More-HMMs.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lecture 4: More HMMs</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-lo">Imports, LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-ingredients">HMM ingredients</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-the-forward-algorithm">Recap: The forward algorithm</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decoding-the-viterbi-algorithm">1. Decoding: The Viterbi algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">1.1 Introduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-initialization">1.2 Viterbi: Initialization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-induction">1.3 Viterbi: Induction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-conclusion">1.4 Viterbi conclusion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-with-hmmlearn-on-our-toy-hmm">1.5 Viterbi with  <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code> on our toy HMM</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-4-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 4.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-of-hmms">3. Training of HMMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-hmms">Continuous HMMs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-hmms-to-markov-decision-processes-mdps">4. From HMMs to Markov Decision Processes (MDPs)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-to-whistler-on-a-friday-night-in-winter">Getting to Whistler on a Friday Night in Winter 🏔️</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-and-summary">Final comments and summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-fundamental-questions-for-hmms">Three fundamental questions for HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#important-ideas-to-know">Important ideas to know</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Important ideas to know</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#some-useful-resources-and-links">Some useful resources and links</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-exercise-4-2-more-practice-questions">(Optional) Exercise 4.2: More practice questions</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p><img alt="" src="../../_images/575_banner.png" /></p>
+<section class="tex2jax_ignore mathjax_ignore" id="lecture-4-more-hmms">
+<h1>Lecture 4: More HMMs<a class="headerlink" href="#lecture-4-more-hmms" title="Link to this heading">#</a></h1>
+<p>UBC Master of Data Science program, 2024-25</p>
+<section id="imports-lo">
+<h2>Imports, LO<a class="headerlink" href="#imports-lo" title="Link to this heading">#</a></h2>
+<p><br><br></p>
+<section id="imports">
+<h3>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">os.path</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">),</span> <span class="s2">&quot;code&quot;</span><span class="p">))</span>
+<span class="kn">from</span> <span class="nn">plotting_functions</span> <span class="kn">import</span> <span class="o">*</span>
+
+<span class="o">%</span><span class="k">matplotlib</span> inline
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+</section>
+</section>
+<section id="learning-outcomes">
+<h2>Learning outcomes<a class="headerlink" href="#learning-outcomes" title="Link to this heading">#</a></h2>
+<p>From this lesson you will be able to</p>
+<ul class="simple">
+<li><p>Describe the purpose and high-level idea of the Viterbi algorithm.</p></li>
+<li><p>Identify and explain the three main steps of the Viterbi algorithm, and apply it to a given HMM and observation sequence.</p></li>
+<li><p>Compute the values of <span class="math notranslate nohighlight">\(\delta_i(t)\)</span> and <span class="math notranslate nohighlight">\(\psi_i(t)\)</span> for a specific state <span class="math notranslate nohighlight">\(i\)</span> at time step <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>Distinguish between discrete and continuous observation models in the context of HMMs.</p></li>
+<li><p>Use the hmmlearn library to perform likelihood computation, sequence decoding, and unsupervised training of HMMs.</p></li>
+<li><p>Provide a broad explanation of the concept and components of Markov Decision Processes (MDPs).</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="recap">
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Hidden Markov models (HMMs) model sequential data with latent factors.</p></li>
+<li><p>There are tons of applications associated with them and they are more realistic than Markov models.</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_small.png" /></p>
+<!-- <img src="img/HMM_example.png" height="500" width="500"> --><section id="hmm-ingredients">
+<h3>HMM ingredients<a class="headerlink" href="#hmm-ingredients" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Hidden states (e.g., Happy, Sad)</p></li>
+<li><p>Output alphabet or output symbols or observations (e.g., learn, study, cry, facebook)</p></li>
+<li><p>Discrete initial state probability distribution</p></li>
+<li><p>Transition probabilities</p></li>
+<li><p>Emission probabilities</p></li>
+</ul>
+<p>The three fundamental questions for an HMM.</p>
+<ul class="simple">
+<li><p><strong>Likelihood</strong>
+Given a model with parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, A, B&gt;\)</span>, how do we efficiently compute the likelihood of a particular observation sequence <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+<li><p><strong>Decoding</strong>
+Given an observation sequence <span class="math notranslate nohighlight">\(O\)</span> and a model <span class="math notranslate nohighlight">\(\theta\)</span> how do we choose a state sequence <span class="math notranslate nohighlight">\(Q={q_0, q_1, \dots q_T}\)</span> that best explains the observation sequence?</p></li>
+<li><p><strong>Learning</strong>
+Training: Given a large observation sequence <span class="math notranslate nohighlight">\(O\)</span> how do we choose the best parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+</ul>
+</section>
+<section id="recap-the-forward-algorithm">
+<h3>Recap: The forward algorithm<a class="headerlink" href="#recap-the-forward-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The forward algorithm is a dynamic programming algorithm to efficiently estimate the probability of an observation sequence <span class="math notranslate nohighlight">\(P(O;\theta)\)</span> given an HMM.</p></li>
+<li><p>For each state <span class="math notranslate nohighlight">\(i\)</span>, we calculated <span class="math notranslate nohighlight">\(\alpha_i(0), \alpha_i(1), \alpha_i(2), ...\alpha_i(t)\)</span>, which represent the probabilities of being in state <span class="math notranslate nohighlight">\(i\)</span> at times <span class="math notranslate nohighlight">\(t\)</span> knowing all the observations which came before and at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>The trellis was computed left to right and top to bottom.</p></li>
+<li><p>The forward algorithm stores the probabilities of all possible 1-state sequences (from the start), to store all possible 2-state sequences (from the start), to store all possible 3-state sequences (from the start) and so on.</p></li>
+</ul>
+<p><img alt="" src="../../_images/hmm_alpha_values_small.png" /></p>
+<ul class="simple">
+<li><p>Sum over all possible final states:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(O;\theta) = \sum\limits_{i=1}^{n}\alpha_i(T-1)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P(E,L,F,C) = \alpha_🙂(3) + \alpha_😔(3) = 0.00023 + 0.00207 = 0.0023\)</span></p></li>
+</ul>
+</li>
+</ul>
+<!-- <center> -->
+<!-- <img src="img/hmm_alpha_values.png" height="500" width="500">  -->
+<!-- </center> --><p>Recall the three fundamental questions for an HMM.</p>
+<ul class="simple">
+<li><p><strong>Likelihood</strong>
+Given a model with parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, A, B&gt;\)</span>, how do we efficiently compute the likelihood of a particular observation sequence <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+<li><p><strong>Decoding</strong>
+Given an observation sequence <span class="math notranslate nohighlight">\(O\)</span> and a model <span class="math notranslate nohighlight">\(\theta\)</span> how do we choose a state sequence <span class="math notranslate nohighlight">\(Q={q_0, q_1, \dots q_T}\)</span> that best explains the observation sequence?</p></li>
+<li><p><strong>Learning</strong>
+Training: Given a large observation sequence <span class="math notranslate nohighlight">\(O\)</span> how do we choose the best parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="decoding-the-viterbi-algorithm">
+<h2>1. Decoding: The Viterbi algorithm<a class="headerlink" href="#decoding-the-viterbi-algorithm" title="Link to this heading">#</a></h2>
+<section id="introduction">
+<h3>1.1 Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Given an observation sequence <span class="math notranslate nohighlight">\(O\)</span> and a model <span class="math notranslate nohighlight">\(\theta\)</span> how do we choose a state sequence <span class="math notranslate nohighlight">\(Q={q_0, q_1, \dots q_T}\)</span> that best explains the observation sequence?</p></li>
+<li><p>Purpose: finding what’s most likely going on under the hood.</p></li>
+<li><p>For example: It tells us the most likely part-of-speech tags given an English sentence.</p></li>
+</ul>
+<blockquote>
+Will/MD the/DT chair/NN chair/VB the/DT meeting/NN from/IN that/DT chair/NN?
+</blockquote>    <p>More formally,</p>
+<ul class="simple">
+<li><p>Given an HMM, choose the state sequence that maximizes the probability of the output sequence.</p></li>
+</ul>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(Q^* = \arg \max\limits_Q P(O,Q;\theta)\)</span>,</p></li>
+<li><p><span class="math notranslate nohighlight">\(P(O,Q;\theta) = \pi_{q_0}b_{q_0}(o_0) \prod\limits_{t=1}^{T}a_{q_{t-1}}a_{q_t}b_{q_t}(o_t)\)</span></p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700">  -->
+<!-- </center> --><p><strong>Can we use the forward algorithm for decoding?</strong></p>
+<p>If we want to pick an optimal state sequence which maximizes the probability of the observation sequence, how about picking the state with maximum <span class="math notranslate nohighlight">\(\alpha\)</span> value at each time step?</p>
+<p>Remember that <span class="math notranslate nohighlight">\(\alpha_i(t)\)</span> is the total probability of seeing the first <span class="math notranslate nohighlight">\(t\)</span> observations and ending up in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span>, considering all possible paths that could have led there.</p>
+<p><img alt="" src="../../_images/hmm_alpha_values_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/hmm_alpha_values.png" height="500" width="500">  -->
+<!-- </center> -->
+<p>If we pick the most probable state at each time step based on the <span class="math notranslate nohighlight">\(\alpha\)</span> values, it might not end up as the best state sequence because it might be possible that the transition between two highly probable states in a sequence is very unlikely.</p>
+<p>We need something else.</p>
+<p><br><br></p>
+<p><strong>The Viterbi algorithm: Overview</strong></p>
+<ul class="simple">
+<li><p>Dynamic programming algorithm.</p></li>
+<li><p>We use a different kind of trellis.</p></li>
+<li><p>Want: Given an HMM, choose the state sequence that maximizes the probability of the output sequence.</p></li>
+</ul>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(Q^* = \arg \max\limits_Q P(O,Q;\theta)\)</span></p></li>
+</ul>
+<ul class="simple">
+<li><p>We store <span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> values at each node in the trellis</p></li>
+<li><p><span class="math notranslate nohighlight">\(\delta_i(t)\)</span> represents the probability of the <strong>single most probable path</strong> that produces the first <span class="math notranslate nohighlight">\(t\)</span> observations and ends in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_i(t)\)</span> represents the best possible previous state if I am in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700">  -->
+<!-- </center> --><p>Let’s go through the algorithm step by step.</p>
+<p><br><br></p>
+</section>
+<section id="viterbi-initialization">
+<h3>1.2 Viterbi: Initialization<a class="headerlink" href="#viterbi-initialization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Initialize with <span class="math notranslate nohighlight">\(\delta_i(0) = \pi_i b_i(o_0)\)</span> for all states</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\delta_🙂(0) = \pi_🙂 b_🙂(E) = 0.8 \times 0.2 = 0.16\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\delta_😔(0) = \pi_😔 b_😔(E) = 0.2 \times 0.1 = 0.02\)</span></p></li>
+</ul>
+</li>
+<li><p>Initialize with <span class="math notranslate nohighlight">\(\psi_i(0) = 0 \)</span>, for all states</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\psi_🙂(0) = 0, \psi_😔(0) = 0\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700">  -->
+<!-- </center>     --><p><br><br></p>
+</section>
+<section id="viterbi-induction">
+<h3>1.3 Viterbi: Induction<a class="headerlink" href="#viterbi-induction" title="Link to this heading">#</a></h3>
+<p>The best path <span class="math notranslate nohighlight">\(\delta_t\)</span> to state <span class="math notranslate nohighlight">\(j\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> depends on the best path to each
+possible previous state <span class="math notranslate nohighlight">\(\delta_i(t-1)\)</span> and their transitions to <span class="math notranslate nohighlight">\(j\)</span> (<span class="math notranslate nohighlight">\(a_{ij}\)</span>).</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta_j(t) = \max\limits_i \{\delta_i(t-1)a_{ij}\} b_j(o_t)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_j(t) = \arg \max\limits_i \{\delta_i(t-1)a_{ij}\} \)</span></p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<p><img alt="" src="../../_images/viterbi_explanation_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/viterbi_explanation.png" height="150" width="150">  -->
+<!-- </center> -->
+<ul class="simple">
+<li><p>There are two possible paths to state 🙂 at <span class="math notranslate nohighlight">\(T = 1\)</span>. Which is the best one?</p></li>
+<li><p><span class="math notranslate nohighlight">\(\delta_🙂(1) = \max \begin{Bmatrix} \delta_🙂(0) \times a_{🙂🙂},\\ \delta_😔(0) \times a_{😔🙂}\end{Bmatrix}  \times b_🙂(L)\)</span></p></li>
+<li><p>First take the max between <span class="math notranslate nohighlight">\(\delta_🙂(0) \times a_{🙂🙂}\)</span> and <span class="math notranslate nohighlight">\(\delta_😔(0) \times a_{😔🙂}\)</span> and then multiply the max by <span class="math notranslate nohighlight">\(b_🙂(L)\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_🙂(1)\)</span> = the state at <span class="math notranslate nohighlight">\(T=0\)</span> from where the path to 🙂 at <span class="math notranslate nohighlight">\(T=1\)</span> was the best one.</p></li>
+<li><p><strong>Note that we use parentheses to show two quantities for taking the max. (Not the best notation but I have seen it being used in this context.)</strong></p></li>
+</ul>
+<p><br><br></p>
+<p><strong>Viterbi: Induction (T = 1)</strong></p>
+<p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 🙂 and T = 1</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta_{🙂}(1) = \max\limits_i \{\delta_i(0)a_{ij}\} b_j(o_t) = 
+\max \begin{Bmatrix} 0.16 \times 0.7, \\ 0.02 \times 0.4\end{Bmatrix} \times 0.7 = 0.0784\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{🙂}(1) = \arg \max\limits_i \{\delta_i(0)a_{ij}\} = 🙂\)</span></p></li>
+</ul>
+<p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 😔 and T = 1</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta_{😔}(1) = \max\limits_i \{\delta_i(0)a_{ij}\} b_j(o_t) =  \max \begin{Bmatrix} 0.16 \times 0.3, \\ 0.02 \times 0.6\end{Bmatrix} \times 0.1 = 0.0048\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{😔}(1) = \arg \max\limits_i \{\delta_i(0)a_{ij}\} = 🙂\)</span></p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="800" width="800">  -->
+<!-- </center>     --><p><strong>Viterbi: Induction (T = 1)</strong></p>
+<p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 🙂 and T = 1</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta_{🙂}(1) = \max \begin{Bmatrix} \delta_🙂(0) \times a_{🙂🙂}, \\ \delta_😔(0) \times a_{😔🙂}\end{Bmatrix}  \times b_🙂(L) = 
+\max \begin{Bmatrix} 0.16 \times 0.7, \\ 0.02 \times 0.4\end{Bmatrix} \times 0.7 = 0.0784\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{🙂}(1)  = 🙂\)</span></p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="800" width="800">  -->
+<!-- </center>     --><p><strong>Viterbi: Induction (T = 1)</strong></p>
+<p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 😔 and T = 1</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta_{😔}(1) = \max\limits_i \{\delta_i(0)a_{ij}\} b_j(o_t) =  \max \begin{Bmatrix} 0.16 \times 0.3 ,\\ 0.02 \times 0.6\end{Bmatrix} \times 0.1 = 0.0048\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{😔}(1) = \arg \max\limits_i \{\delta_i(0)a_{ij}\} = 🙂\)</span></p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="800" width="800">  -->
+<!-- </center>     --><p><strong>Viterbi: Induction (T = 2)</strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 🙂 and T = 2</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\delta_{🙂}(2) = \max\limits_i \{\delta_i(1)a_{ij}\} b_j(o_t) =  \max \begin{Bmatrix} 0.784 \times 0.7, \\ 0.0048 \times 0.4 \end{Bmatrix}\times 0 = 0
+\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{🙂}(2) = \arg \max\limits_i \{\delta_i(1)a_{ij}\} = 🙂\)</span></p></li>
+</ul>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 😔 and T = 2</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\delta_{😔}(2) = \max\limits_i \{\delta_i(1)a_{ij}\} b_j(o_t) =  \max \begin{Bmatrix} 0.784 \times 0.3, \\ 0.0048 \times 0.6 \end{Bmatrix}\times 0.2 = 4.704 \times 10^{-3}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{😔}(2) = \arg \max\limits_i \{\delta_i(1)a_{ij}\} = 🙂\)</span></p></li>
+</ul>
+</li>
+</ul>
+<br><p><strong>Viterbi: Induction (T = 3)</strong></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 🙂 and T = 3</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\delta_{🙂}(3) = \max\limits_i \{\delta_i(2)a_{ij}\} b_j(o_t) = \max \begin{Bmatrix} 0 \times 0.7, \\ 4.704 \times 10^{-3} \times 0.4 \end{Bmatrix} \times 0.1 = 1.88\times10^{-4}
+\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{🙂}(3) = \arg \max\limits_i \{\delta_i(2)a_{ij}\} = 😔\)</span></p></li>
+</ul>
+</li>
+<li><p><span class="math notranslate nohighlight">\(\delta\)</span> and <span class="math notranslate nohighlight">\(\psi\)</span> at state 😔 and T = 3</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\delta_{😔}(3) = \max\limits_i \{\delta_i(2)a_{ij}\} b_j(o_t) = \max \begin{Bmatrix} 0 \times 0.3, \\ 4.704 \times 10^{-3} \times 0.6 \end{Bmatrix} \times 0.6 = 1.69 \times 10^{-3}\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\psi_{😔}(3) = \arg \max\limits_i \{\delta_i(2)a_{ij}\} = 😔\)</span></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="viterbi-conclusion">
+<h3>1.4 Viterbi conclusion<a class="headerlink" href="#viterbi-conclusion" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Choose the best final state: <span class="math notranslate nohighlight">\(q_t^* = \arg \max\limits_i \delta_i(t)\)</span></p></li>
+<li><p>Recursively choose the best previous state: <span class="math notranslate nohighlight">\(q_{t-1}^* = \psi_{q_t^*}(t)\)</span></p>
+<ul>
+<li><p>The most likely state sequence for the observation sequence ELFC is 🙂🙂😔😔.</p></li>
+</ul>
+</li>
+<li><p>The probability of the state sequence is the probability of <span class="math notranslate nohighlight">\(q_t^*\)</span></p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(🙂🙂😔😔) = 1.69 \times 10^{-3}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/HMM_viterbi_conclusion_small.png" /></p>
+<!-- <img src="img/HMM_viterbi_conclusion.png" height="600" width="600">  --><p><br><br></p>
+</section>
+<section id="viterbi-with-hmmlearn-on-our-toy-hmm">
+<h3>1.5 Viterbi with <a class="reference external" href="https://hmmlearn.readthedocs.io"> <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code></a> on our toy HMM<a class="headerlink" href="#viterbi-with-hmmlearn-on-our-toy-hmm" title="Link to this heading">#</a></h3>
+<p><img alt="" src="../../_images/HMM_example_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example.png" height="500" width="500">  -->
+<!-- </center>     --><p>Let’s get the optimal state sequence using Viterbi in our toy example.</p>
+<ul class="simple">
+<li><p>We assume that we already have the model, i.e., transition probabilities, emission probabilities, and initial state probabilities.</p></li>
+<li><p>Our goal is to efficiently find the best state sequence for the given observation sequence.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">hmmlearn</span> <span class="kn">import</span> <span class="n">hmm</span>
+
+<span class="c1"># Initializing an HMM</span>
+<span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Happy&quot;</span><span class="p">,</span> <span class="s2">&quot;Sad&quot;</span><span class="p">]</span>
+<span class="n">n_states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+<span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Learn&quot;</span><span class="p">,</span> <span class="s2">&quot;Eat&quot;</span><span class="p">,</span> <span class="s2">&quot;Cry&quot;</span><span class="p">,</span> <span class="s2">&quot;Facebook&quot;</span><span class="p">]</span>
+<span class="n">n_observations</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">observations</span><span class="p">)</span>
+
+<span class="c1"># Since we&#39;ve discrete observations, we&#39;ll use `CategoricalHMM`</span>
+<span class="n">model</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">CategoricalHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_states</span><span class="p">)</span>
+
+<span class="c1"># Set the initial state probabilities</span>
+<span class="n">model</span><span class="o">.</span><span class="n">startprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+
+<span class="c1"># Set the transition matrix</span>
+<span class="n">model</span><span class="o">.</span><span class="n">transmat_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]])</span>
+
+<span class="c1"># Set the emission probabilities of shape (n_components, n_symbols)</span>
+<span class="n">model</span><span class="o">.</span><span class="n">emissionprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ModuleNotFoundError</span><span class="g g-Whitespace">                       </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">2</span><span class="p">],</span> <span class="n">line</span> <span class="mi">3</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="ne">----&gt; </span><span class="mi">3</span> <span class="kn">from</span> <span class="nn">hmmlearn</span> <span class="kn">import</span> <span class="n">hmm</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="c1"># Initializing an HMM</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Happy&quot;</span><span class="p">,</span> <span class="s2">&quot;Sad&quot;</span><span class="p">]</span>
+
+<span class="ne">ModuleNotFoundError</span>: No module named &#39;hmmlearn&#39;
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="k">def</span> <span class="nf">get_state_seq</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">observation_seq</span><span class="p">,</span> <span class="n">states</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">symbols</span><span class="o">=</span><span class="n">observations</span><span class="p">):</span>
+    <span class="n">logprob</span><span class="p">,</span> <span class="n">state_seq</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">decode</span><span class="p">(</span><span class="n">observation_seq</span><span class="p">,</span> <span class="n">algorithm</span><span class="o">=</span><span class="s2">&quot;viterbi&quot;</span><span class="p">)</span>
+    <span class="n">o_seq</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">symbols</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">observation_seq</span><span class="o">.</span><span class="n">T</span><span class="p">[</span><span class="mi">0</span><span class="p">])</span>
+    <span class="n">s_seq</span> <span class="o">=</span> <span class="nb">map</span><span class="p">(</span><span class="k">lambda</span> <span class="n">x</span><span class="p">:</span> <span class="n">states</span><span class="p">[</span><span class="n">x</span><span class="p">],</span> <span class="n">state_seq</span><span class="p">)</span>
+    <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;log probability of state sequence: &quot;</span><span class="p">,</span> <span class="n">logprob</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">data</span><span class="o">=</span><span class="n">s_seq</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">o_seq</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="p">[</span><span class="s2">&quot;state sequence&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Decoding example</span>
+<span class="n">toy_seq</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mi">1</span><span class="p">],</span> <span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="p">[</span><span class="mi">3</span><span class="p">],</span> <span class="p">[</span><span class="mi">2</span><span class="p">]])</span>
+<span class="n">get_state_seq</span><span class="p">(</span><span class="n">model</span><span class="p">,</span> <span class="n">toy_seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>log probability of state sequence:  -6.3809933159177925
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>state sequence</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Eat</th>
+      <td>Happy</td>
+    </tr>
+    <tr>
+      <th>Learn</th>
+      <td>Happy</td>
+    </tr>
+    <tr>
+      <th>Facebook</th>
+      <td>Sad</td>
+    </tr>
+    <tr>
+      <th>Cry</th>
+      <td>Sad</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<ul class="simple">
+<li><p>This is how you find the best state sequence that explains the observation sequence using the Viterbi algorithm!</p></li>
+<li><p>Much faster than the brute force approach of considering all possible state combinations, calculating probabilities for each of them and taking the one resulting in maximum probability.</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="questions-for-you">
+<h2>❓❓ Questions for you<a class="headerlink" href="#questions-for-you" title="Link to this heading">#</a></h2>
+<section id="exercise-4-1-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 4.1: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-4-1-select-all-of-the-following-statements-which-are-true-iclicker" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) In Viterbi, <span class="math notranslate nohighlight">\(\delta_i(t)\)</span> is the probability of the best path (i.e., the path with highest probability) which accounts for the first <span class="math notranslate nohighlight">\(t\)</span> observations and ending at state <span class="math notranslate nohighlight">\(i\)</span>.</p></li>
+<li><p>(B) In Viterbi, suppose at <span class="math notranslate nohighlight">\(t-1\)</span>, state <span class="math notranslate nohighlight">\(i\)</span> has the highest <span class="math notranslate nohighlight">\(\delta_i(t-1)\)</span> among all states. Then at time step <span class="math notranslate nohighlight">\(t\)</span>, the path from <span class="math notranslate nohighlight">\(i\)</span> at <span class="math notranslate nohighlight">\(t-1\)</span> is going to give us the highest <span class="math notranslate nohighlight">\(\delta_j(t)\)</span> for all states <span class="math notranslate nohighlight">\(j\)</span> at time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p>(C) In Viterbi, the <span class="math notranslate nohighlight">\(\psi_j(t)\)</span> keeps track of the state from the previous time step which results in highest <span class="math notranslate nohighlight">\(\delta_i(t-1)a_{ij}\)</span> so that we can keep track of where we came from and we can recreate the path.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 4.1: V’s Solutions!</p>
+<ul class="simple">
+<li><p>(A) True</p></li>
+<li><p>(B) False. This will also depend upon the transition probabilities between states.</p></li>
+<li><p>(C) True</p></li>
+</ul>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="training-of-hmms">
+<h2>3. Training of HMMs<a class="headerlink" href="#training-of-hmms" title="Link to this heading">#</a></h2>
+<p>Given a large observation sequence (or a set of observation sequences) <span class="math notranslate nohighlight">\(O\)</span> for training, but <strong>not</strong> the state sequence, how do we choose the “best” parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p>
+<p>We want our parameters <span class="math notranslate nohighlight">\(\theta\)</span> to be set so that the available training data is maximally likely.</p>
+<p><strong>Can we use MLE?</strong></p>
+<ul class="simple">
+<li><p>If the training data contained state sequences, we could simply do maximum likelihood estimation, as we did in the last lecture, to get transition probabilities and the emission probabilities.</p></li>
+<li><p>But when we are only given observations, we <strong>cannot</strong> count the following:</p>
+<ul>
+<li><p>How often we move from <span class="math notranslate nohighlight">\(q_{i-1}\)</span> to <span class="math notranslate nohighlight">\(q_i\)</span> normalized by how often we move from <span class="math notranslate nohighlight">\(q_{i-1}\)</span> to anything:
+<span class="math notranslate nohighlight">\(p(q_i|q_{i-1}) = \frac{Count(q_{i-1} q_i)}{Count(q_{i-1} \text{ANY STATE })}\)</span></p></li>
+<li><p>What’s the proportion of <span class="math notranslate nohighlight">\(q_i\)</span> emitting the observation <span class="math notranslate nohighlight">\(o_i\)</span> .<br />
+<span class="math notranslate nohighlight">\(p(o_i|q_{i}) = \frac{Count(o_i \text{ and } q_i)}{Count(q_{i})}\)</span></p></li>
+</ul>
+</li>
+<li><p>In many cases, the mapping between hidden states and observations is unknown and so we can’t use MLE.</p></li>
+<li><p>How to deal with the incomplete data?</p>
+<ul>
+<li><p>Use an iterative unsupervised approach (expectation-maximization)</p></li>
+<li><p>We won’t go into the details. If you are interested in knowing more, checkout <a class="reference internal" href="AppendixA-BaumWelch.html"><span class="std std-doc">AppendixA</span></a>.</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<p><strong>Using HMMs with <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code></strong></p>
+<p>Let’s try out HMM decoding and learning with <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code>.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">random</span>
+<span class="kn">from</span> <span class="nn">hmmlearn</span> <span class="kn">import</span> <span class="n">hmm</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+
+<span class="c1"># Set random seeds for reproducibility</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Define states and observations</span>
+<span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Happy&quot;</span><span class="p">,</span> <span class="s2">&quot;Sad&quot;</span><span class="p">]</span>
+<span class="n">observations</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Learn&quot;</span><span class="p">,</span> <span class="s2">&quot;Eat&quot;</span><span class="p">,</span> <span class="s2">&quot;Cry&quot;</span><span class="p">,</span> <span class="s2">&quot;Facebook&quot;</span><span class="p">]</span>
+<span class="n">state_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">s</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">s</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">states</span><span class="p">)}</span>
+<span class="n">obs_map</span> <span class="o">=</span> <span class="p">{</span><span class="n">i</span><span class="p">:</span> <span class="n">o</span> <span class="k">for</span> <span class="n">i</span><span class="p">,</span> <span class="n">o</span> <span class="ow">in</span> <span class="nb">enumerate</span><span class="p">(</span><span class="n">observations</span><span class="p">)}</span>
+
+<span class="c1"># Define HMM parameters</span>
+<span class="n">true_model</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">CategoricalHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+<span class="n">true_model</span><span class="o">.</span><span class="n">startprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="n">true_model</span><span class="o">.</span><span class="n">transmat_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]])</span>
+<span class="n">true_model</span><span class="o">.</span><span class="n">emissionprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.0</span><span class="p">],</span>
+                                     <span class="p">[</span><span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.1</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">]])</span>
+
+<span class="c1"># Generate sequences</span>
+<span class="n">n_sequences</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">lengths</span> <span class="o">=</span> <span class="p">[</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_sequences</span><span class="p">)]</span>
+<span class="n">total_length</span> <span class="o">=</span> <span class="nb">sum</span><span class="p">(</span><span class="n">lengths</span><span class="p">)</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">true_model</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="n">total_length</span><span class="p">)</span>
+<span class="n">X</span> <span class="o">=</span> <span class="n">X</span><span class="o">.</span><span class="n">reshape</span><span class="p">(</span><span class="o">-</span><span class="mi">1</span><span class="p">,</span> <span class="mi">1</span><span class="p">)</span>
+<span class="n">X</span><span class="o">.</span><span class="n">shape</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>(3878, 1)
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s train an unsupervised HMM on these sampled sequences.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Fit multiple unsupervised models and pick best</span>
+<span class="n">best_score</span> <span class="o">=</span> <span class="o">-</span><span class="n">np</span><span class="o">.</span><span class="n">inf</span>
+<span class="n">best_model</span> <span class="o">=</span> <span class="kc">None</span>
+
+<span class="k">for</span> <span class="n">seed</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="mi">10</span><span class="p">):</span>
+    <span class="n">model</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">CategoricalHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="n">seed</span><span class="p">)</span>
+    <span class="n">model</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span> <span class="c1"># Pass X and seqlens </span>
+    <span class="n">score</span> <span class="o">=</span> <span class="n">model</span><span class="o">.</span><span class="n">score</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">lengths</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">score</span> <span class="o">&gt;</span> <span class="n">best_score</span><span class="p">:</span>
+        <span class="n">best_model</span> <span class="o">=</span> <span class="n">model</span>
+        <span class="n">best_score</span> <span class="o">=</span> <span class="n">score</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">visualize_hmm</span><span class="p">(</span><span class="n">best_model</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Nodes:
+[&#39;s0&#39;, &#39;s1&#39;]
+</pre></div>
+</div>
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>/Users/kvarada/miniforge3/envs/575/lib/python3.12/site-packages/pygraphviz/agraph.py:1403: RuntimeWarning:
+
+Warning: Could not load &quot;/Users/kvarada/miniforge3/envs/575/lib/graphviz/libgvplugin_pango.6.dylib&quot; - It was found, so perhaps one of its dependents was not.  Try ldd.
+
+
+Warning: Could not load &quot;/Users/kvarada/miniforge3/envs/575/lib/graphviz/libgvplugin_pango.6.dylib&quot; - It was found, so perhaps one of its dependents was not.  Try ldd.
+</pre></div>
+</div>
+<img alt="../../_images/9282fc6ba62039c0f98ece438c3aa40aa5e8caae85f328271fa2a21df5f69a02.svg" src="../../_images/9282fc6ba62039c0f98ece438c3aa40aa5e8caae85f328271fa2a21df5f69a02.svg" />
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Compare parameters</span>
+<span class="k">def</span> <span class="nf">print_comparison</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="n">learned</span><span class="p">,</span> <span class="n">labels</span><span class="p">):</span>
+    <span class="n">df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">({</span>
+        <span class="s2">&quot;True&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">true</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">labels</span><span class="p">),</span>
+        <span class="s2">&quot;Learned&quot;</span><span class="p">:</span> <span class="n">pd</span><span class="o">.</span><span class="n">Series</span><span class="p">(</span><span class="n">learned</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">labels</span><span class="p">)</span>
+    <span class="p">})</span>
+    <span class="k">return</span> <span class="n">df</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Start Probabilities&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">print_comparison</span><span class="p">(</span><span class="n">true_model</span><span class="o">.</span><span class="n">startprob_</span><span class="p">,</span> <span class="n">best_model</span><span class="o">.</span><span class="n">startprob_</span><span class="p">,</span> <span class="n">states</span><span class="p">))</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+<span class="n">trans_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">true_model</span><span class="o">.</span><span class="n">transmat_</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔹 TRUE trasition matrix&quot;</span><span class="p">)</span>
+<span class="n">trans_learned_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">best_model</span><span class="o">.</span><span class="n">transmat_</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">states</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">trans_df</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔹 LEARNED transition matrix&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">trans_learned_df</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span><span class="p">)</span>
+
+<span class="n">emission_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">true_model</span><span class="o">.</span><span class="n">emissionprob_</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">observations</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+<span class="n">emission_learned_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">best_model</span><span class="o">.</span><span class="n">emissionprob_</span><span class="p">,</span> <span class="n">columns</span><span class="o">=</span><span class="n">observations</span><span class="p">,</span> <span class="n">index</span><span class="o">=</span><span class="n">states</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔹 TRUE Emission Probabilities&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">emission_df</span><span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;🔹 LEARNED Emission Probabilities&quot;</span><span class="p">)</span>
+<span class="n">display</span><span class="p">(</span><span class="n">emission_learned_df</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Start Probabilities
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>True</th>
+      <th>Learned</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Happy</th>
+      <td>0.8</td>
+      <td>0.613061</td>
+    </tr>
+    <tr>
+      <th>Sad</th>
+      <td>0.2</td>
+      <td>0.386939</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>🔹 TRUE trasition matrix
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Happy</th>
+      <th>Sad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Happy</th>
+      <td>0.7</td>
+      <td>0.3</td>
+    </tr>
+    <tr>
+      <th>Sad</th>
+      <td>0.4</td>
+      <td>0.6</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>🔹 LEARNED transition matrix
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Happy</th>
+      <th>Sad</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Happy</th>
+      <td>0.676160</td>
+      <td>0.323840</td>
+    </tr>
+    <tr>
+      <th>Sad</th>
+      <td>0.324273</td>
+      <td>0.675727</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>🔹 TRUE Emission Probabilities
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Learn</th>
+      <th>Eat</th>
+      <th>Cry</th>
+      <th>Facebook</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Happy</th>
+      <td>0.7</td>
+      <td>0.2</td>
+      <td>0.1</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>Sad</th>
+      <td>0.1</td>
+      <td>0.1</td>
+      <td>0.6</td>
+      <td>0.2</td>
+    </tr>
+  </tbody>
+</table>
+</div></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>🔹 LEARNED Emission Probabilities
+</pre></div>
+</div>
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>Learn</th>
+      <th>Eat</th>
+      <th>Cry</th>
+      <th>Facebook</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>Happy</th>
+      <td>0.689693</td>
+      <td>0.218369</td>
+      <td>0.089759</td>
+      <td>0.002178</td>
+    </tr>
+    <tr>
+      <th>Sad</th>
+      <td>0.207104</td>
+      <td>0.099313</td>
+      <td>0.531054</td>
+      <td>0.162528</td>
+    </tr>
+  </tbody>
+</table>
+</div></div></div>
+</div>
+<p>Compare it with our toy HMM</p>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <img src="img/HMM_example_trellis.png" height="600" width="600">  --><ul class="simple">
+<li><p>The model is close to the real model from which we have sampled the sequences.</p></li>
+<li><p>Note that it’s an unsupervised model and it doesn’t give you interpretation of the states. You have to do it on your own.</p></li>
+</ul>
+<p><br><br></p>
+<section id="continuous-hmms">
+<h3>Continuous HMMs<a class="headerlink" href="#continuous-hmms" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>If the observations are drawn from a continuous space (e.g., speech), the probabilities must be continuous as well.</p></li>
+<li><p>HMMs generalize to continuous probability distributions.</p></li>
+<li><p>In the lab your observations are mfcc feature vectors for time frames which are continuous observations.</p></li>
+<li><p>In <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code> you can use <code class="docutils literal notranslate"><span class="pre">GaussianHMM</span></code> or <code class="docutils literal notranslate"><span class="pre">GMMHMM</span></code> for continuous observations.</p></li>
+</ul>
+<p>Let’s extend our toy HMM into a continuous HMM demo using GaussianHMM from hmmlearn.</p>
+<ul class="simple">
+<li><p>Instead of discrete observations like “Eat” or “Cry”, we now observe continuous sensor values, e.g., from an accelerometer or heart rate monitor. Each hidden state (e.g., Happy, Sad) emits a Gaussian-distributed real number (or vector).</p></li>
+</ul>
+<!-- ![](../img/continuous_hmms.png) -->
+<a class="reference internal image-reference" href="../../_images/continuous_hmms.png"><img alt="../../_images/continuous_hmms.png" src="../../_images/continuous_hmms.png" style="width: 400px; height: 400px;" /></a>
+<ul class="simple">
+<li><p>Hidden states: “Happy” and “Sad”</p></li>
+<li><p>Observed data: 1D continuous values representing a mood-related sensor signal</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">from</span> <span class="nn">hmmlearn</span> <span class="kn">import</span> <span class="n">hmm</span>
+
+<span class="c1"># Set random seed</span>
+<span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">seed</span><span class="p">(</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="c1"># Define hidden states and parameters</span>
+<span class="n">states</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;Happy&quot;</span><span class="p">,</span> <span class="s2">&quot;Sad&quot;</span><span class="p">]</span>
+<span class="n">n_states</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+
+<span class="c1"># Define Gaussian HMM</span>
+<span class="n">model_true</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">GaussianHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="n">n_states</span><span class="p">,</span> <span class="n">covariance_type</span><span class="o">=</span><span class="s1">&#39;diag&#39;</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">42</span><span class="p">)</span>
+
+<span class="n">model_true</span><span class="o">.</span><span class="n">startprob_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.8</span><span class="p">,</span> <span class="mf">0.2</span><span class="p">])</span>
+<span class="n">model_true</span><span class="o">.</span><span class="n">transmat_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.7</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],</span>
+                                 <span class="p">[</span><span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.6</span><span class="p">]])</span>
+<span class="n">model_true</span><span class="o">.</span><span class="n">means_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">2.0</span><span class="p">],</span>  <span class="c1"># Happy</span>
+                              <span class="p">[</span><span class="o">-</span><span class="mf">1.0</span><span class="p">]])</span>  <span class="c1"># Sad</span>
+<span class="n">model_true</span><span class="o">.</span><span class="n">covars_</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.5</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.3</span><span class="p">]])</span>
+
+<span class="c1"># Generate synthetic data</span>
+<span class="n">n_sequences</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">seqlens</span> <span class="o">=</span> <span class="p">[</span><span class="n">np</span><span class="o">.</span><span class="n">random</span><span class="o">.</span><span class="n">randint</span><span class="p">(</span><span class="mi">60</span><span class="p">,</span> <span class="mi">100</span><span class="p">)</span> <span class="k">for</span> <span class="n">_</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">n_sequences</span><span class="p">)]</span>
+<span class="n">X</span><span class="p">,</span> <span class="n">Z</span> <span class="o">=</span> <span class="n">model_true</span><span class="o">.</span><span class="n">sample</span><span class="p">(</span><span class="nb">sum</span><span class="p">(</span><span class="n">seqlens</span><span class="p">))</span>
+
+<span class="c1"># Plot the generated sequence and hidden states</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">10</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">plot</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s1">&#39;Sensor signal&#39;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Generated Sensor Data with Hidden States&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Timestep&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Sensor Value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+
+<span class="c1"># Fit a GaussianHMM on the data</span>
+<span class="n">model_unsup</span> <span class="o">=</span> <span class="n">hmm</span><span class="o">.</span><span class="n">GaussianHMM</span><span class="p">(</span><span class="n">n_components</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">covariance_type</span><span class="o">=</span><span class="s1">&#39;diag&#39;</span><span class="p">,</span> <span class="n">n_iter</span><span class="o">=</span><span class="mi">100</span><span class="p">,</span> <span class="n">random_state</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">model_unsup</span><span class="o">.</span><span class="n">fit</span><span class="p">(</span><span class="n">X</span><span class="p">,</span> <span class="n">seqlens</span><span class="p">)</span>
+
+<span class="c1"># Compare parameters</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;True Means:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_true</span><span class="o">.</span><span class="n">means_</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Learned Means:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_unsup</span><span class="o">.</span><span class="n">means_</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">True Covariances:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_true</span><span class="o">.</span><span class="n">covars_</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Learned Covariances:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_unsup</span><span class="o">.</span><span class="n">covars_</span><span class="o">.</span><span class="n">ravel</span><span class="p">())</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">True Transitions:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_true</span><span class="o">.</span><span class="n">transmat_</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Learned Transitions:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">model_unsup</span><span class="o">.</span><span class="n">transmat_</span><span class="p">)</span>
+
+<span class="c1"># Plot histogram of sensor values colored by true hidden state</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">figure</span><span class="p">(</span><span class="n">figsize</span><span class="o">=</span><span class="p">(</span><span class="mi">8</span><span class="p">,</span> <span class="mi">4</span><span class="p">))</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">Z</span><span class="o">==</span><span class="mi">0</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Happy (Z=0)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">hist</span><span class="p">(</span><span class="n">X</span><span class="p">[</span><span class="n">Z</span><span class="o">==</span><span class="mi">1</span><span class="p">],</span> <span class="n">bins</span><span class="o">=</span><span class="mi">30</span><span class="p">,</span> <span class="n">alpha</span><span class="o">=</span><span class="mf">0.5</span><span class="p">,</span> <span class="n">label</span><span class="o">=</span><span class="s2">&quot;Sad (Z=1)&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">title</span><span class="p">(</span><span class="s2">&quot;Sensor Value Distribution by True Hidden State&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">xlabel</span><span class="p">(</span><span class="s2">&quot;Sensor Value&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">ylabel</span><span class="p">(</span><span class="s2">&quot;Frequency&quot;</span><span class="p">)</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">legend</span><span class="p">()</span>
+<span class="n">plt</span><span class="o">.</span><span class="n">show</span><span class="p">()</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<img alt="../../_images/dca17b127b63313f23cde9fd65e5cfdb3ee231cf41759c50ed350d90d5588a3c.png" src="../../_images/dca17b127b63313f23cde9fd65e5cfdb3ee231cf41759c50ed350d90d5588a3c.png" />
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True Means:
+ [ 2. -1.]
+Learned Means:
+ [-1.01501658  1.99077979]
+
+True Covariances:
+ [0.5 0.3]
+Learned Covariances:
+ [0.3095461  0.49688438]
+
+True Transitions:
+ [[0.7 0.3]
+ [0.4 0.6]]
+Learned Transitions:
+ [[0.59659226 0.40340774]
+ [0.28473954 0.71526046]]
+</pre></div>
+</div>
+<img alt="../../_images/d73d39d70ece0eab4843e0c94dc5ce27722a02e8ea41eab68b1b514e68c44ee8.png" src="../../_images/d73d39d70ece0eab4843e0c94dc5ce27722a02e8ea41eab68b1b514e68c44ee8.png" />
+</div>
+</div>
+<p><br><br></p>
+</section>
+</section>
+<section id="from-hmms-to-markov-decision-processes-mdps">
+<h2>4. From HMMs to Markov Decision Processes (MDPs)<a class="headerlink" href="#from-hmms-to-markov-decision-processes-mdps" title="Link to this heading">#</a></h2>
+<p>Now that we’ve explored Hidden Markov Models (HMMs), which model sequences where the system is assumed to be a Markov process with unobserved (hidden) states, we can zoom out to a broader and more action-oriented framework: the Markov Decision Process (MDP).</p>
+<section id="getting-to-whistler-on-a-friday-night-in-winter">
+<h3>Getting to Whistler on a Friday Night in Winter 🏔️<a class="headerlink" href="#getting-to-whistler-on-a-friday-night-in-winter" title="Link to this heading">#</a></h3>
+<p>Suppose you want to get to Whistler as quickly as possible (i.e., minimize total travel time) despite unpredictable winter conditions. Pick one of the following possible choices:</p>
+<ul class="simple">
+<li><p>(A) Drive</p></li>
+<li><p>(B) Bus</p></li>
+<li><p>(C) Seaplane</p></li>
+<li><p>(D) Fly</p></li>
+<li><p>(E) Bike</p></li>
+</ul>
+<p><br><br><br><br></p>
+<p>The world is full of uncertainties, and we constantly make decisions without knowing exactly how things will turn out.</p>
+<p>You might take an action expecting one result, but something else happens. Maybe you chose to take the seaplane to Whistler and it got canceled last minute. Or you studied late expecting to feel confident, but ended up too tired to focus. These mismatches between action and outcome happen all the time.</p>
+<p>We use Markov Decision Processes (MDPs) to model these uncertainties and plan under them.</p>
+<p>The goal in a Markov Decision Process (MDP) is to find or learn a policy, a strategy for choosing actions, that maximizes the expected cumulative reward over time. MDPs are the foundation of <strong>Reinforcement Learning</strong> (RL), which is about learning how to make better decisions by trying things out and getting feedback, rewards when things go well, penalties when they don’t, so over time, the system improves its behaviour.</p>
+<p><img alt="" src="../../_images/agent-environment-interaction-loop.png" /></p>
+<p><a class="reference external" href="https://spinningup.openai.com/en/latest/spinningup/rl_intro.html#id4">Source</a></p>
+<p><strong>What is an MDP?</strong></p>
+<p>An MDP models decision-making in environments that evolve over time in a stochastic (i.e., probabilistic) way. Formally, an MDP is defined by:</p>
+<ul class="simple">
+<li><p>States <span class="math notranslate nohighlight">\(s \in \mathcal{S}\)</span>: the situation the agent is in (analogous to HMM states).</p></li>
+<li><p>Actions <span class="math notranslate nohighlight">\(a \in \mathcal{A}\)</span>: choices the agent can make.</p></li>
+<li><p>Transition probabilities <span class="math notranslate nohighlight">\(P(s^{\prime} \mid s, a)\)</span>: how likely the next state <span class="math notranslate nohighlight">\(s^\prime\)</span> is, given the current state <span class="math notranslate nohighlight">\(s\)</span> and chosen action <span class="math notranslate nohighlight">\(a\)</span>.</p></li>
+<li><p>Rewards <span class="math notranslate nohighlight">\(R(s, a)\)</span>: how good or bad the action <span class="math notranslate nohighlight">\(a\)</span> was in state <span class="math notranslate nohighlight">\(s\)</span>.</p></li>
+<li><p>Policy <span class="math notranslate nohighlight">\(\pi(a \mid s)\)</span>: a rule used by an agent to decide what actions <span class="math notranslate nohighlight">\(a\)</span> to take at state <span class="math notranslate nohighlight">\(s\)</span>.</p></li>
+</ul>
+<p><strong>A simple example</strong></p>
+<p>Let’s extend our toy example to an MDP.</p>
+<p>In the HMM version:</p>
+<ul class="simple">
+<li><p>The system (person) moves between hidden mood states: Happy (🙂), Sad (😔)</p></li>
+<li><p>You observe activities like: Learn, Eat, Cry, Facebook</p></li>
+</ul>
+<p>Now imagine you’re a virtual assistant or wellness app trying to help the person stay Happy over time. Each day, you suggest an action, and depending on the person’s current mood, the action affects:</p>
+<ul class="simple">
+<li><p>Their next mood</p></li>
+<li><p>The reward they get (i.e., how helpful that action was)</p></li>
+</ul>
+<p><img alt="" src="../../_images/MDP-example.png" /></p>
+<ul class="simple">
+<li><p><strong>States <span class="math notranslate nohighlight">\(S\)</span></strong>: Happy (🙂), Sad (😔)</p></li>
+<li><p><strong>Actions <span class="math notranslate nohighlight">\(A\)</span></strong>: Learn, Eat, Cry, Facebook</p></li>
+<li><p><strong>Transition probabilities <span class="math notranslate nohighlight">\(P(s^{\prime} \mid s,a)\)</span></strong>: how likely the next state is, given the current state and chosen action.</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(🙂 \mid 🙂, L) = 0.8\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P(🙂 \mid 😔 , L) = 0.3\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Rewards <span class="math notranslate nohighlight">\(R(s,a)\)</span></strong>: how good or bad the action was in that state.</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(R(🙂, Learn) = 2\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(R(😔, Learn) = -1\)</span></p></li>
+</ul>
+</li>
+<li><p><strong>Policy <span class="math notranslate nohighlight">\(\pi\)</span></strong>: a strategy that tells the agent what action to take in each state.</p>
+<ul>
+<li><p>If in 😊 <span class="math notranslate nohighlight">\(\rightarrow\)</span> Do Learn</p></li>
+<li><p>If in 😢 <span class="math notranslate nohighlight">\(\rightarrow\)</span> Do Eat</p></li>
+</ul>
+</li>
+</ul>
+<p>Note that we haven’t included an END state here because we’re modeling daily mood dynamics as an ongoing process, like how your behaviour today affects your mood tomorrow, and so on. But if we wanted to model a finite episode, like a 5-day challenge to improve your mood, or burnout after too much Facebook, we could add a terminal END state.</p>
+<p><strong>Markov Property in HMMs and MDPs</strong></p>
+<p>Both HMMs and MDPs rely on the Markov assumption, which means that the future is independent of the past given the present.</p>
+<ul class="simple">
+<li><p>In HMMs:
+$<span class="math notranslate nohighlight">\(P(s_{t+1} \mid s_t, s_{t-1}, s_{t-2}, \dots) = P(s_{t+1} \mid s_{t})\)</span>$</p></li>
+<li><p>In MDPs:
+$<span class="math notranslate nohighlight">\(P(s_{t+1} \mid s_t, a_t, s_{t-1}, a_{t-1}, \dots) = P(s_{t+1} \mid s_t, a_t)\)</span>$</p></li>
+</ul>
+<p>This assumption is what allows these models to be tractable and scalable and opens the door for efficient learning and planning algorithms.
+<br><br></p>
+<p><strong>(optional) Motivation: How are LLMs actually trained?</strong></p>
+<ul class="simple">
+<li><p>So far, we’ve seen HMMs as passive predictors of sequences, and MDPs as frameworks for taking actions to maximize reward. But where does this fit in the world of Large Language Models (LLMs)?</p></li>
+<li><p>Large language models like ChatGPT are initially trained to predict the next word in a sequence (just like a probabilistic language model).</p></li>
+<li><p>But that alone doesn’t make them <strong>helpful</strong>.</p></li>
+<li><p>To align LLM behaviour with human preferences, LLMs go through a second training phase called <strong>Reinforcement Learning with Human Feedback (RLHF)</strong>. This process:</p>
+<ul>
+<li><p>Trains a reward model to reflect human preferences</p></li>
+<li><p>Fine-tunes the model using reinforcement learning, rooted in MDPs</p></li>
+</ul>
+</li>
+</ul>
+<p>In the context of LLMs,</p>
+<ul class="simple">
+<li><p>State (<span class="math notranslate nohighlight">\(S\)</span>): The prompt or conversation history given to the LLM.</p></li>
+<li><p>Action (<span class="math notranslate nohighlight">\(A\)</span>): The generated word or response</p></li>
+<li><p>Policy (<span class="math notranslate nohighlight">\(\pi\)</span>): The model’s probability distribution over possible responses, fine-tuned to align with human preferences.</p></li>
+<li><p>Reward (<span class="math notranslate nohighlight">\(R\)</span>): A score based on helpfulness, correctness, tone (from human or reward model)</p></li>
+<li><p>Transition (<span class="math notranslate nohighlight">\(T\)</span>): How the state updates after generating a response</p></li>
+</ul>
+<p>In small MDPs like our emoji mood world, we can draw every state and arrow. But with LLMs, it’s like the state space is the entire internet, and the actions are every possible English sentence. So we approximate the MDP using neural networks instead of drawing diagrams or tables.</p>
+<p><strong>Take away</strong></p>
+<p>You don’t need to dive deep into RL or MDPs now, but know that your understanding of Markov chains and HMMs gives you a solid foundation. These models are stepping stones to more advanced topics like:</p>
+<ul class="simple">
+<li><p>Reinforcement learning</p></li>
+<li><p>Policy optimization</p></li>
+<li><p>Training aligned AI systems</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="final-comments-and-summary">
+<h2>Final comments and summary<a class="headerlink" href="#final-comments-and-summary" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Hidden Markov Models (HMMs) provide a probabilistic framework to model sequences.</p></li>
+<li><p>They are much more practical compared to Markov models and are widely used.</p></li>
+<li><p>Speech recognition is a success story for HMMs.</p></li>
+</ul>
+<section id="three-fundamental-questions-for-hmms">
+<h3>Three fundamental questions for HMMs<a class="headerlink" href="#three-fundamental-questions-for-hmms" title="Link to this heading">#</a></h3>
+<p><strong>Likelihood</strong>: Given a model with parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, A, B&gt;\)</span>, how do we efficiently compute the likelihood of a particular observation sequence <span class="math notranslate nohighlight">\(O\)</span>?</p>
+<p><strong>Decoding</strong>
+Given an observation sequence <span class="math notranslate nohighlight">\(O\)</span> and a model <span class="math notranslate nohighlight">\(\theta\)</span> how do we choose a state sequence <span class="math notranslate nohighlight">\(Q={q_0, q_1, \dots q_T}\)</span> that best explains the observation sequence?</p>
+<p><strong>Learning</strong>
+Given a large observation sequence <span class="math notranslate nohighlight">\(O\)</span> how do we choose the best parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p>
+</section>
+<section id="important-ideas-to-know">
+<h3>Important ideas to know<a class="headerlink" href="#important-ideas-to-know" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>The definition of an HMM</p></li>
+<li><p>The conditional independence assumptions of an HMM</p></li>
+<li><p>The purpose of the forward algorithm.</p>
+<ul>
+<li><p>How to compute <span class="math notranslate nohighlight">\(\alpha_i(t)\)</span></p></li>
+</ul>
+</li>
+<li><p>The purpose of the Viterbi algorithm.</p>
+<ul>
+<li><p>How to compute <span class="math notranslate nohighlight">\(\delta_i(t)\)</span> and <span class="math notranslate nohighlight">\(\psi_i(t)\)</span></p></li>
+</ul>
+</li>
+<li><p>Definition of Markov Decision Processes (MDPs)</p></li>
+</ul>
+</section>
+<section id="id1">
+<h3>Important ideas to know<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>Using <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code></p>
+<ul class="simple">
+<li><p>For unsupervised training of HMMs.</p></li>
+<li><p>For likelihood (<code class="docutils literal notranslate"><span class="pre">model.score</span></code>)</p></li>
+<li><p>For decoding (<code class="docutils literal notranslate"><span class="pre">model.decode</span></code>)</p></li>
+<li><p>For discrete observations (<code class="docutils literal notranslate"><span class="pre">MultinomialHMM</span></code>)</p></li>
+<li><p>For continuous observations (<code class="docutils literal notranslate"><span class="pre">GaussianHMM</span></code> or <code class="docutils literal notranslate"><span class="pre">GMMHMM</span></code>)</p></li>
+<li><p>For sequences with varying lengths.</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="some-useful-resources-and-links">
+<h3>Some useful resources and links<a class="headerlink" href="#some-useful-resources-and-links" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><a class="reference external" href="http://www.cs.toronto.edu/~frank/csc401/lectures2020/5_HMMs.pdf">Frank Rudzicz’s slides on HMM</a></p></li>
+<li><p><a class="reference external" href="https://people.cs.umass.edu/~mccallum/courses/inlp2004a/lect10-hmm2.pdf">Andrew McCallum’s slides on HMM</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=9g32v7bK3Co&amp;amp;list=PLot0TjjdZHmov4JDYex-9-Fv2VKmMneKZ">A wonderful video on MDPs</a></p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="id2">
+<h2>❓❓ Questions for you<a class="headerlink" href="#id2" title="Link to this heading">#</a></h2>
+<section id="optional-exercise-4-2-more-practice-questions">
+<h3>(Optional) Exercise 4.2: More practice questions<a class="headerlink" href="#optional-exercise-4-2-more-practice-questions" title="Link to this heading">#</a></h3>
+<p>Discuss the following questions with your neighbour.</p>
+<p>Consider the sentence below:</p>
+<blockquote>
+    Will the chair chair the meeting from this chair ?
+</blockquote>
+<p>and a simple part-of-speech tagset:</p>
+<blockquote>
+{noun, verb, determiner, preposition, punctuation}
+</blockquote>    
+<p>The table below shows the possible assignments for words and part-of-speech tags. The symbol <code class="docutils literal notranslate"><span class="pre">x</span></code> denotes that the word and part-of-speech tag combination is possible. For instance, the word <em>chair</em> is unlikely to be used as a determiner and so we do not have an <code class="docutils literal notranslate"><span class="pre">x</span></code> there.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p><i></i></p></th>
+<th class="head text-center"><p>Will</p></th>
+<th class="head text-center"><p>the</p></th>
+<th class="head text-center"><p>chair</p></th>
+<th class="head text-center"><p>chair</p></th>
+<th class="head text-center"><p>the</p></th>
+<th class="head text-center"><p>meeting</p></th>
+<th class="head text-center"><p>from</p></th>
+<th class="head text-center"><p>this</p></th>
+<th class="head text-center"><p>chair</p></th>
+<th class="head text-center"><p>?</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>noun</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+</tr>
+<tr class="row-odd"><td><p>verb</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+</tr>
+<tr class="row-even"><td><p>determiner</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+</tr>
+<tr class="row-odd"><td><p>preposition</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+</tr>
+<tr class="row-even"><td><p>punctuation</p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p><i></i></p></td>
+<td class="text-center"><p>x</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p>Given this information, answer the following questions:</p>
+<ul class="simple">
+<li><p>(A) With this simple tagset of part-of-speech tags, how many possible part-of-speech tag sequences (i.e, hidden state sequences) are there for the given sentence (observation sequence)?</p></li>
+<li><p>(B) Restricting to the possibilities shown above with <code class="docutils literal notranslate"><span class="pre">x</span></code>, how many possible part-of-speech tag sequences are there?</p></li>
+<li><p>(C) Given an HMM with states as part-of-speech tags and observations as words, one way to decode the observation sequence is using the brute force method below. What is the time complexity of this method in terms of the number of states (<span class="math notranslate nohighlight">\(n\)</span>) and the length of the output sequence (<span class="math notranslate nohighlight">\(T\)</span>)? You may ignore constants.</p>
+<ul>
+<li><p>enumerate all possible hidden state sequences (i.e., enumerate all solutions)</p></li>
+<li><p>for each hidden state sequence, calculate the probability of the observation sequence given the hidden state sequence (i.e., score each solution)</p></li>
+<li><p>pick the hidden state sequence which gives the highest probability for the observation sequence (i.e., pick the best solution)</p></li>
+</ul>
+</li>
+<li><p>(D) If you decode the sequence using the Viterbi algorithm instead, what will be the time complexity in terms of the number of states (<span class="math notranslate nohighlight">\(n\)</span>) and the length of the output sequence (<span class="math notranslate nohighlight">\(T\)</span>)? You may ignore constants.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures/notes"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="03_HMMs-intro.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lecture 3: Introduction to Hidden Markov Models (HMMs)</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="05_intro-to-RNNs.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-lo">Imports, LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#hmm-ingredients">HMM ingredients</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-the-forward-algorithm">Recap: The forward algorithm</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decoding-the-viterbi-algorithm">1. Decoding: The Viterbi algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">1.1 Introduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-initialization">1.2 Viterbi: Initialization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-induction">1.3 Viterbi: Induction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-conclusion">1.4 Viterbi conclusion</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#viterbi-with-hmmlearn-on-our-toy-hmm">1.5 Viterbi with  <code class="docutils literal notranslate"><span class="pre">hmmlearn</span></code> on our toy HMM</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-4-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 4.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#training-of-hmms">3. Training of HMMs</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#continuous-hmms">Continuous HMMs</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#from-hmms-to-markov-decision-processes-mdps">4. From HMMs to Markov Decision Processes (MDPs)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#getting-to-whistler-on-a-friday-night-in-winter">Getting to Whistler on a Friday Night in Winter 🏔️</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-and-summary">Final comments and summary</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#three-fundamental-questions-for-hmms">Three fundamental questions for HMMs</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#important-ideas-to-know">Important ideas to know</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">Important ideas to know</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#some-useful-resources-and-links">Some useful resources and links</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-exercise-4-2-more-practice-questions">(Optional) Exercise 4.2: More practice questions</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

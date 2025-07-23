@@ -1,0 +1,2856 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lecture 2: Applications of Markov Models and Text Preprocessing &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/notes/02_LMs-text-preprocessing';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lecture 3: Introduction to Hidden Markov Models (HMMs)" href="03_HMMs-intro.html" />
+    <link rel="prev" title="Lecture 1: Markov Models" href="01_Markov-models.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/mds-hex-sticker.png" class="logo__image only-light" alt="DSCI 575 Advanced Machine Learning - Home"/>
+    <script>document.write(`<img src="../../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="DSCI 575 Advanced Machine Learning - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lecture 2: Applications of Markov Models and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_More-HMMs.html">Lecture 4: More HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_intro-to-RNNs.html">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-transformers.html">Lecture 6: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_more-transformers.html">Lecture 7: More transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_llms-applications.html">Lecture 8: Applications of Large Language Models</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../demos/transformers-recipe-generation.html">Recipe Generation using Transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/lectures/notes/02_LMs-text-preprocessing.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lecture 2: Applications of Markov Models and Text Preprocessing</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes <a name="lo"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-markov-models">1. More Markov models</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-markov-models">1.1 Learning Markov models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#n-gram-language-model">1.2 n-gram language model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#incorporating-more-context">1.3 Incorporating more context</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#are-n-grams-a-good-model-of-language">1.5 Are n-grams a good model of language?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-and-evaluation">2. Sampling and evaluation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-techniques">2.1 Sampling techniques</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-language-models">2.2 Evaluating language models</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-select-all-of-the-following-statements-which-are-true-iclicker">Exercise: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-select-all-of-the-following-statements-which-are-true">Exercise: Select all of the following statements which are <strong>True</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break">Break</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-markov-s-own-application-of-his-chains">(Optional) Markov’s own application of his chains</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank">3. PageRank</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-text-preprocessing-video">4. Basic text preprocessing [video]</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tokenization">4.1 Tokenization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#word-segmentation">4.2 Word segmentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-for-you">Exercise for you</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-commonly-used-preprocessing-steps">4.3 Other commonly used preprocessing steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-tools-for-preprocessing">4.4 Other tools for preprocessing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-typical-nlp-tasks">4.5 Other typical NLP tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#extracting-named-entities-using-spacy">4.5.1 Extracting named-entities using spaCy</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dependency-parsing-using-spacy">4.5.2 Dependency parsing using spaCy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-discuss-the-following-questions-with-your-neighbours">Exercise: Discuss the following questions with your neighbours</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-summary-and-reflection">Final comments, summary, and reflection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-language-models">Summary: Language models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-markov-models">Summary: Markov models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-pagerank">Summary: PageRank</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#preprocessing">Preprocessing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p><img alt="" src="../../_images/575_banner.png" /></p>
+<section class="tex2jax_ignore mathjax_ignore" id="lecture-2-applications-of-markov-models-and-text-preprocessing">
+<h1>Lecture 2: Applications of Markov Models and Text Preprocessing<a class="headerlink" href="#lecture-2-applications-of-markov-models-and-text-preprocessing" title="Link to this heading">#</a></h1>
+<p>UBC Master of Data Science program, 2024-25</p>
+<section id="imports">
+<h2>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h2>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">os</span>
+<span class="kn">import</span> <span class="nn">re</span>
+<span class="kn">import</span> <span class="nn">string</span>
+<span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">import</span> <span class="nn">time</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">Counter</span><span class="p">,</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">IPython</span>
+<span class="kn">import</span> <span class="nn">nltk</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">numpy.random</span> <span class="k">as</span> <span class="nn">npr</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">from</span> <span class="nn">IPython.display</span> <span class="kn">import</span> <span class="n">HTML</span>
+<span class="kn">from</span> <span class="nn">nltk.corpus</span> <span class="kn">import</span> <span class="n">stopwords</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">sent_tokenize</span><span class="p">,</span> <span class="n">word_tokenize</span>
+
+<span class="n">DATA_DIR</span> <span class="o">=</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">),</span> <span class="s2">&quot;data/&quot;</span><span class="p">)</span>
+<span class="n">sys</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">abspath</span><span class="p">(</span><span class="s2">&quot;..&quot;</span><span class="p">),</span> <span class="s2">&quot;code&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="learning-outcomes">
+<h2>Learning outcomes <a name="lo"></a><a class="headerlink" href="#learning-outcomes" title="Link to this heading">#</a></h2>
+<p>By the end of this class you will be able to</p>
+<ul class="simple">
+<li><p>Explain learning of Markov models.</p></li>
+<li><p>Given sequence data, estimate the transition matrix from the data.</p></li>
+<li><p>Build a Markov model of language.</p></li>
+<li><p>Generalize Markov model of language to consider more history.</p></li>
+<li><p>Explain states, state space, and transition matrix in Markov models of language.</p></li>
+<li><p>Explain and calculate stationary distribution over states in Markov models of language.</p></li>
+<li><p>Generate text using Markov model of language.</p></li>
+<li><p>Explain why different sampling methods are used in text generation and how they impact the output.</p></li>
+<li><p>Describe the main approaches for evaluating language models and explain their purposes.</p></li>
+<li><p>Explain the intuition of the PageRank algorithm.</p></li>
+<li><p>Carry out basic text preprocessing using <code class="docutils literal notranslate"><span class="pre">nltk</span></code> and <code class="docutils literal notranslate"><span class="pre">spaCy</span></code></p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="recap">
+<h2>Recap<a class="headerlink" href="#recap" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>In this course, we explore models specifically designed to model sequences effectively.</p></li>
+<li><p>We started simple with Markov models.</p></li>
+<li><p><strong>Markov assumption: The future is conditionally independent of the past given present</strong></p></li>
+</ul>
+<p><img alt="" src="../../_images/bigram-ex.png" />
+$<span class="math notranslate nohighlight">\(
+P(\text{everything} \mid \text{a crack in}) \approx P(\text{everything}\mid\text{in})
+\)</span>$</p>
+<p><strong>Markov model definition</strong></p>
+<ul class="simple">
+<li><p>A set of <span class="math notranslate nohighlight">\(n\)</span> states: <span class="math notranslate nohighlight">\(S = \{s_1, s_2, ..., s_n\}\)</span></p></li>
+<li><p>A set of discrete initial probability distribution over states <span class="math notranslate nohighlight">\(\pi_0 = \begin{bmatrix} \pi_0(s_1) &amp; \pi_0(s_2) &amp; \dots &amp; \pi_0(s_n) \end{bmatrix}\)</span></p></li>
+<li><p>Transition probability matrix <span class="math notranslate nohighlight">\(T\)</span>, where each <span class="math notranslate nohighlight">\(a_{ij}\)</span> represents the probability of moving from state <span class="math notranslate nohighlight">\(s_i\)</span> to state <span class="math notranslate nohighlight">\(s_j\)</span>, such that <span class="math notranslate nohighlight">\(\sum_{j=1}^{n} a_{ij} = 1, \forall i\)</span></p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split} T = 
+\begin{bmatrix}
+    a_{11}       &amp; a_{12} &amp; a_{13} &amp; \dots &amp; a_{1n} \\
+    a_{21}       &amp; a_{22} &amp; a_{23} &amp; \dots &amp; a_{2n} \\
+    \dots \\
+    a_{n1}       &amp; a_{n2} &amp; a_{n3} &amp; \dots &amp; a_{nn}
+\end{bmatrix}
+\end{split}\]</div>
+<ul class="simple">
+<li><p>In our weather toy example:</p></li>
+</ul>
+<p><img alt="" src="../../_images/Markov_chain_small.png" /></p>
+<div class="math notranslate nohighlight">
+\[S = \{\text{HOT, COLD, WARM}\}, \pi_0 = \begin{bmatrix} 0.5 &amp; 0.3 &amp; 0.2 \end{bmatrix}\]</div>
+<div class="math notranslate nohighlight">
+\[\begin{split}T = \begin{bmatrix}
+0.5 &amp; 0.2 &amp; 0.3\\
+0.2 &amp; 0.5 &amp; 0.3\\
+0.3 &amp; 0.1 &amp; 0.6\\    
+\end{bmatrix}\end{split}\]</div>
+<p><strong>Markov model tasks:</strong>
+We can do a number of things with Markov chains</p>
+<ul class="simple">
+<li><p>Estimate the probability of a sequence:</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-80cc3fa6-e2c9-47c3-a754-f3ecc9f48ced">
+<span class="eqno">(4)<a class="headerlink" href="#equation-80cc3fa6-e2c9-47c3-a754-f3ecc9f48ced" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+P(\textrm{COLD, COLD, WARM}) \approx &amp; P(\text{COLD}) \times P(\text{COLD} \mid \text{COLD}) \times P(\text{WARM} \mid \text{COLD})\\
+\end{split}
+\end{equation}\]</div>
+<ul class="simple">
+<li><p>Estimate the probability of being in a particular state at time <span class="math notranslate nohighlight">\(t\)</span>.
+$<span class="math notranslate nohighlight">\(\pi_0 \times T^{t}\)</span>$</p></li>
+<li><p>Estimate stationary distribution which is a probability distribution that remains unchanged (<span class="math notranslate nohighlight">\(\pi T = \pi\)</span>) in the Markov chain as time progresses.</p>
+<ul>
+<li><p>Use power method or eigenvalue decomposition</p></li>
+</ul>
+</li>
+<li><p>Generate a sequence of states.</p></li>
+</ul>
+<p><strong>An intuitive example in the context of MDS</strong></p>
+<ul class="simple">
+<li><p>We want to plan adequate working spaces for MDS students.</p></li>
+<li><p>We consider three popular locations: Orchard Commons (OC), the Bullpen (B), and X860. These locations represent the three states in our Markov model. At the beginning of the year, students distribute themselves evenly across these rooms, resulting in an initial state probability distribution of <span class="math notranslate nohighlight">\(\begin{bmatrix}
+1/3 &amp; 1/3 &amp; 1/3\\
+\end{bmatrix}\)</span></p></li>
+<li><p>As students move according to their study groups or to use specific amenities (e.g., playing pingpong 🏓), their movements can be represented by a transition matrix. This matrix reflects the likelihood of moving from one location to another based on these preferences. Here are some made up numbers for the transition matrix.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}T = \begin{bmatrix}
+OC \lvert OC &amp; B \lvert OC &amp; X860 \lvert OC\\
+OC \lvert B &amp; B \lvert B &amp; X860 \lvert B\\
+OC \lvert X860 &amp; B \lvert X860 &amp; X860 \lvert X860\\
+\end{bmatrix} =  \begin{bmatrix}
+0.2 &amp; 0.3 &amp; 0.5\\
+0.3 &amp; 0.4 &amp; 0.3\\
+0.25 &amp; 0.25 &amp; 0.5\\    
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li><p>Our goal is to understand the long-term behavior of this system, specifically, which rooms will be most crowded. In other words, we want to understand the long-term proportion of students in each location, assuming the current movement patterns continue indefinitely. This will help us with resource allocation (e.g., extra chairs, desks).</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mi">1</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">3.</span><span class="p">,</span> <span class="mi">1</span><span class="o">/</span><span class="mf">3.</span><span class="p">])</span>
+<span class="n">MDS_T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.2</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">],[</span><span class="mf">0.3</span><span class="p">,</span> <span class="mf">0.4</span><span class="p">,</span> <span class="mf">0.3</span><span class="p">],[</span><span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.25</span><span class="p">,</span> <span class="mf">0.5</span><span class="p">]])</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">MDS_T</span><span class="p">,</span> <span class="mi">5</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.25281   , 0.30899333, 0.43819667])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">MDS_T</span><span class="p">,</span> <span class="mi">10</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.25280899, 0.30898876, 0.43820225])
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi_0</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">MDS_T</span><span class="p">,</span> <span class="mi">20</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>array([0.25280899, 0.30898876, 0.43820225])
+</pre></div>
+</div>
+</div>
+</div>
+<p>Based on this made-up transition matrix, in the long run, X860 will be the most populated, followed by the Bullpen and then Orchard Commons. So more treats and probably a coffee machine ☕️ in X860!</p>
+<p><br><br><br><br></p>
+</section>
+<section id="more-markov-models">
+<h2>1. More Markov models<a class="headerlink" href="#more-markov-models" title="Link to this heading">#</a></h2>
+<section id="learning-markov-models">
+<h3>1.1 Learning Markov models<a class="headerlink" href="#learning-markov-models" title="Link to this heading">#</a></h3>
+<p><strong>Example with daily activities as states</strong></p>
+<p><img alt="" src="../../_images/activity-seqs.png" /></p>
+<ul class="simple">
+<li><p>What’s <span class="math notranslate nohighlight">\(\pi_0\)</span>(😴)?</p></li>
+<li><p>What’s <span class="math notranslate nohighlight">\(\pi_0\)</span>(🍎)?</p></li>
+<li><p>What is P(🍎|📚)?</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\frac{\text{number of times we moved from 📚 to 🍎}}{\text{number of times we moved from 📚 to anything}}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Similar to naive Bayes, learning Markov models is just counting.</p></li>
+<li><p>Given <span class="math notranslate nohighlight">\(n\)</span> samples (<span class="math notranslate nohighlight">\(n\)</span> sequences), MLE for homogeneous Markov model is:</p>
+<ul>
+<li><p>Initial: <span class="math notranslate nohighlight">\(P(s_i) = \frac{\text{number of times we start in } s_i}{n} \)</span></p></li>
+<li><p>Transition: <span class="math notranslate nohighlight">\(P(s_j \mid s_{i}) = \frac{\text{number of times we moved from } s_{i} \text{ to } s_j}{\text{number of times we moved from } s_{i} \text{ to } anything}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Suppose you want to learn a Markov chain for words in a corpus of <span class="math notranslate nohighlight">\(k\)</span> documents.</p></li>
+<li><p>Set of states is the set of all unique words in the corpus.</p></li>
+<li><p>Calculate the initial probability distribution <span class="math notranslate nohighlight">\(\pi_0\)</span></p>
+<ul>
+<li><p>For all states (unique words) <span class="math notranslate nohighlight">\(w_i\)</span>, compute <span class="math notranslate nohighlight">\(\frac{\text{number of times a document starts with } w_i}{k}\)</span></p></li>
+</ul>
+</li>
+<li><p>Calculate transition probabilities for all state combinations <span class="math notranslate nohighlight">\(w_i\)</span> and <span class="math notranslate nohighlight">\(w_j\)</span></p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\frac{\text{number of times } w_i \text{ precedes } w_j}{\text{number of times } w_i \text{ precedes anything}}\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="n-gram-language-model">
+<h3>1.2 n-gram language model<a class="headerlink" href="#n-gram-language-model" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>In NLP, a Markov model of language is also referred to as <strong>an n-gram language model</strong>.</p></li>
+<li><p>So far we have been talking about approximating the conditional probability <span class="math notranslate nohighlight">\(P(s_{t+1} \mid s_{1}s_{2}\dots s_{t})\)</span> using only the current state <span class="math notranslate nohighlight">\(P(s_{t+1} \mid s_{t})\)</span>.</p></li>
+<li><p>So we have been talking about n-gram models where <span class="math notranslate nohighlight">\(n=1\)</span>, i.e., we only consider the current state in predicting the future.</p></li>
+<li><p>Such a model is referred to as a <strong>2-gram (bigram) language model</strong>, because in such a model, we only consider 2 state sequences at a time, the current state to predict the next state.</p></li>
+</ul>
+<p><strong>Markov assumption: The future is conditionally independent of the past given present</strong></p>
+<p><img alt="" src="../../_images/bigram-ex.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/bigram-ex.png" height="500" width="500"> -->
+<!-- </center> -->
+<div class="math notranslate nohighlight">
+\[
+P(\text{everything} \mid \text{a crack in}) \approx P(\text{everything}\mid\text{in})
+\]</div>
+<ul class="simple">
+<li><p>How do we estimate the probabilities?
+$<span class="math notranslate nohighlight">\(P(\text{everything} \mid\text{in}) = \frac{Count(\text{in everything})}{Count(\text{in \{any word\}})}\)</span>$</p></li>
+</ul>
+<p>Let’s try this out on a toy corpus.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">toy_data</span> <span class="o">=</span> <span class="nb">open</span><span class="p">(</span><span class="n">DATA_DIR</span> <span class="o">+</span> <span class="s2">&quot;cohen_poem.txt&quot;</span><span class="p">)</span>
+<span class="n">toy_corpus</span> <span class="o">=</span> <span class="n">toy_data</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">toy_corpus</span><span class="p">[</span><span class="mi">0</span><span class="p">:</span><span class="mi">512</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>The birds they sang
+At the break of day
+Start again
+I heard them say
+Don&#39;t dwell on what
+Has passed away
+Or what is yet to be
+Yeah the wars they will
+Be fought again
+The holy dove
+She will be caught again
+Bought and sold
+And bought again
+The dove is never free
+Ring the bells (ring the bells) that still can ring
+Forget your perfect offering
+There is a crack in everything (there is a crack in everything)
+That&#39;s how the light gets in
+We asked for signs
+The signs were sent
+The birth betrayed
+The marriage spent
+</pre></div>
+</div>
+</div>
+</div>
+<p>Let’s calculate word bigram frequencies.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">toy_corpus_tokens</span> <span class="o">=</span> <span class="n">nltk</span><span class="o">.</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">toy_corpus</span><span class="o">.</span><span class="n">lower</span><span class="p">())</span>
+
+<span class="n">frequencies</span> <span class="o">=</span> <span class="n">defaultdict</span><span class="p">(</span><span class="n">Counter</span><span class="p">)</span>
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">toy_corpus_tokens</span><span class="p">)</span> <span class="o">-</span> <span class="mi">1</span><span class="p">):</span>
+    <span class="n">frequencies</span><span class="p">[</span><span class="n">toy_corpus_tokens</span><span class="p">[</span><span class="n">i</span> <span class="p">:</span> <span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">][</span><span class="mi">0</span><span class="p">]][</span><span class="n">toy_corpus_tokens</span><span class="p">[</span><span class="n">i</span> <span class="o">+</span> <span class="mi">1</span><span class="p">]]</span> <span class="o">+=</span> <span class="mi">1</span>
+
+<span class="n">freq_df</span> <span class="o">=</span> <span class="n">pd</span><span class="o">.</span><span class="n">DataFrame</span><span class="p">(</span><span class="n">frequencies</span><span class="p">)</span><span class="o">.</span><span class="n">transpose</span><span class="p">()</span>
+<span class="n">freq_df</span> <span class="o">=</span> <span class="n">freq_df</span><span class="o">.</span><span class="n">fillna</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">freq_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>birds</th>
+      <th>break</th>
+      <th>wars</th>
+      <th>holy</th>
+      <th>dove</th>
+      <th>bells</th>
+      <th>light</th>
+      <th>signs</th>
+      <th>birth</th>
+      <th>marriage</th>
+      <th>...</th>
+      <th>out</th>
+      <th>loud</th>
+      <th>but</th>
+      <th>like</th>
+      <th>summoned</th>
+      <th>up</th>
+      <th>going</th>
+      <th>from</th>
+      <th>me</th>
+      <th>wo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>the</th>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>6.0</td>
+      <td>6.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>1.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>birds</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>they</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>sang</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>at</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>heart</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>love</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>come</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>like</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>refugee</th>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>115 rows × 115 columns</p>
+</div></div></div>
+</div>
+<p>Let’s calculate the transition matrix.</p>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">trans_df</span> <span class="o">=</span> <span class="n">freq_df</span><span class="o">.</span><span class="n">div</span><span class="p">(</span><span class="n">freq_df</span><span class="o">.</span><span class="n">sum</span><span class="p">(</span><span class="n">axis</span><span class="o">=</span><span class="mi">1</span><span class="p">),</span> <span class="n">axis</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+<span class="n">trans_df</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><div>
+<style scoped>
+    .dataframe tbody tr th:only-of-type {
+        vertical-align: middle;
+    }
+
+    .dataframe tbody tr th {
+        vertical-align: top;
+    }
+
+    .dataframe thead th {
+        text-align: right;
+    }
+</style>
+<table border="1" class="dataframe">
+  <thead>
+    <tr style="text-align: right;">
+      <th></th>
+      <th>birds</th>
+      <th>break</th>
+      <th>wars</th>
+      <th>holy</th>
+      <th>dove</th>
+      <th>bells</th>
+      <th>light</th>
+      <th>signs</th>
+      <th>birth</th>
+      <th>marriage</th>
+      <th>...</th>
+      <th>out</th>
+      <th>loud</th>
+      <th>but</th>
+      <th>like</th>
+      <th>summoned</th>
+      <th>up</th>
+      <th>going</th>
+      <th>from</th>
+      <th>me</th>
+      <th>wo</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th>the</th>
+      <td>0.04</td>
+      <td>0.04</td>
+      <td>0.04</td>
+      <td>0.04</td>
+      <td>0.04</td>
+      <td>0.24</td>
+      <td>0.24</td>
+      <td>0.04</td>
+      <td>0.04</td>
+      <td>0.04</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>birds</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>they</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>sang</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>at</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>...</th>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+      <td>...</td>
+    </tr>
+    <tr>
+      <th>heart</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>love</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>come</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>1.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>like</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+    <tr>
+      <th>refugee</th>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>0.00</td>
+      <td>...</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+      <td>0.0</td>
+    </tr>
+  </tbody>
+</table>
+<p>115 rows × 115 columns</p>
+</div></div></div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Conditional probability P(everything | in) = &quot;</span><span class="p">,</span> <span class="n">trans_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span><span class="s2">&quot;in&quot;</span><span class="p">][</span><span class="s2">&quot;everything&quot;</span><span class="p">])</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Conditional probability P(everything | in) =  0.5714285714285714
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>State space</strong></p>
+<ul class="simple">
+<li><p>The states in our model are unique words in our corpus</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">states</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">unique</span><span class="p">(</span><span class="nb">list</span><span class="p">(</span><span class="n">toy_corpus_tokens</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;States:&quot;</span><span class="p">,</span> <span class="n">states</span><span class="p">)</span>
+<span class="n">S</span> <span class="o">=</span> <span class="nb">len</span><span class="p">(</span><span class="n">states</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Number of states:&quot;</span><span class="p">,</span> <span class="n">S</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>States: [&quot;&#39;re&quot; &quot;&#39;s&quot; &quot;&#39;ve&quot; &#39;(&#39; &#39;)&#39; &#39;,&#39; &#39;a&#39; &#39;add&#39; &#39;again&#39; &#39;all&#39; &#39;and&#39; &#39;asked&#39; &#39;at&#39;
+ &#39;away&#39; &#39;be&#39; &#39;bells&#39; &#39;betrayed&#39; &#39;birds&#39; &#39;birth&#39; &#39;bought&#39; &#39;break&#39; &#39;but&#39;
+ &#39;ca&#39; &#39;can&#39; &#39;caught&#39; &#39;come&#39; &#39;crack&#39; &#39;crowd&#39; &#39;day&#39; &#39;do&#39; &#39;dove&#39; &#39;drum&#39;
+ &#39;dwell&#39; &#39;every&#39; &#39;everything&#39; &#39;for&#39; &#39;forget&#39; &#39;fought&#39; &#39;free&#39; &#39;from&#39; &#39;gets&#39;
+ &#39;going&#39; &#39;government&#39; &#39;has&#39; &#39;have&#39; &#39;hear&#39; &#39;heard&#39; &#39;heart&#39; &#39;high&#39; &#39;holy&#39;
+ &#39;how&#39; &#39;i&#39; &#39;in&#39; &#39;is&#39; &#39;killers&#39; &#39;lawless&#39; &#39;light&#39; &#39;like&#39; &#39;loud&#39; &#39;love&#39;
+ &#39;march&#39; &#39;marriage&#39; &#39;me&#39; &#39;more&#39; &quot;n&#39;t&quot; &#39;never&#39; &#39;no&#39; &#39;of&#39; &#39;offering&#39; &#39;on&#39;
+ &#39;or&#39; &#39;out&#39; &#39;parts&#39; &#39;passed&#39; &#39;perfect&#39; &#39;places&#39; &#39;prayers&#39; &#39;refugee&#39; &#39;ring&#39;
+ &#39;run&#39; &#39;sang&#39; &#39;say&#39; &#39;see&#39; &#39;sent&#39; &#39;she&#39; &#39;signs&#39; &#39;sold&#39; &#39;spent&#39; &#39;start&#39;
+ &#39;still&#39; &#39;strike&#39; &#39;sum&#39; &#39;summoned&#39; &#39;that&#39; &#39;the&#39; &#39;their&#39; &#39;them&#39; &#39;there&#39;
+ &#39;they&#39; &#39;thundercloud&#39; &#39;to&#39; &#39;up&#39; &#39;wars&#39; &#39;we&#39; &#39;were&#39; &#39;what&#39; &#39;while&#39;
+ &#39;widowhood&#39; &#39;will&#39; &#39;with&#39; &#39;wo&#39; &#39;yeah&#39; &#39;yet&#39; &#39;you&#39; &#39;your&#39;]
+Number of states: 115
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Text generation using Markov models of language</strong></p>
+<ul class="simple">
+<li><p>How can we predict next word given a sequence of words?</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">seed</span> <span class="o">=</span> <span class="s2">&quot;in&quot;</span>
+<span class="n">seq_len</span> <span class="o">=</span> <span class="mi">50</span>
+<span class="n">seq</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="n">word</span> <span class="o">=</span> <span class="n">seed</span> 
+<span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="n">seq_len</span><span class="p">):</span>
+    <span class="n">seq</span> <span class="o">+=</span> <span class="s2">&quot; &quot;</span> <span class="o">+</span> <span class="n">word</span>
+    <span class="n">next_word</span> <span class="o">=</span> <span class="n">npr</span><span class="o">.</span><span class="n">choice</span><span class="p">(</span>
+        <span class="n">trans_df</span><span class="o">.</span><span class="n">columns</span><span class="o">.</span><span class="n">tolist</span><span class="p">(),</span>
+        <span class="n">p</span><span class="o">=</span><span class="n">trans_df</span><span class="o">.</span><span class="n">loc</span><span class="p">[</span>
+            <span class="n">word</span><span class="p">,</span>
+        <span class="p">]</span><span class="o">.</span><span class="n">values</span><span class="o">.</span><span class="n">flatten</span><span class="p">(),</span>
+    <span class="p">)</span>
+    <span class="n">word</span> <span class="o">=</span> <span class="n">next_word</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;THE GENERATED SEQUENCE:&quot;</span><span class="p">,</span> <span class="n">seq</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>THE GENERATED SEQUENCE:  in everything ) that &#39;s how the march there is a crack in ring forget your perfect offering there is a crack in everything ( there is yet to hear from me ring the widowhood of day start again the light gets in that &#39;s how the bells that &#39;s
+</pre></div>
+</div>
+</div>
+</div>
+<p>In practice, the corpus (dataset) is huge. For example, the full Wikipedia or the text available on the entire Internet, or all the New York Times articles from the last 20 years.</p>
+<p><br><br></p>
+</section>
+<section id="incorporating-more-context">
+<h3>1.3 Incorporating more context<a class="headerlink" href="#incorporating-more-context" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>So far we have been talking about models where we only consider the current word when predicting the next word.</p></li>
+<li><p>If we want to predict future accurately, it’s probably a good idea to incorporate more history.</p></li>
+<li><p>Can we generalize n-gram language model (<span class="math notranslate nohighlight">\(n=1\)</span>) so that we can incorporate more history in the model (<span class="math notranslate nohighlight">\(n \gt 1\)</span>).</p></li>
+</ul>
+<p><img alt="" src="../../_images/bigram-ex.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/bigram-ex.png" height="500" width="500"> -->
+<!-- </center> --><ul class="simple">
+<li><p>One way to incorporate more history is by extending the definition of a state.</p>
+<ul>
+<li><p>Instead of defining state space as unique words in the corpus, we can define it as unique two-word, three-word, (<span class="math notranslate nohighlight">\(n-1\)</span>)-word sequences of the unique
+words in the corpus.</p></li>
+</ul>
+</li>
+</ul>
+<ul class="simple">
+<li><p>Example:</p>
+<ul>
+<li><p>With <span class="math notranslate nohighlight">\(n=2\)</span>
+$<span class="math notranslate nohighlight">\(
+P(\text{everything} \mid \text{there is a crack in}) \approx P(\text{everything} \mid \text{crack in})
+\)</span>$</p></li>
+<li><p>With <span class="math notranslate nohighlight">\(n=3\)</span>
+$<span class="math notranslate nohighlight">\(
+P(\text{everything} \mid \text{there is a crack in}) \approx P(\text{everything} \mid \text{a crack in})
+\)</span>$</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Example (<span class="math notranslate nohighlight">\(n=2\)</span>)</strong></p>
+<ul class="simple">
+<li><p>The state space would be all 2-word combinations of unique words in the corpus.</p>
+<ul>
+<li><p>What would be the size of the state space in our toy corpus?</p></li>
+</ul>
+</li>
+<li><p>Not all transitions would be valid transitions.</p>
+<ul>
+<li><p>Example: <em>is a</em> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <em>crack in</em> is not a valid transition</p></li>
+</ul>
+</li>
+<li><p>Some valid transitions are:</p>
+<ul>
+<li><p><em>is a</em> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <em>a crack</em></p></li>
+<li><p><em>a crack</em> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <em>crack in</em></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/trigram-ex.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/trigram-ex.png" height="500" width="500"> -->
+<!-- </center> -->
+<p><strong>Example (<span class="math notranslate nohighlight">\(n=3\)</span>)</strong></p>
+<ul class="simple">
+<li><p>The state space would be all 3-word combinations of unique words in the corpus.</p>
+<ul>
+<li><p>What would be the size of the state space in our toy corpus?</p></li>
+</ul>
+</li>
+<li><p>An invalid transition is:</p>
+<ul>
+<li><p><em>is a crack</em> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <em>crack in everything</em></p></li>
+</ul>
+</li>
+<li><p>A valid transition is:</p>
+<ul>
+<li><p><em>is a crack</em> <span class="math notranslate nohighlight">\(\rightarrow\)</span> <em>a crack in</em></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/4-gram-ex.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/4-gram-ex.png" height="500" width="500"> -->
+<!-- </center> -->
+<ul class="simple">
+<li><p>Now we are able to incorporate more history, without really changing the math of Markov models!</p></li>
+<li><p>We can calculate probability of sequences, predict the state at a given time step, or calculate the stationary distribution the same way.</p></li>
+</ul>
+<p><br><br></p>
+<p><strong>Stationary distribution in the context of text</strong></p>
+<ul class="simple">
+<li><p>In n-gram models of language, a stationary distribution can be thought of as the long-term distribution of word/character frequencies in a corpus of text, and it can be calculated as how often each state occurs in the corpus.</p></li>
+<li><p>What does it represent?</p>
+<ul>
+<li><p>Intuitively, it represents the distribution of words that would be observed if the text were generated according to the n-gram model.</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="are-n-grams-a-good-model-of-language">
+<h3>1.5 Are n-grams a good model of language?<a class="headerlink" href="#are-n-grams-a-good-model-of-language" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>In many cases, we can get by with ngram models.</p>
+<ul>
+<li><p>Spam filtering</p></li>
+<li><p>Keyword extraction</p></li>
+<li><p>Authorship detection</p></li>
+<li><p>…</p></li>
+</ul>
+</li>
+<li><p>But in general, is it a good assumption that the next word that I utter will be dependent on the last 3 words or 4 words?</p></li>
+</ul>
+<blockquote>
+    I am studying data science at the University of British Columbia in Vancouver because I want to build a career in ___. 
+</blockquote>    
+<ul class="simple">
+<li><p>Language has long-distance dependencies.</p></li>
+<li><p>We can extend it to <span class="math notranslate nohighlight">\(3\)</span>-grams, <span class="math notranslate nohighlight">\(4\)</span>-grams, or even <span class="math notranslate nohighlight">\(10\)</span>-grams. But then there is sparsity problem. The state space explodes and the estimated probabilities are not very reliable.</p></li>
+</ul>
+<p><strong>Language models with word embeddings</strong></p>
+<ul class="simple">
+<li><p>N-gram models are great but we are representing context as the exact word.</p></li>
+<li><p>Suppose in your training data you have the sequence “feed the cat” but you do not have the sequence “feed the dog”.</p></li>
+</ul>
+<blockquote>
+I have to make sure to feed the cat.
+</blockquote>
+<ul class="simple">
+<li><p>Trigram model: <span class="math notranslate nohighlight">\(P(\text{dog} \mid \text{feed the}) = 0\)</span></p></li>
+<li><p>If we represent words with word embeddings instead, we will be able to generalize to dog even if we haven’t seen it in the corpus.</p></li>
+<li><p>We’ll come back to this when we learn about Recurrent Neural Networks (RNNs).</p></li>
+</ul>
+<p><strong>(Optional) <a class="reference external" href="https://books.google.com/ngrams">Google n-gram viewer</a></strong></p>
+<ul class="simple">
+<li><p>All Our N-gram are Belong to You</p>
+<ul>
+<li><p>https://ai.googleblog.com/2006/08/all-our-n-gram-are-belong-to-you.html</p></li>
+</ul>
+</li>
+</ul>
+<blockquote>
+Here at Google Research we have been using word n-gram models for a variety
+of R&D projects, such as statistical machine translation, speech recognition,
+spelling correction, entity detection, information extraction, and others.
+That's why we decided to share this enormous dataset with everyone. We
+processed 1,024,908,267,229 words of running text and are publishing the
+counts for all 1,176,470,663 five-word sequences that appear at least 40
+times. There are 13,588,391 unique words, after discarding words that appear
+less than 200 times.”
+</blockquote><div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">IPython</span>
+<span class="n">url</span> <span class="o">=</span> <span class="s2">&quot;https://books.google.com/ngrams/&quot;</span>
+<span class="n">IPython</span><span class="o">.</span><span class="n">display</span><span class="o">.</span><span class="n">IFrame</span><span class="p">(</span><span class="n">url</span><span class="p">,</span> <span class="n">width</span><span class="o">=</span><span class="mi">1000</span><span class="p">,</span> <span class="n">height</span><span class="o">=</span><span class="mi">800</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html">
+        <iframe
+            width="1000"
+            height="800"
+            src="https://books.google.com/ngrams/"
+            frameborder="0"
+            allowfullscreen
+            
+        ></iframe>
+        </div></div>
+</div>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="sampling-and-evaluation">
+<h2>2. Sampling and evaluation<a class="headerlink" href="#sampling-and-evaluation" title="Link to this heading">#</a></h2>
+<section id="sampling-techniques">
+<h3>2.1 Sampling techniques<a class="headerlink" href="#sampling-techniques" title="Link to this heading">#</a></h3>
+<p>When generating text from a language model, we sample the next character, word, or subtoken from a probability distribution over possible next words, tokens, or subtokens.</p>
+<p>Suppose a language model has generated the phrase:</p>
+<blockquote>
+<div><p><strong>too much</strong></p>
+</div></blockquote>
+<p>And the model predicts the following probability distribution over the next word:</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Word</p></th>
+<th class="head"><p>Probability</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>work</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>rain</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr class="row-even"><td><p>butter</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>guacamole</p></td>
+<td><p>0.1</p></td>
+</tr>
+<tr class="row-even"><td><p>drama</p></td>
+<td><p>0.1</p></td>
+</tr>
+<tr class="row-odd"><td><p>information</p></td>
+<td><p>0.1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<p><strong>Greedy sampling</strong></p>
+<ul class="simple">
+<li><p>Always picks the word with the highest probability (here: work).</p></li>
+<li><p>Produces accurate and coherent output.</p></li>
+<li><p>But often results in repetitive and less diverse text.</p></li>
+</ul>
+<p>To increase creativity or diversity, especially for open-ended tasks like storytelling or dialogue generation, we can use more flexible sampling methods. We’ll explore these more when we discuss neural language models, but here’s a preview:</p>
+<p><strong>Top-k sampling</strong></p>
+<ul class="simple">
+<li><p>Selects the top k most probable words.</p></li>
+<li><p>Renormalizes their probabilities so they sum to 1.</p></li>
+<li><p>Randomly samples from this reduced set.</p></li>
+<li><p>Example: With k=3, keep:</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Word</p></th>
+<th class="head"><p>Probability</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>work</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>rain</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr class="row-even"><td><p>butter</p></td>
+<td><p>0.2</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>Renormalize and sample from them.</p></li>
+</ul>
+<p><strong>Top-p sampling</strong></p>
+<ul class="simple">
+<li><p>Instead of a fixed <span class="math notranslate nohighlight">\(k\)</span>, keeps the smallest set of words whose cumulative probability exceeds p (e.g., p = 0.8)</p></li>
+<li><p>More adaptive than top-k; adjusts based on the shape of the distribution.</p></li>
+<li><p>Example: Keep words until their cumulative probability exceeds 0.8:</p></li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Word</p></th>
+<th class="head"><p>Probability</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>work</p></td>
+<td><p>0.3</p></td>
+</tr>
+<tr class="row-odd"><td><p>rain</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr class="row-even"><td><p>butter</p></td>
+<td><p>0.2</p></td>
+</tr>
+<tr class="row-odd"><td><p>quacamole</p></td>
+<td><p>0.1</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>Renormalize and sample from them.</p></li>
+</ul>
+<p><strong>Temperature sampling</strong></p>
+<ul class="simple">
+<li><p>This technique reshapes the probability distribution before applying softmax.</p></li>
+</ul>
+<p>Given logits <span class="math notranslate nohighlight">\(u\)</span> (i.e., unnormalized scores), we compute:</p>
+<div class="math notranslate nohighlight">
+\[
+\mathbf{y} = \text{softmax} \left( \frac{u}{\tau} \right)
+\]</div>
+<ul class="simple">
+<li><p>When <span class="math notranslate nohighlight">\(\tau &lt; 1\)</span>: the distribution becomes sharper (more peaky). High-probability tokens are emphasized.</p></li>
+<li><p>When <span class="math notranslate nohighlight">\(\tau &gt; 1\)</span>: the distribution is flattened. More tokens are likely to be sampled, increasing randomness.
+(i.e., unnormalized scores), we compute:</p></li>
+<li><p>Lower <span class="math notranslate nohighlight">\(\tau\)</span>: more deterministic, more like greedy sampling</p></li>
+<li><p>Higher <span class="math notranslate nohighlight">\(\tau\)</span>: more diverse, useful for creative and open-ended tasks</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="evaluating-language-models">
+<h3>2.2 Evaluating language models<a class="headerlink" href="#evaluating-language-models" title="Link to this heading">#</a></h3>
+<p>Language models can be evaluated in two main ways: intrinsically and extrinsically.</p>
+<p><strong>Intrinsic evaluation</strong></p>
+<ul class="simple">
+<li><p>The most common <strong>intrinsic evaluation metric</strong> for language models is <strong>perplexity</strong>.</p></li>
+<li><p>The <strong>perplexity</strong> of a language model on a test set is the inverse probability of the test set, normalized by the number of words.</p></li>
+<li><p>For a test set: <span class="math notranslate nohighlight">\(W = w_1w_2 \dots w_N\)</span>
+$<span class="math notranslate nohighlight">\(\text{perplexity}(W) = P(w_1w_2 \dots w_N)^{-1/N} =  \sqrt[n]{\frac{1}{P(w_1w_2 \dots w_N)}}\)</span>$</p></li>
+<li><p>For a Markov model of language with <code class="docutils literal notranslate"><span class="pre">n=1</span></code>, we approximate <span class="math notranslate nohighlight">\(P(w_1w_2 \dots w_N)\)</span> as <span class="math notranslate nohighlight">\(\prod_{i=1}^N P(w_i|w_{i-1})\)</span>. So the perplexity of the corpus is:
+$<span class="math notranslate nohighlight">\(\text{perplexity}(W) = \sqrt[n]{\prod_{i=1}^N\frac{1}{P(w_i \lvert w_{i-1})}}\)</span>$</p></li>
+<li><p>We use the entire sequence in the test set when calculating perplexity.</p></li>
+<li><p>Perplexity is a function of corpus <span class="math notranslate nohighlight">\(W\)</span> and the language model being used. Different language models will have different perplexities on a given test set. So we can use this metric to roughly evaluate the performance of our language model.</p>
+<ul>
+<li><p>A lower perplexity <span class="math notranslate nohighlight">\(\rightarrow\)</span> the language model is a better predictor of the words in the test set</p></li>
+<li><p>A higher perplexity <span class="math notranslate nohighlight">\(\rightarrow\)</span> the language model is not a good predictor of the words in the test set. (It’s surprised by the text in the test set.)</p></li>
+</ul>
+</li>
+<li><p>Perplexity has been a standard intrinsic evaluation metric for n-gram and early neural models, as it provides a good diagnostic during the training.</p></li>
+<li><p>Check out <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/3.pdf">this link</a> for more details.</p></li>
+</ul>
+<p><strong>Is perplexity useful in the era of LLMs?</strong></p>
+<ul class="simple">
+<li><p>LLMs like GPT-4, PaLM, and Claude achieve very low perplexity.</p></li>
+<li><p>But for evaluating capabilities of modern LLMs, it’s not sufficient. The difference in perplexity between high-performing models may not correlate with actual quality of output (e.g., helpfulness, relevance, factuality).</p></li>
+</ul>
+<p><strong>Extrinsic evaluation</strong></p>
+<p>The most reliable way to evaluate a language model is to embed it into a downstream application and measure how much the performance of the application improves. This is known as <strong>extrinsic evaluation</strong>.</p>
+<ul class="simple">
+<li><p>For example:</p>
+<ul>
+<li><p>Use the language model in a speech recognition or machine translation system.</p></li>
+<li><p>Measure whether using the model improves the overall accuracy or usability of the application.</p></li>
+</ul>
+</li>
+<li><p>More recently, standardized evaluation benchmarks have been created for large language models. These benchmarks often include:</p>
+<ul>
+<li><p>Reading comprehension tasks (e.g., <a class="reference external" href="https://rajpurkar.github.io/SQuAD-explorer/">SQuAD</a>)</p></li>
+<li><p>Common sense reasoning (e.g., <a class="reference external" href="https://cdn.aaai.org/ocs/4492/4492-21843-1-PB.pdf">Winograd Schema Challenge</a>)</p></li>
+<li><p>World knowledge tests (e.g., <a class="reference external" href="https://ai.google.com/research/NaturalQuestions/visualization">Google’s Natural Questions</a>)</p></li>
+<li><p>Multitask understanding (e.g., <a class="reference external" href="https://w4ngatang.github.io/static/papers/superglue.pdf">SuperGlue</a>)</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+</section>
+<section id="questions-for-you">
+<h2>❓❓ Questions for you<a class="headerlink" href="#questions-for-you" title="Link to this heading">#</a></h2>
+<p>For each of the following tasks/domains, suggest the most appropriate sampling strategy and briefly justify your choice.</p>
+<ul class="simple">
+<li><p><strong>Writing poetry</strong></p></li>
+<li><p><strong>Auto-generating legal contracts</strong></p></li>
+<li><p><strong>Generating data science jokes</strong></p></li>
+<li><p><strong>Translating medical documents</strong></p></li>
+<li><p><strong>Summarizing financial reports</strong></p></li>
+</ul>
+<p><br><br><br><br></p>
+<section id="exercise-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-select-all-of-the-following-statements-which-are-true-iclicker" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) Building a transition matrix for a Markov model means calculating the proportion of how often sequences of states occur in your data.</p></li>
+<li><p>(B) In our setup, when n=3, each state has 3 letters. So given a three letter sequence, we predict the next three letter sequence.</p></li>
+<li><p>(C) Suppose you have two corpora from completely different domains. You build two word-based n-gram models one for each corpus. The stationary distribution would be the same for both n-gram models.</p></li>
+<li><p>(D) Suppose you are building an n-gram model of language with characters on a corpus with vocabulary <span class="math notranslate nohighlight">\(V = 100\)</span> and <span class="math notranslate nohighlight">\(n=4\)</span> in our n-gram model setup. The dimensionality of the transition matrix in this case would be <span class="math notranslate nohighlight">\(100 \times 100\)</span>.</p></li>
+<li><p>(E) In Markov models, increasing the value of <span class="math notranslate nohighlight">\(n\)</span> typically leads to a decrease in perplexity.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise: V’s Solutions!</p>
+<ul class="simple">
+<li><p>(A) True</p></li>
+<li><p>(B) False. Although each state would have 3 letters, you will still only predict one letter. Just that you have access to more history or context in the sequence instead of just one preceding character.</p></li>
+<li><p>(C) False. Two corpora would have different word n-gram frequencies.</p></li>
+<li><p>(D) False.</p></li>
+<li><p>(E) Increasing the value of n in Markov models usually results in lower perplexity. That said, if n becomes too large in Markov models, the model may overfit the training data, leading to poor generalization on test data and potentially higher perplexity.</p></li>
+</ul>
+</div>
+</section>
+<section id="exercise-select-all-of-the-following-statements-which-are-true">
+<h3>Exercise: Select all of the following statements which are <strong>True</strong><a class="headerlink" href="#exercise-select-all-of-the-following-statements-which-are-true" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) It might be possible to identify rare words or characters in a corpus of text using stationary distribution because these words are likely to have lower state probabilities in the observed stationary distribution.</p></li>
+<li><p>(B) The stationary distribution on two corpora: Bob Dylan’s poetry vs. biomedical text are likely to be different.</p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise: V’s Solutions!</p>
+<ul class="simple">
+<li><p>A, B</p></li>
+</ul>
+</div>
+</section>
+<section id="break">
+<h3>Break<a class="headerlink" href="#break" title="Link to this heading">#</a></h3>
+<p><img alt="" src="../../_images/eva-coffee.png" /></p>
+<p><br><br><br><br></p>
+</section>
+<section id="optional-markov-s-own-application-of-his-chains">
+<h3>(Optional) Markov’s own application of his chains<a class="headerlink" href="#optional-markov-s-own-application-of-his-chains" title="Link to this heading">#</a></h3>
+<ul>
+<li><p>Markov studied the sequence of 100,000 letters in S. T. Aksakov’s novel “The Childhood of Bagrov, the Grandson”.</p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(S = \{\text{vowel, consonant}\}\)</span></p></li>
+<li></li>
+</ul>
+<p>$ T =</p>
+<div class="amsmath math notranslate nohighlight" id="equation-01afe370-4396-4d48-9c66-5f96e40141b0">
+<span class="eqno">(5)<a class="headerlink" href="#equation-01afe370-4396-4d48-9c66-5f96e40141b0" title="Permalink to this equation">#</a></span>\[\begin{bmatrix}
+    0.552 &amp; 0.448\\
+    0.365 &amp; 0.635\\
+    \end{bmatrix}\]</div>
+<p>$</p>
+</li>
+</ul>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p></p></th>
+<th class="head text-center"><p>vowel</p></th>
+<th class="head text-right"><p>consonant</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p>vowel</p></td>
+<td class="text-center"><p>0.552</p></td>
+<td class="text-right"><p>0.448</p></td>
+</tr>
+<tr class="row-odd"><td><p>consonant</p></td>
+<td class="text-center"><p>0.365</p></td>
+<td class="text-right"><p>0.635</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>He provided the stationary distribution for vowels and consonants based on his counting.</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\pi = [0.449,0.551]\)</span></p></li>
+</ul>
+</li>
+<li><p>In Markov’s example above, the stationary distribution for the states <strong>vowel</strong> and <strong>consonant</strong> is calculated as:</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\begin{split}\begin{bmatrix}
+    \frac{\text{\# vowel occurrences}}{\text{total number of letters}} &amp; \frac{\text{\# consonant occurrences} }{\text{total number of letters}}\\
+\end{bmatrix}\end{split}\]</div>
+<ul class="simple">
+<li><p>Let’s check whether we get <span class="math notranslate nohighlight">\(\pi T = \pi\)</span> with this stationary distribution.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">pi</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([</span><span class="mf">0.449</span><span class="p">,</span> <span class="mf">0.551</span><span class="p">])</span> <span class="c1"># stationary distributed calculated by Markov</span>
+<span class="n">T</span> <span class="o">=</span> <span class="n">np</span><span class="o">.</span><span class="n">array</span><span class="p">([[</span><span class="mf">0.552</span><span class="p">,</span> <span class="mf">0.448</span><span class="p">],</span> <span class="p">[</span><span class="mf">0.365</span><span class="p">,</span> <span class="mf">0.635</span><span class="p">]])</span>
+<span class="n">np</span><span class="o">.</span><span class="n">allclose</span><span class="p">(</span><span class="n">pi</span> <span class="o">@</span> <span class="n">T</span><span class="p">,</span> <span class="n">pi</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>False
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="nb">print</span><span class="p">(</span><span class="n">pi</span> <span class="o">@</span> <span class="n">T</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">2</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">3</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">6</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">pi</span> <span class="o">@</span> <span class="n">np</span><span class="o">.</span><span class="n">linalg</span><span class="o">.</span><span class="n">matrix_power</span><span class="p">(</span><span class="n">T</span><span class="p">,</span> <span class="mi">7</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[0.448963 0.551037]
+[0.44895608 0.55104392]
+[0.44895479 0.55104521]
+[0.44895449 0.55104551]
+[0.44895449 0.55104551]
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>The state probabilities are not quite the same but they are pretty close.</p></li>
+<li><p>Note that Markov calculated the stationary distribution <strong>by hand</strong> and probably he rounded off the probabilities after 3 decimal places. (Tedious calculation!!)</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="pagerank">
+<h2>3. PageRank<a class="headerlink" href="#pagerank" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>One of the primary algorithms used by Google Search to rank web pages in their search engine results.</p></li>
+<li><p>Graph-based ranking algorithm, which assigns a rank to a webpage.</p></li>
+<li><p>The rank indicates a relative score of the page’s importance and authority.</p></li>
+<li><p>Intuition</p>
+<ul>
+<li><p>Important webpages are linked from other important webpages.</p></li>
+<li><p>Don’t just look at the number of links coming to a webpage but consider who the links are coming from.</p></li>
+</ul>
+</li>
+</ul>
+<!-- ![](../img/wiki_page_rank.jpg) -->
+<a class="reference internal image-reference" href="../../_images/wiki_page_rank.jpg"><img alt="../../_images/wiki_page_rank.jpg" src="../../_images/wiki_page_rank.jpg" style="width: 300px; height: 300px;" /></a>
+<p><a class="reference external" href="https://en.wikipedia.org/wiki/PageRank#/media/File:PageRanks-Example.jpg">Credit</a></p>
+<p><strong>PageRank: scoring</strong></p>
+<ul class="simple">
+<li><p>Imagine a surfer doing a random walk</p>
+<ul>
+<li><p>At time t=0, start at a random webpage.</p></li>
+<li><p>At time t=1, follow a random link on the current page.</p></li>
+<li><p>At time t=2, follow a random link on the current page.</p></li>
+</ul>
+</li>
+<li><p>Intuition</p>
+<ul>
+<li><p>In the “steady state” each page has a long-term visit rate, which is the page’s score (rank).</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>PageRank as a Markov chain</strong></p>
+<ul class="simple">
+<li><p>A state is a web page.</p></li>
+<li><p>Transition probabilities represent probabilities of moving from one page to another.</p></li>
+<li><p>The process of creating this transition matrix is a bit involved and we won’t go into the details.</p></li>
+<li><p>At a high level, we derive transition probabilities from the adjacency matrix of the web graph</p>
+<ul>
+<li><p>Adjacency matrix <span class="math notranslate nohighlight">\(M\)</span> is a <span class="math notranslate nohighlight">\(n \times n\)</span> matrix, if <span class="math notranslate nohighlight">\(n\)</span> is the number of states (web pages)</p></li>
+<li><p><span class="math notranslate nohighlight">\(M_{ij} = 1\)</span> if there is a hyperlink from page <span class="math notranslate nohighlight">\(i\)</span> to page <span class="math notranslate nohighlight">\(j\)</span>.</p></li>
+<li><p>Normalize to create probabilities.</p></li>
+</ul>
+</li>
+<li><p>(Optional) If you want to know more details, check out <a class="reference external" href="https://www.youtube.com/watch?v=-rfVrRAgzHM&amp;amp;list=PLaZQkZp6WhWzSy3WKExE7656jBxfXJh3I">this video</a>.</p></li>
+</ul>
+<p><strong>Calculate page rank: power iteration method</strong></p>
+<ul class="simple">
+<li><p>Start with a random initial probability distribution <span class="math notranslate nohighlight">\(\pi_0\)</span>.</p></li>
+<li><p>Multiply <span class="math notranslate nohighlight">\(\pi_0\)</span> by powers of the transition matrix <span class="math notranslate nohighlight">\(T\)</span> until the product looks stable.</p>
+<ul>
+<li><p>After one step, we are at <span class="math notranslate nohighlight">\(\pi T\)</span></p></li>
+<li><p>After two steps, we are at <span class="math notranslate nohighlight">\(\pi T^2\)</span></p></li>
+<li><p>After three steps, we are at <span class="math notranslate nohighlight">\(\pi T^3\)</span></p></li>
+<li><p>Eventually (for a large <span class="math notranslate nohighlight">\(k\)</span>), <span class="math notranslate nohighlight">\(\pi T^k\)</span> we get a stationary distribution.</p></li>
+</ul>
+</li>
+</ul>
+<p>What happens when we search for a keywork on Google?</p>
+<ul class="simple">
+<li><p>It finds all the webpages containing the keywords and orders them based on their ranks, i.e., state probabilities from stationary distribution.</p></li>
+<li><p>This is the core algorithm behind Google search to rank webpages.</p></li>
+<li><p>On the top of this algorithm, they add fudge factors:</p>
+<ul>
+<li><p>Wikipedia <span class="math notranslate nohighlight">\(\rightarrow\)</span> move up</p></li>
+<li><p>If someone is giving them lots of money <span class="math notranslate nohighlight">\(\rightarrow\)</span> move up 🙁</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>(Optional) Modern ranking methods are more advanced:</strong></p>
+<ul class="simple">
+<li><p>Guarding against methods that exploit algorithm.</p></li>
+<li><p>Removing offensive/illegal content.</p></li>
+<li><p>Supervised and personalized ranking methods.</p></li>
+<li><p>Take into account that you often only care about top rankings.</p></li>
+<li><p>Also work on diversity of rankings:</p>
+<ul>
+<li><p>E.g., divide objects into sub-topics and do weighted “covering” of topics.</p></li>
+</ul>
+</li>
+<li><p>Persistence/freshness as in recommender systems (news articles).</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="basic-text-preprocessing-video">
+<h2>4. Basic text preprocessing [<a class="reference external" href="https://www.youtube.com/watch?v=7W5Q8gzNPBc">video</a>]<a class="headerlink" href="#basic-text-preprocessing-video" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Why do we need preprocessing?</p>
+<ul>
+<li><p>Text data is unstructured and messy.</p></li>
+<li><p>We need to “normalize” it before we do anything interesting with it.</p></li>
+</ul>
+</li>
+<li><p>Example:</p>
+<ul>
+<li><p><strong>Lemma</strong>: Same stem, same part-of-speech, roughly the same meaning</p>
+<ul>
+<li><p>Vancouver’s → Vancouver</p></li>
+<li><p>computers → computer</p></li>
+<li><p>rising → rise, rose, rises</p></li>
+</ul>
+</li>
+</ul>
+</li>
+</ul>
+<section id="tokenization">
+<h3>4.1 Tokenization<a class="headerlink" href="#tokenization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Sentence segmentation: Split text into sentences</p></li>
+<li><p>Word tokenization: Split sentences into words</p></li>
+</ul>
+<p><strong>Sentence segmentation</strong></p>
+<blockquote>
+MDS is a Master's program at UBC in British Columbia. MDS teaching team is truly multicultural!! Dr. Beuzen did his Ph.D. in Australia. Dr. Timbers, Dr. Ostblom, Dr. Rodríguez-Arelis, and Dr. Kolhatkar did theirs in Canada. Dr. George did his in Scotland. Dr. Gelbart did his PhD in the U.S.
+</blockquote>
+<ul class="simple">
+<li><p>How many sentences are there in this text?</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Let&#39;s do sentence segmentation on &quot;.&quot;</span>
+<span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;MDS is a Master&#39;s program at UBC in British Columbia. &quot;</span>
+    <span class="s2">&quot;MDS teaching team is truly multicultural!! &quot;</span>
+    <span class="s2">&quot;Dr. Beuzen did his Ph.D. in Australia. &quot;</span>
+    <span class="s2">&quot;Dr. Timbers, Dr. Ostblom, Dr. Rodríguez-Arelis, and Dr. Kolhatkar did theirs in Canada. &quot;</span>
+    <span class="s2">&quot;Dr. George did his in Scotland. &quot;</span>
+    <span class="s2">&quot;Dr. Gelbart did his PhD in the U.S.&quot;</span>
+<span class="p">)</span>
+
+<span class="nb">print</span><span class="p">(</span><span class="n">text</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;.&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&quot;MDS is a Master&#39;s program at UBC in British Columbia&quot;, &#39; MDS teaching team is truly multicultural!! Dr&#39;, &#39; Beuzen did his Ph&#39;, &#39;D&#39;, &#39; in Australia&#39;, &#39; Dr&#39;, &#39; Timbers, Dr&#39;, &#39; Ostblom, Dr&#39;, &#39; Rodríguez-Arelis, and Dr&#39;, &#39; Kolhatkar did theirs in Canada&#39;, &#39; Dr&#39;, &#39; George did his in Scotland&#39;, &#39; Dr&#39;, &#39; Gelbart did his PhD in the U&#39;, &#39;S&#39;, &#39;&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<ul class="simple">
+<li><p>In English, period (.) is quite ambiguous. (In Chinese, it is unambiguous.)</p>
+<ul>
+<li><p>Abbreviations like Dr., U.S., Inc.</p></li>
+<li><p>Numbers like 60.44%, 0.98</p></li>
+</ul>
+</li>
+<li><p>! and ? are relatively ambiguous.</p></li>
+<li><p>How about writing regular expressions?</p></li>
+<li><p>A common way is using off-the-shelf models for sentence segmentation.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Let&#39;s try to do sentence segmentation using nltk</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">sent_tokenize</span>
+
+<span class="n">sent_tokenized</span> <span class="o">=</span> <span class="n">sent_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">sent_tokenized</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&quot;MDS is a Master&#39;s program at UBC in British Columbia.&quot;, &#39;MDS teaching team is truly multicultural!!&#39;, &#39;Dr. Beuzen did his Ph.D. in Australia.&#39;, &#39;Dr. Timbers, Dr. Ostblom, Dr. Rodríguez-Arelis, and Dr. Kolhatkar did theirs in Canada.&#39;, &#39;Dr. George did his in Scotland.&#39;, &#39;Dr. Gelbart did his PhD in the U.S.&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Word tokenization</strong></p>
+<blockquote>
+MDS is a Master's program at UBC in British Columbia. 
+</blockquote>
+<ul class="simple">
+<li><p>How many words are there in this sentence?</p></li>
+<li><p>Is whitespace a sufficient condition for a word boundary?</p></li>
+</ul>
+<blockquote>
+MDS is a Master's program at UBC in British Columbia. 
+</blockquote>
+<ul class="simple">
+<li><p>What’s our definition of a word?</p>
+<ul>
+<li><p>Should British Columbia be one word or two words?</p></li>
+<li><p>Should punctuation be considered a separate word?</p></li>
+<li><p>What about the punctuations in <code class="docutils literal notranslate"><span class="pre">U.S.</span></code>?</p></li>
+<li><p>What do we do with words like <code class="docutils literal notranslate"><span class="pre">Master's</span></code>?</p></li>
+</ul>
+</li>
+<li><p>This process of identifying word boundaries is referred to as <strong>tokenization</strong>.</p></li>
+<li><p>You can use regex but better to do it with off-the-shelf ML models.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Let&#39;s do word segmentation on white spaces</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Splitting on whitespace: &quot;</span><span class="p">,</span> <span class="p">[</span><span class="n">sent</span><span class="o">.</span><span class="n">split</span><span class="p">()</span> <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">sent_tokenized</span><span class="p">])</span>
+
+<span class="c1">### Let&#39;s try to do word segmentation using nltk</span>
+<span class="kn">from</span> <span class="nn">nltk.tokenize</span> <span class="kn">import</span> <span class="n">word_tokenize</span>
+
+<span class="n">word_tokenized</span> <span class="o">=</span> <span class="p">[</span><span class="n">word_tokenize</span><span class="p">(</span><span class="n">sent</span><span class="p">)</span> <span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">sent_tokenized</span><span class="p">]</span>
+<span class="c1"># This is similar to the input format of word2vec algorithm</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n\n</span><span class="s2">Tokenized: &quot;</span><span class="p">,</span> <span class="n">word_tokenized</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Splitting on whitespace:  [[&#39;MDS&#39;, &#39;is&#39;, &#39;a&#39;, &quot;Master&#39;s&quot;, &#39;program&#39;, &#39;at&#39;, &#39;UBC&#39;, &#39;in&#39;, &#39;British&#39;, &#39;Columbia.&#39;], [&#39;MDS&#39;, &#39;teaching&#39;, &#39;team&#39;, &#39;is&#39;, &#39;truly&#39;, &#39;multicultural!!&#39;], [&#39;Dr.&#39;, &#39;Beuzen&#39;, &#39;did&#39;, &#39;his&#39;, &#39;Ph.D.&#39;, &#39;in&#39;, &#39;Australia.&#39;], [&#39;Dr.&#39;, &#39;Timbers,&#39;, &#39;Dr.&#39;, &#39;Ostblom,&#39;, &#39;Dr.&#39;, &#39;Rodríguez-Arelis,&#39;, &#39;and&#39;, &#39;Dr.&#39;, &#39;Kolhatkar&#39;, &#39;did&#39;, &#39;theirs&#39;, &#39;in&#39;, &#39;Canada.&#39;], [&#39;Dr.&#39;, &#39;George&#39;, &#39;did&#39;, &#39;his&#39;, &#39;in&#39;, &#39;Scotland.&#39;], [&#39;Dr.&#39;, &#39;Gelbart&#39;, &#39;did&#39;, &#39;his&#39;, &#39;PhD&#39;, &#39;in&#39;, &#39;the&#39;, &#39;U.S.&#39;]]
+
+
+
+Tokenized:  [[&#39;MDS&#39;, &#39;is&#39;, &#39;a&#39;, &#39;Master&#39;, &quot;&#39;s&quot;, &#39;program&#39;, &#39;at&#39;, &#39;UBC&#39;, &#39;in&#39;, &#39;British&#39;, &#39;Columbia&#39;, &#39;.&#39;], [&#39;MDS&#39;, &#39;teaching&#39;, &#39;team&#39;, &#39;is&#39;, &#39;truly&#39;, &#39;multicultural&#39;, &#39;!&#39;, &#39;!&#39;], [&#39;Dr.&#39;, &#39;Beuzen&#39;, &#39;did&#39;, &#39;his&#39;, &#39;Ph.D.&#39;, &#39;in&#39;, &#39;Australia&#39;, &#39;.&#39;], [&#39;Dr.&#39;, &#39;Timbers&#39;, &#39;,&#39;, &#39;Dr.&#39;, &#39;Ostblom&#39;, &#39;,&#39;, &#39;Dr.&#39;, &#39;Rodríguez-Arelis&#39;, &#39;,&#39;, &#39;and&#39;, &#39;Dr.&#39;, &#39;Kolhatkar&#39;, &#39;did&#39;, &#39;theirs&#39;, &#39;in&#39;, &#39;Canada&#39;, &#39;.&#39;], [&#39;Dr.&#39;, &#39;George&#39;, &#39;did&#39;, &#39;his&#39;, &#39;in&#39;, &#39;Scotland&#39;, &#39;.&#39;], [&#39;Dr.&#39;, &#39;Gelbart&#39;, &#39;did&#39;, &#39;his&#39;, &#39;PhD&#39;, &#39;in&#39;, &#39;the&#39;, &#39;U.S&#39;, &#39;.&#39;]]
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+</section>
+<section id="word-segmentation">
+<h3>4.2 Word segmentation<a class="headerlink" href="#word-segmentation" title="Link to this heading">#</a></h3>
+<p>For some languages you need much more sophisticated tokenizers.</p>
+<ul class="simple">
+<li><p>For languages such as Chinese, there are no spaces between words.</p>
+<ul>
+<li><p><a class="reference external" href="https://github.com/fxsjy/jieba">jieba</a> is a popular tokenizer for Chinese.</p></li>
+</ul>
+</li>
+<li><p>German doesn’t separate compound words.</p>
+<ul>
+<li><p>Example: <em>rindfleischetikettierungsüberwachungsaufgabenübertragungsgesetz</em></p></li>
+<li><p>(the law for the delegation of monitoring beef labeling)</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Types and tokens</strong></p>
+<ul class="simple">
+<li><p>Usually in NLP, we talk about</p>
+<ul>
+<li><p><strong>Type</strong> an element in the vocabulary</p></li>
+<li><p><strong>Token</strong> an instance of that type in running text</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="exercise-for-you">
+<h3>Exercise for you<a class="headerlink" href="#exercise-for-you" title="Link to this heading">#</a></h3>
+<blockquote>    
+UBC is located in the beautiful province of British Columbia. It's very close 
+to the U.S. border. You'll get to the USA border in about 45 mins by car.     
+</blockquote>  
+<ul class="simple">
+<li><p>Consider the example above.</p>
+<ul>
+<li><p>How many types? (task dependent)</p></li>
+<li><p>How many tokens?</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="other-commonly-used-preprocessing-steps">
+<h3>4.3 Other commonly used preprocessing steps<a class="headerlink" href="#other-commonly-used-preprocessing-steps" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Punctuation and stopword removal</p></li>
+<li><p>Stemming and lemmatization</p></li>
+</ul>
+<p><strong>Punctuation and stopword removal</strong></p>
+<ul class="simple">
+<li><p>The most frequently occurring words in English are not very useful in many NLP tasks.</p>
+<ul>
+<li><p>Example: <em>the</em> , <em>is</em> , <em>a</em> , and punctuation</p></li>
+</ul>
+</li>
+<li><p>Probably not very informative in many tasks</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Let&#39;s use `nltk.stopwords`.</span>
+<span class="c1"># Add punctuations to the list.</span>
+<span class="n">stop_words</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">set</span><span class="p">(</span><span class="n">stopwords</span><span class="o">.</span><span class="n">words</span><span class="p">(</span><span class="s2">&quot;english&quot;</span><span class="p">)))</span>
+<span class="kn">import</span> <span class="nn">string</span>
+
+<span class="n">punctuation</span> <span class="o">=</span> <span class="n">string</span><span class="o">.</span><span class="n">punctuation</span>
+<span class="n">stop_words</span> <span class="o">+=</span> <span class="nb">list</span><span class="p">(</span><span class="n">punctuation</span><span class="p">)</span>
+<span class="c1"># stop_words.extend([&#39;``&#39;,&#39;`&#39;,&#39;br&#39;,&#39;&quot;&#39;,&quot;”&quot;, &quot;&#39;&#39;&quot;, &quot;&#39;s&quot;])</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">stop_words</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;by&#39;, &#39;ourselves&#39;, &#39;be&#39;, &#39;about&#39;, &#39;over&#39;, &#39;t&#39;, &quot;you&#39;ve&quot;, &#39;needn&#39;, &#39;after&#39;, &#39;y&#39;, &#39;is&#39;, &quot;won&#39;t&quot;, &quot;it&#39;s&quot;, &#39;these&#39;, &#39;here&#39;, &#39;themselves&#39;, &#39;didn&#39;, &quot;shouldn&#39;t&quot;, &#39;whom&#39;, &#39;he&#39;, &#39;am&#39;, &#39;to&#39;, &#39;can&#39;, &#39;which&#39;, &#39;the&#39;, &#39;once&#39;, &#39;them&#39;, &#39;under&#39;, &#39;d&#39;, &#39;some&#39;, &#39;hadn&#39;, &#39;when&#39;, &#39;yourself&#39;, &#39;should&#39;, &#39;so&#39;, &quot;didn&#39;t&quot;, &#39;couldn&#39;, &#39;wouldn&#39;, &#39;you&#39;, &#39;again&#39;, &quot;you&#39;d&quot;, &#39;if&#39;, &#39;than&#39;, &#39;shouldn&#39;, &#39;before&#39;, &#39;both&#39;, &quot;doesn&#39;t&quot;, &#39;now&#39;, &#39;had&#39;, &#39;will&#39;, &#39;above&#39;, &#39;from&#39;, &#39;doesn&#39;, &quot;shan&#39;t&quot;, &#39;yourselves&#39;, &#39;a&#39;, &#39;then&#39;, &#39;there&#39;, &#39;that&#39;, &#39;my&#39;, &#39;in&#39;, &#39;his&#39;, &#39;this&#39;, &#39;are&#39;, &#39;few&#39;, &#39;re&#39;, &quot;isn&#39;t&quot;, &#39;why&#39;, &#39;too&#39;, &#39;she&#39;, &#39;was&#39;, &#39;more&#39;, &#39;during&#39;, &#39;aren&#39;, &#39;against&#39;, &#39;o&#39;, &#39;her&#39;, &#39;or&#39;, &#39;doing&#39;, &#39;because&#39;, &#39;does&#39;, &#39;who&#39;, &quot;couldn&#39;t&quot;, &#39;below&#39;, &#39;further&#39;, &#39;hasn&#39;, &#39;its&#39;, &#39;those&#39;, &#39;down&#39;, &#39;haven&#39;, &quot;you&#39;ll&quot;, &#39;weren&#39;, &#39;won&#39;, &quot;haven&#39;t&quot;, &#39;an&#39;, &#39;herself&#39;, &#39;only&#39;, &#39;your&#39;, &#39;own&#39;, &#39;out&#39;, &#39;of&#39;, &#39;nor&#39;, &#39;m&#39;, &#39;having&#39;, &#39;all&#39;, &#39;ours&#39;, &#39;ain&#39;, &#39;such&#39;, &quot;should&#39;ve&quot;, &#39;not&#39;, &#39;as&#39;, &#39;has&#39;, &#39;off&#39;, &#39;but&#39;, &#39;himself&#39;, &quot;you&#39;re&quot;, &#39;very&#39;, &quot;aren&#39;t&quot;, &#39;until&#39;, &#39;at&#39;, &#39;into&#39;, &#39;just&#39;, &#39;isn&#39;, &#39;ma&#39;, &quot;she&#39;s&quot;, &#39;him&#39;, &#39;most&#39;, &#39;yours&#39;, &#39;up&#39;, &#39;we&#39;, &#39;being&#39;, &#39;on&#39;, &#39;same&#39;, &#39;mightn&#39;, &#39;they&#39;, &#39;while&#39;, &#39;no&#39;, &#39;have&#39;, &quot;don&#39;t&quot;, &#39;ve&#39;, &#39;between&#39;, &#39;s&#39;, &#39;for&#39;, &#39;any&#39;, &quot;mustn&#39;t&quot;, &quot;hadn&#39;t&quot;, &quot;needn&#39;t&quot;, &#39;me&#39;, &quot;hasn&#39;t&quot;, &#39;other&#39;, &#39;do&#39;, &quot;weren&#39;t&quot;, &#39;how&#39;, &#39;myself&#39;, &#39;ll&#39;, &#39;and&#39;, &#39;where&#39;, &#39;our&#39;, &#39;hers&#39;, &#39;through&#39;, &quot;mightn&#39;t&quot;, &#39;what&#39;, &#39;it&#39;, &quot;that&#39;ll&quot;, &#39;don&#39;, &quot;wouldn&#39;t&quot;, &#39;been&#39;, &quot;wasn&#39;t&quot;, &#39;their&#39;, &#39;i&#39;, &#39;itself&#39;, &#39;each&#39;, &#39;were&#39;, &#39;mustn&#39;, &#39;shan&#39;, &#39;with&#39;, &#39;did&#39;, &#39;theirs&#39;, &#39;wasn&#39;, &#39;!&#39;, &#39;&quot;&#39;, &#39;#&#39;, &#39;$&#39;, &#39;%&#39;, &#39;&amp;&#39;, &quot;&#39;&quot;, &#39;(&#39;, &#39;)&#39;, &#39;*&#39;, &#39;+&#39;, &#39;,&#39;, &#39;-&#39;, &#39;.&#39;, &#39;/&#39;, &#39;:&#39;, &#39;;&#39;, &#39;&lt;&#39;, &#39;=&#39;, &#39;&gt;&#39;, &#39;?&#39;, &#39;@&#39;, &#39;[&#39;, &#39;\\&#39;, &#39;]&#39;, &#39;^&#39;, &#39;_&#39;, &#39;`&#39;, &#39;{&#39;, &#39;|&#39;, &#39;}&#39;, &#39;~&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1">### Get rid of stop words</span>
+<span class="n">preprocessed</span> <span class="o">=</span> <span class="p">[]</span>
+<span class="k">for</span> <span class="n">sent</span> <span class="ow">in</span> <span class="n">word_tokenized</span><span class="p">:</span>
+    <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">sent</span><span class="p">:</span>
+        <span class="n">token</span> <span class="o">=</span> <span class="n">token</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span>
+        <span class="k">if</span> <span class="n">token</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">stop_words</span><span class="p">:</span>
+            <span class="n">preprocessed</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">token</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="n">preprocessed</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[&#39;mds&#39;, &#39;master&#39;, &quot;&#39;s&quot;, &#39;program&#39;, &#39;ubc&#39;, &#39;british&#39;, &#39;columbia&#39;, &#39;mds&#39;, &#39;teaching&#39;, &#39;team&#39;, &#39;truly&#39;, &#39;multicultural&#39;, &#39;dr.&#39;, &#39;beuzen&#39;, &#39;ph.d.&#39;, &#39;australia&#39;, &#39;dr.&#39;, &#39;timbers&#39;, &#39;dr.&#39;, &#39;ostblom&#39;, &#39;dr.&#39;, &#39;rodríguez-arelis&#39;, &#39;dr.&#39;, &#39;kolhatkar&#39;, &#39;canada&#39;, &#39;dr.&#39;, &#39;george&#39;, &#39;scotland&#39;, &#39;dr.&#39;, &#39;gelbart&#39;, &#39;phd&#39;, &#39;u.s&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Lemmatization</strong></p>
+<ul class="simple">
+<li><p>For many NLP tasks (e.g., web search) we want to ignore morphological differences between words</p>
+<ul>
+<li><p>Example: If your search term is “studying for ML quiz” you might want to include pages containing “tips to study for an ML quiz” or “here is how I studied for my ML quiz”</p></li>
+</ul>
+</li>
+<li><p>Lemmatization converts inflected forms into the base form.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">nltk</span>
+
+<span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;wordnet&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[nltk_data] Downloading package wordnet to /Users/kvarada/nltk_data...
+[nltk_data]   Package wordnet is already up-to-date!
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">nltk</span><span class="o">.</span><span class="n">download</span><span class="p">(</span><span class="s2">&quot;omw-1.4&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stderr highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>[nltk_data] Downloading package omw-1.4 to /Users/kvarada/nltk_data...
+[nltk_data]   Package omw-1.4 is already up-to-date!
+</pre></div>
+</div>
+<div class="output text_plain highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>True
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># nltk has a lemmatizer</span>
+<span class="kn">from</span> <span class="nn">nltk.stem</span> <span class="kn">import</span> <span class="n">WordNetLemmatizer</span>
+
+<span class="n">lemmatizer</span> <span class="o">=</span> <span class="n">WordNetLemmatizer</span><span class="p">()</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lemma of studying: &quot;</span><span class="p">,</span> <span class="n">lemmatizer</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="s2">&quot;studying&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Lemma of studied: &quot;</span><span class="p">,</span> <span class="n">lemmatizer</span><span class="o">.</span><span class="n">lemmatize</span><span class="p">(</span><span class="s2">&quot;studied&quot;</span><span class="p">,</span> <span class="s2">&quot;v&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Lemma of studying:  study
+Lemma of studied:  study
+</pre></div>
+</div>
+</div>
+</div>
+<p><strong>Stemming</strong></p>
+<ul class="simple">
+<li><p>Has a similar purpose but it is a crude chopping of affixes</p>
+<ul>
+<li><p><em>automates, automatic, automation</em> all reduced to <em>automat</em>.</p></li>
+</ul>
+</li>
+<li><p>Usually these reduced forms (stems) are not actual words themselves.</p></li>
+<li><p>A popular stemming algorithm for English is PorterStemmer.</p></li>
+<li><p>Beware that it can be aggressive sometimes.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">nltk.stem.porter</span> <span class="kn">import</span> <span class="n">PorterStemmer</span>
+
+<span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;UBC is located in the beautiful province of British Columbia... &quot;</span>
+    <span class="s2">&quot;It&#39;s very close to the U.S. border.&quot;</span>
+<span class="p">)</span>
+<span class="n">ps</span> <span class="o">=</span> <span class="n">PorterStemmer</span><span class="p">()</span>
+<span class="n">tokenized</span> <span class="o">=</span> <span class="n">word_tokenize</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+<span class="n">stemmed</span> <span class="o">=</span> <span class="p">[</span><span class="n">ps</span><span class="o">.</span><span class="n">stem</span><span class="p">(</span><span class="n">token</span><span class="p">)</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">tokenized</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Before stemming: &quot;</span><span class="p">,</span> <span class="n">text</span><span class="p">)</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">After stemming: &quot;</span><span class="p">,</span> <span class="s2">&quot; &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">stemmed</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Before stemming:  UBC is located in the beautiful province of British Columbia... It&#39;s very close to the U.S. border.
+
+
+After stemming:  ubc is locat in the beauti provinc of british columbia ... it &#39;s veri close to the u.s. border .
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+</section>
+<section id="other-tools-for-preprocessing">
+<h3>4.4 Other tools for preprocessing<a class="headerlink" href="#other-tools-for-preprocessing" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We used <a class="reference external" href="https://www.nltk.org/">Natural Language Processing Toolkit (nltk)</a> above</p>
+<ul>
+<li><p>You already have used it in 571 and 573</p></li>
+</ul>
+</li>
+<li><p>Many available tools</p></li>
+<li><p><a class="reference external" href="https://spacy.io/">spaCy</a></p></li>
+</ul>
+<p><strong><a class="reference external" href="https://spacy.io/">spaCy</a></strong></p>
+<ul class="simple">
+<li><p>We already have used spaCy before in 573 and 563.</p></li>
+<li><p>Industrial strength NLP library.</p></li>
+<li><p>Lightweight, fast, and convenient to use.</p></li>
+<li><p>spaCy does many things that we did above in one line of code!</p></li>
+<li><p>Also has <a class="reference external" href="https://spacy.io/models/xx">multi-lingual</a> support.</p></li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># !python -m spacy download en_core_web_md</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">spacy</span>
+
+<span class="c1"># Load the model</span>
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;en_core_web_md&quot;</span><span class="p">)</span>
+<span class="n">text</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;MDS is a Master&#39;s program at UBC in British Columbia. &quot;</span>
+    <span class="s2">&quot;MDS teaching team is truly multicultural!! &quot;</span>
+    <span class="s2">&quot;Dr. Beuzen did his Ph.D. in Australia. &quot;</span>
+    <span class="s2">&quot;Dr. Timbers, Dr. Ostblom, Dr. Rodríguez-Arelis, and Dr. Kolhatkar did theirs in Canada. &quot;</span>
+    <span class="s2">&quot;Dr. George did his in Scotland. &quot;</span>
+    <span class="s2">&quot;Dr. Gelbart did his PhD in the U.S.&quot;</span>
+<span class="p">)</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="n">text</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="c1"># Accessing tokens</span>
+<span class="n">tokens</span> <span class="o">=</span> <span class="p">[</span><span class="n">token</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Tokens: &quot;</span><span class="p">,</span> <span class="n">tokens</span><span class="p">)</span>
+
+<span class="c1"># Accessing lemma</span>
+<span class="n">lemmas</span> <span class="o">=</span> <span class="p">[</span><span class="n">token</span><span class="o">.</span><span class="n">lemma_</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Lemmas: &quot;</span><span class="p">,</span> <span class="n">lemmas</span><span class="p">)</span>
+
+<span class="c1"># Accessing pos</span>
+<span class="n">pos</span> <span class="o">=</span> <span class="p">[</span><span class="n">token</span><span class="o">.</span><span class="n">pos_</span> <span class="k">for</span> <span class="n">token</span> <span class="ow">in</span> <span class="n">doc</span><span class="p">]</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">POS: &quot;</span><span class="p">,</span> <span class="n">pos</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Tokens:  [MDS, is, a, Master, &#39;s, program, at, UBC, in, British, Columbia, ., MDS, teaching, team, is, truly, multicultural, !, !, Dr., Beuzen, did, his, Ph.D., in, Australia, ., Dr., Timbers, ,, Dr., Ostblom, ,, Dr., Rodríguez, -, Arelis, ,, and, Dr., Kolhatkar, did, theirs, in, Canada, ., Dr., George, did, his, in, Scotland, ., Dr., Gelbart, did, his, PhD, in, the, U.S.]
+
+Lemmas:  [&#39;MDS&#39;, &#39;be&#39;, &#39;a&#39;, &#39;Master&#39;, &quot;&#39;s&quot;, &#39;program&#39;, &#39;at&#39;, &#39;UBC&#39;, &#39;in&#39;, &#39;British&#39;, &#39;Columbia&#39;, &#39;.&#39;, &#39;MDS&#39;, &#39;teaching&#39;, &#39;team&#39;, &#39;be&#39;, &#39;truly&#39;, &#39;multicultural&#39;, &#39;!&#39;, &#39;!&#39;, &#39;Dr.&#39;, &#39;Beuzen&#39;, &#39;do&#39;, &#39;his&#39;, &#39;ph.d.&#39;, &#39;in&#39;, &#39;Australia&#39;, &#39;.&#39;, &#39;Dr.&#39;, &#39;Timbers&#39;, &#39;,&#39;, &#39;Dr.&#39;, &#39;Ostblom&#39;, &#39;,&#39;, &#39;Dr.&#39;, &#39;Rodríguez&#39;, &#39;-&#39;, &#39;Arelis&#39;, &#39;,&#39;, &#39;and&#39;, &#39;Dr.&#39;, &#39;Kolhatkar&#39;, &#39;do&#39;, &#39;theirs&#39;, &#39;in&#39;, &#39;Canada&#39;, &#39;.&#39;, &#39;Dr.&#39;, &#39;George&#39;, &#39;do&#39;, &#39;his&#39;, &#39;in&#39;, &#39;Scotland&#39;, &#39;.&#39;, &#39;Dr.&#39;, &#39;Gelbart&#39;, &#39;do&#39;, &#39;his&#39;, &#39;phd&#39;, &#39;in&#39;, &#39;the&#39;, &#39;U.S.&#39;]
+
+POS:  [&#39;PROPN&#39;, &#39;AUX&#39;, &#39;DET&#39;, &#39;PROPN&#39;, &#39;PART&#39;, &#39;NOUN&#39;, &#39;ADP&#39;, &#39;PROPN&#39;, &#39;ADP&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;NOUN&#39;, &#39;NOUN&#39;, &#39;AUX&#39;, &#39;ADV&#39;, &#39;ADJ&#39;, &#39;PUNCT&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;VERB&#39;, &#39;PRON&#39;, &#39;NOUN&#39;, &#39;ADP&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;CCONJ&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;VERB&#39;, &#39;PRON&#39;, &#39;ADP&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;VERB&#39;, &#39;PRON&#39;, &#39;ADP&#39;, &#39;PROPN&#39;, &#39;PUNCT&#39;, &#39;PROPN&#39;, &#39;PROPN&#39;, &#39;VERB&#39;, &#39;PRON&#39;, &#39;NOUN&#39;, &#39;ADP&#39;, &#39;DET&#39;, &#39;PROPN&#39;]
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+</section>
+<section id="other-typical-nlp-tasks">
+<h3>4.5 Other typical NLP tasks<a class="headerlink" href="#other-typical-nlp-tasks" title="Link to this heading">#</a></h3>
+<p>In order to understand text, we usually are interested in extracting information from text. Some common tasks in NLP pipeline are:</p>
+<ul class="simple">
+<li><p>Part of speech tagging</p>
+<ul>
+<li><p>Assigning part-of-speech tags to all words in a sentence.</p></li>
+</ul>
+</li>
+<li><p>Named entity recognition</p>
+<ul>
+<li><p>Labelling named “real-world” objects, like persons, companies or locations.</p></li>
+</ul>
+</li>
+<li><p>Coreference resolution</p>
+<ul>
+<li><p>Deciding whether two strings (e.g., UBC vs University of British Columbia) refer to the same entity</p></li>
+</ul>
+</li>
+<li><p>Dependency parsing</p>
+<ul>
+<li><p>Representing grammatical structure of a sentence</p></li>
+</ul>
+</li>
+</ul>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">displacy</span>
+<span class="kn">import</span> <span class="nn">spacy</span>
+
+<span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">)</span>
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="s2">&quot;UBC is a great university in British Columbia.&quot;</span><span class="p">)</span>
+
+<span class="n">displacy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;ent&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">OSError</span><span class="g g-Whitespace">                                   </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">27</span><span class="p">],</span> <span class="n">line</span> <span class="mi">4</span>
+<span class="g g-Whitespace">      </span><span class="mi">1</span> <span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">displacy</span>
+<span class="g g-Whitespace">      </span><span class="mi">2</span> <span class="kn">import</span> <span class="nn">spacy</span>
+<span class="ne">----&gt; </span><span class="mi">4</span> <span class="n">nlp</span> <span class="o">=</span> <span class="n">spacy</span><span class="o">.</span><span class="n">load</span><span class="p">(</span><span class="s2">&quot;en_core_web_sm&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="s2">&quot;UBC is a great university in British Columbia.&quot;</span><span class="p">)</span>
+<span class="g g-Whitespace">      </span><span class="mi">7</span> <span class="n">displacy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;ent&quot;</span><span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/jbook/lib/python3.12/site-packages/spacy/__init__.py:51,</span> in <span class="ni">load</span><span class="nt">(name, vocab, disable, enable, exclude, config)</span>
+<span class="g g-Whitespace">     </span><span class="mi">27</span> <span class="k">def</span> <span class="nf">load</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">28</span>     <span class="n">name</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Path</span><span class="p">],</span>
+<span class="g g-Whitespace">     </span><span class="mi">29</span>     <span class="o">*</span><span class="p">,</span>
+   <span class="p">(</span><span class="o">...</span><span class="p">)</span>
+<span class="g g-Whitespace">     </span><span class="mi">34</span>     <span class="n">config</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">],</span> <span class="n">Config</span><span class="p">]</span> <span class="o">=</span> <span class="n">util</span><span class="o">.</span><span class="n">SimpleFrozenDict</span><span class="p">(),</span>
+<span class="g g-Whitespace">     </span><span class="mi">35</span> <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Language</span><span class="p">:</span>
+<span class="g g-Whitespace">     </span><span class="mi">36</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;Load a spaCy model from an installed package or a local path.</span>
+<span class="g g-Whitespace">     </span><span class="mi">37</span><span class="sd"> </span>
+<span class="g g-Whitespace">     </span><span class="mi">38</span><span class="sd">     name (str): Package name or model path.</span>
+<span class="sd">   (...)</span>
+<span class="g g-Whitespace">     </span><span class="mi">49</span><span class="sd">     RETURNS (Language): The loaded nlp object.</span>
+<span class="g g-Whitespace">     </span><span class="mi">50</span><span class="sd">     &quot;&quot;&quot;</span>
+<span class="ne">---&gt; </span><span class="mi">51</span>     <span class="k">return</span> <span class="n">util</span><span class="o">.</span><span class="n">load_model</span><span class="p">(</span>
+<span class="g g-Whitespace">     </span><span class="mi">52</span>         <span class="n">name</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">53</span>         <span class="n">vocab</span><span class="o">=</span><span class="n">vocab</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">54</span>         <span class="n">disable</span><span class="o">=</span><span class="n">disable</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">55</span>         <span class="n">enable</span><span class="o">=</span><span class="n">enable</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">56</span>         <span class="n">exclude</span><span class="o">=</span><span class="n">exclude</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">57</span>         <span class="n">config</span><span class="o">=</span><span class="n">config</span><span class="p">,</span>
+<span class="g g-Whitespace">     </span><span class="mi">58</span>     <span class="p">)</span>
+
+<span class="nn">File ~/miniforge3/envs/jbook/lib/python3.12/site-packages/spacy/util.py:472,</span> in <span class="ni">load_model</span><span class="nt">(name, vocab, disable, enable, exclude, config)</span>
+<span class="g g-Whitespace">    </span><span class="mi">470</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">OLD_MODEL_SHORTCUTS</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">471</span>     <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">Errors</span><span class="o">.</span><span class="n">E941</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">,</span> <span class="n">full</span><span class="o">=</span><span class="n">OLD_MODEL_SHORTCUTS</span><span class="p">[</span><span class="n">name</span><span class="p">]))</span>  <span class="c1"># type: ignore[index]</span>
+<span class="ne">--&gt; </span><span class="mi">472</span> <span class="k">raise</span> <span class="ne">IOError</span><span class="p">(</span><span class="n">Errors</span><span class="o">.</span><span class="n">E050</span><span class="o">.</span><span class="n">format</span><span class="p">(</span><span class="n">name</span><span class="o">=</span><span class="n">name</span><span class="p">))</span>
+
+<span class="ne">OSError</span>: [E050] Can&#39;t find model &#39;en_core_web_sm&#39;. It doesn&#39;t seem to be a Python package or a valid path to a data directory.
+</pre></div>
+</div>
+</div>
+</div>
+<section id="extracting-named-entities-using-spacy">
+<h4>4.5.1 Extracting named-entities using spaCy<a class="headerlink" href="#extracting-named-entities-using-spacy" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">displacy</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span>
+    <span class="s2">&quot;University of British Columbia &quot;</span>
+    <span class="s2">&quot;is located in the beautiful &quot;</span>
+    <span class="s2">&quot;province of British Columbia.&quot;</span>
+<span class="p">)</span>
+<span class="n">displacy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;ent&quot;</span><span class="p">)</span>
+<span class="c1"># Text and label of named entity span</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Named entities:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">,</span> <span class="p">[(</span><span class="n">ent</span><span class="o">.</span><span class="n">text</span><span class="p">,</span> <span class="n">ent</span><span class="o">.</span><span class="n">label_</span><span class="p">)</span> <span class="k">for</span> <span class="n">ent</span> <span class="ow">in</span> <span class="n">doc</span><span class="o">.</span><span class="n">ents</span><span class="p">])</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">ORG means: &quot;</span><span class="p">,</span> <span class="n">spacy</span><span class="o">.</span><span class="n">explain</span><span class="p">(</span><span class="s2">&quot;ORG&quot;</span><span class="p">))</span>
+<span class="nb">print</span><span class="p">(</span><span class="s2">&quot;GPE means: &quot;</span><span class="p">,</span> <span class="n">spacy</span><span class="o">.</span><span class="n">explain</span><span class="p">(</span><span class="s2">&quot;GPE&quot;</span><span class="p">))</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><span class="tex2jax_ignore"><div class="entities" style="line-height: 2.5; direction: ltr">
+<mark class="entity" style="background: #7aecec; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    University of British Columbia
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">ORG</span>
+</mark>
+ is located in the beautiful province of 
+<mark class="entity" style="background: #feca74; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    British Columbia
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">GPE</span>
+</mark>
+.</div></span></div><div class="output stream highlight-myst-ansi notranslate"><div class="highlight"><pre><span></span>Named entities:
+ [(&#39;University of British Columbia&#39;, &#39;ORG&#39;), (&#39;British Columbia&#39;, &#39;GPE&#39;)]
+
+ORG means:  Companies, agencies, institutions, etc.
+GPE means:  Countries, cities, states
+</pre></div>
+</div>
+</div>
+</div>
+</section>
+<section id="dependency-parsing-using-spacy">
+<h4>4.5.2 Dependency parsing using spaCy<a class="headerlink" href="#dependency-parsing-using-spacy" title="Link to this heading">#</a></h4>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span><span class="s2">&quot;I like my students !&quot;</span><span class="p">)</span>
+<span class="n">displacy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;dep&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><span class="tex2jax_ignore"><svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" xml:lang="en" id="a67e5c78e2364fa28336d9281b9a5d6f-0" class="displacy" width="750" height="312.0" direction="ltr" style="max-width: none; height: 312.0px; color: #000000; background: #ffffff; font-family: Arial; direction: ltr">
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="222.0">
+    <tspan class="displacy-word" fill="currentColor" x="50">I</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="50">PRON</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="222.0">
+    <tspan class="displacy-word" fill="currentColor" x="225">like</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="225">VERB</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="222.0">
+    <tspan class="displacy-word" fill="currentColor" x="400">my</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="400">PRON</tspan>
+</text>
+
+<text class="displacy-token" fill="currentColor" text-anchor="middle" y="222.0">
+    <tspan class="displacy-word" fill="currentColor" x="575">students !</tspan>
+    <tspan class="displacy-tag" dy="2em" fill="currentColor" x="575">NOUN</tspan>
+</text>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-a67e5c78e2364fa28336d9281b9a5d6f-0-0" stroke-width="2px" d="M70,177.0 C70,89.5 220.0,89.5 220.0,177.0" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-a67e5c78e2364fa28336d9281b9a5d6f-0-0" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">nsubj</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M70,179.0 L62,167.0 78,167.0" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-a67e5c78e2364fa28336d9281b9a5d6f-0-1" stroke-width="2px" d="M420,177.0 C420,89.5 570.0,89.5 570.0,177.0" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-a67e5c78e2364fa28336d9281b9a5d6f-0-1" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">poss</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M420,179.0 L412,167.0 428,167.0" fill="currentColor"/>
+</g>
+
+<g class="displacy-arrow">
+    <path class="displacy-arc" id="arrow-a67e5c78e2364fa28336d9281b9a5d6f-0-2" stroke-width="2px" d="M245,177.0 C245,2.0 575.0,2.0 575.0,177.0" fill="none" stroke="currentColor"/>
+    <text dy="1.25em" style="font-size: 0.8em; letter-spacing: 1px">
+        <textPath xlink:href="#arrow-a67e5c78e2364fa28336d9281b9a5d6f-0-2" class="displacy-label" startOffset="50%" side="left" fill="currentColor" text-anchor="middle">dobj</textPath>
+    </text>
+    <path class="displacy-arrowhead" d="M575.0,179.0 L583.0,167.0 567.0,167.0" fill="currentColor"/>
+</g>
+</svg></span></div></div>
+</div>
+<ul class="simple">
+<li><p>Spacy is a powerful tool</p></li>
+<li><p>All my Capstone groups last year used this tool.</p></li>
+<li><p>You can build your own rule-based searches.</p></li>
+<li><p>You can also access word vectors using spaCy with bigger models. (Currently we are using <code class="docutils literal notranslate"><span class="pre">en_core_web_sm</span></code> model.)</p></li>
+</ul>
+<p><br><br></p>
+</section>
+</section>
+</section>
+<section id="id1">
+<h2>❓❓ Questions for you<a class="headerlink" href="#id1" title="Link to this heading">#</a></h2>
+<section id="exercise-discuss-the-following-questions-with-your-neighbours">
+<h3>Exercise: Discuss the following questions with your neighbours<a class="headerlink" href="#exercise-discuss-the-following-questions-with-your-neighbours" title="Link to this heading">#</a></h3>
+<ol class="arabic simple">
+<li><p>Why your text might become unreadable after stemming?</p></li>
+<li><p>What’s the difference between sentence segmentation and word tokenization? Which step would you carry out first: sentence segmentation or word tokenization?</p></li>
+<li><p>Tokenize the following sentence and identify named entities in the sentence manually. Compare your annotations with what you get with spaCy.</p></li>
+</ol>
+<blockquote>
+<div><p>The MadeUpOrg founder John Fakename lists his Point Grey penthouse for $15 million.</p>
+</div></blockquote>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise: V’s Solutions!</p>
+<ol class="arabic simple">
+<li><p>Stemming carries out crude chopping of affixes and converts words to reduced forms called stems. Often these reduced forms are not actual words. For instance, in the example we saw, located was reduced to locat and beautiful was reduced to beauti. So after applying stemming the text might become unreadable.</p></li>
+<li><p>Sentence segmentation is about identifying sentence boundaries and splitting text into sentences whereas word tokenization is about identifying word boundaries and splitting sentences into words. The general practice is to carry out sentence segmentation before word tokenization.</p></li>
+<li><p>Manual NER: The [MadeUpOrg ORGANIZATION] founder [John Fakename PERSON] lists his [POINT Grey LOCATION] penthouse for [$15 million MONEY] .</p></li>
+</ol>
+</div>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">from</span> <span class="nn">spacy</span> <span class="kn">import</span> <span class="n">displacy</span>
+
+<span class="n">doc</span> <span class="o">=</span> <span class="n">nlp</span><span class="p">(</span>
+    <span class="s2">&quot;The MadeUpOrg founder John Fakename lists his Point Grey penthouse for $15 million.&quot;</span>
+<span class="p">)</span>
+<span class="n">displacy</span><span class="o">.</span><span class="n">render</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">style</span><span class="o">=</span><span class="s2">&quot;ent&quot;</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output text_html"><span class="tex2jax_ignore"><div class="entities" style="line-height: 2.5; direction: ltr">The MadeUpOrg founder 
+<mark class="entity" style="background: #aa9cfc; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    John Fakename
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">PERSON</span>
+</mark>
+ lists his 
+<mark class="entity" style="background: #aa9cfc; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    Point Grey
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">PERSON</span>
+</mark>
+ penthouse for 
+<mark class="entity" style="background: #e4e7d2; padding: 0.45em 0.6em; margin: 0 0.25em; line-height: 1; border-radius: 0.35em;">
+    $15 million
+    <span style="font-size: 0.8em; font-weight: bold; line-height: 1; border-radius: 0.35em; vertical-align: middle; margin-left: 0.5rem">MONEY</span>
+</mark>
+.</div></span></div></div>
+</div>
+<p>spaCy was not able to identify ORGANIZATION and LOCATION entities in the sentence.</p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="final-comments-summary-and-reflection">
+<h2>Final comments, summary, and reflection<a class="headerlink" href="#final-comments-summary-and-reflection" title="Link to this heading">#</a></h2>
+<section id="summary-language-models">
+<h3>Summary: Language models<a class="headerlink" href="#summary-language-models" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>A model that computes the probability of a sequence of words (or characters) or the probability of an upcoming word (or character) is called a <strong>language model</strong>.</p></li>
+<li><p>Language models are central to many NLP applications such as smart compose, spelling correction, machine translations, voice assistants.</p></li>
+<li><p>Markov models or <strong>n-gram models</strong> are language models with a long history.</p></li>
+</ul>
+</section>
+<section id="summary-markov-models">
+<h3>Summary: Markov models<a class="headerlink" href="#summary-markov-models" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Markov models are the class of probabilistic models which assume that we can predict the probability of being in a particular state in future without looking too far into the past.</p></li>
+<li><p>We looked at two applications of Markov models in language.</p>
+<ul>
+<li><p>N-gram language models</p></li>
+<li><p>PageRank</p></li>
+</ul>
+</li>
+<li><p>We can build character-based or word-based n-gram models.</p></li>
+<li><p>We build a bigram model of language by assuming unique words or characters as states.</p></li>
+<li><p>We can extend a bigram model by extending the definition of a state.</p></li>
+</ul>
+</section>
+<section id="summary-pagerank">
+<h3>Summary: PageRank<a class="headerlink" href="#summary-pagerank" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Another application of Markov chains in language is the PageRank algorithm.</p>
+<ul>
+<li><p>The intuition is that important webpages are linked from other important webpages.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="preprocessing">
+<h3>Preprocessing<a class="headerlink" href="#preprocessing" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Preprocessing is an important step when you deal with text data.</p></li>
+<li><p>Some common preprocessing steps include:</p>
+<ul>
+<li><p>Sentence segmentation</p></li>
+<li><p>Word tokenization</p></li>
+<li><p>Lemmatization</p></li>
+<li><p>Stemming</p></li>
+</ul>
+</li>
+<li><p>Some common tasks in NLP pipeline are:</p>
+<ul>
+<li><p>POS tagging</p></li>
+<li><p>Named-entity recognition</p></li>
+<li><p>Coreference resolution</p></li>
+<li><p>Dependency parsing</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+</section>
+<section id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p><a class="reference external" href="https://www.nytimes.com/2020/07/29/opinion/gpt-3-ai-automation.html">GPT-3 AI Automation</a></p></li>
+<li><p><a class="reference external" href="http://datacamp-community-prod.s3.amazonaws.com/29aa28bf-570a-4965-8f54-d6a541ae4e06">spaCy’s Python for data science cheat sheet</a></p></li>
+<li><p><a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/2.pdf">Regular Expressions, Text Normalization, Edit Distance</a></p></li>
+<li><p><a class="reference external" href="https://web.stanford.edu/class/cs124/lec/124-2020-UnixForPoets.pdf">Try preprocessing using unix shell</a></p></li>
+<li><p><a class="reference external" href="https://github.com/flairNLP/flair">Flair</a> is another library with state-of-the-art NLP tools.</p></li>
+</ul>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures/notes"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="01_Markov-models.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lecture 1: Markov Models</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="03_HMMs-intro.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lecture 3: Introduction to Hidden Markov Models (HMMs)</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes <a name="lo"></a></a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap">Recap</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#more-markov-models">1. More Markov models</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-markov-models">1.1 Learning Markov models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#n-gram-language-model">1.2 n-gram language model</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#incorporating-more-context">1.3 Incorporating more context</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#are-n-grams-a-good-model-of-language">1.5 Are n-grams a good model of language?</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-and-evaluation">2. Sampling and evaluation</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#sampling-techniques">2.1 Sampling techniques</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#evaluating-language-models">2.2 Evaluating language models</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-select-all-of-the-following-statements-which-are-true-iclicker">Exercise: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-select-all-of-the-following-statements-which-are-true">Exercise: Select all of the following statements which are <strong>True</strong></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break">Break</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#optional-markov-s-own-application-of-his-chains">(Optional) Markov’s own application of his chains</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#pagerank">3. PageRank</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#basic-text-preprocessing-video">4. Basic text preprocessing [video]</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#tokenization">4.1 Tokenization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#word-segmentation">4.2 Word segmentation</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-for-you">Exercise for you</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-commonly-used-preprocessing-steps">4.3 Other commonly used preprocessing steps</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-tools-for-preprocessing">4.4 Other tools for preprocessing</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#other-typical-nlp-tasks">4.5 Other typical NLP tasks</a><ul class="nav section-nav flex-column">
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#extracting-named-entities-using-spacy">4.5.1 Extracting named-entities using spaCy</a></li>
+<li class="toc-h4 nav-item toc-entry"><a class="reference internal nav-link" href="#dependency-parsing-using-spacy">4.5.2 Dependency parsing using spaCy</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">❓❓ Questions for you</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-discuss-the-following-questions-with-your-neighbours">Exercise: Discuss the following questions with your neighbours</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-summary-and-reflection">Final comments, summary, and reflection</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-language-models">Summary: Language models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-markov-models">Summary: Markov models</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#summary-pagerank">Summary: PageRank</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#preprocessing">Preprocessing</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

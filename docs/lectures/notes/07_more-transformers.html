@@ -1,0 +1,985 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Lecture 7: More transformers &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/notes/07_more-transformers';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Lecture 8: Applications of Large Language Models" href="08_llms-applications.html" />
+    <link rel="prev" title="Lecture 6: Introduction to self-attention and transformers" href="06_intro-to-transformers.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/mds-hex-sticker.png" class="logo__image only-light" alt="DSCI 575 Advanced Machine Learning - Home"/>
+    <script>document.write(`<img src="../../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="DSCI 575 Advanced Machine Learning - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_More-HMMs.html">Lecture 4: More HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_intro-to-RNNs.html">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-transformers.html">Lecture 6: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Lecture 7: More transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_llms-applications.html">Lecture 8: Applications of Large Language Models</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../demos/transformers-recipe-generation.html">Recipe Generation using Transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="AppendixA-BaumWelch.html">Baum-Welch (BW) algorithm</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/lectures/notes/07_more-transformers.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Lecture 7: More transformers</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-lo">Imports, LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributions">Attributions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-and-introduction">Recap and introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.2: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-3-discuss-the-following-questions-with-your-neighbour">Exercise 7.3: Discuss the following questions with your neighbour</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decoder-only-architecture">1. Decoder-only architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break">Break</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoder-only-architecture">2. Encoder-only architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoder-decoder-architecture-high-level">3. Encoder-decoder architecture (high-level)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-and-summary">Final comments and summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <p><img alt="" src="../../_images/575_banner.png" /></p>
+<section class="tex2jax_ignore mathjax_ignore" id="lecture-7-more-transformers">
+<h1>Lecture 7: More transformers<a class="headerlink" href="#lecture-7-more-transformers" title="Link to this heading">#</a></h1>
+<p>UBC Master of Data Science program, 2024-25</p>
+<blockquote>
+<div><p><a class="reference external" href="https://arxiv.org/pdf/1706.03762.pdf">Attention is all you need!</a></p>
+</div></blockquote>
+<section id="imports-lo">
+<h2>Imports, LO<a class="headerlink" href="#imports-lo" title="Link to this heading">#</a></h2>
+<section id="imports">
+<h3>Imports<a class="headerlink" href="#imports" title="Link to this heading">#</a></h3>
+<div class="cell docutils container">
+<div class="cell_input docutils container">
+<div class="highlight-ipython3 notranslate"><div class="highlight"><pre><span></span><span class="kn">import</span> <span class="nn">sys</span>
+<span class="kn">from</span> <span class="nn">collections</span> <span class="kn">import</span> <span class="n">defaultdict</span>
+
+<span class="kn">import</span> <span class="nn">matplotlib.pyplot</span> <span class="k">as</span> <span class="nn">plt</span>
+<span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="kn">import</span> <span class="nn">torch</span>
+<span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+
+<span class="n">pd</span><span class="o">.</span><span class="n">set_option</span><span class="p">(</span><span class="s2">&quot;display.max_colwidth&quot;</span><span class="p">,</span> <span class="mi">0</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+<div class="cell_output docutils container">
+<div class="output traceback highlight-ipythontb notranslate"><div class="highlight"><pre><span></span><span class="gt">---------------------------------------------------------------------------</span>
+<span class="ne">ImportError</span><span class="g g-Whitespace">                               </span>Traceback (most recent call last)
+<span class="n">Cell</span> <span class="n">In</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span> <span class="n">line</span> <span class="mi">7</span>
+<span class="g g-Whitespace">      </span><span class="mi">5</span> <span class="kn">import</span> <span class="nn">numpy</span> <span class="k">as</span> <span class="nn">np</span>
+<span class="g g-Whitespace">      </span><span class="mi">6</span> <span class="kn">import</span> <span class="nn">pandas</span> <span class="k">as</span> <span class="nn">pd</span>
+<span class="ne">----&gt; </span><span class="mi">7</span> <span class="kn">import</span> <span class="nn">torch</span>
+<span class="g g-Whitespace">      </span><span class="mi">8</span> <span class="kn">import</span> <span class="nn">torch.nn</span> <span class="k">as</span> <span class="nn">nn</span>
+<span class="g g-Whitespace">      </span><span class="mi">9</span> <span class="kn">import</span> <span class="nn">torch.optim</span> <span class="k">as</span> <span class="nn">optim</span>
+
+<span class="n">File</span> <span class="o">~/</span><span class="n">miniforge3</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">jbook</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">python3</span><span class="mf">.12</span><span class="o">/</span><span class="n">site</span><span class="o">-</span><span class="n">packages</span><span class="o">/</span><span class="n">torch</span><span class="o">/</span><span class="fm">__init__</span><span class="o">.</span><span class="n">py</span><span class="p">:</span><span class="mi">367</span>
+<span class="g g-Whitespace">    </span><span class="mi">365</span>     <span class="k">if</span> <span class="n">USE_GLOBAL_DEPS</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">366</span>         <span class="n">_load_global_deps</span><span class="p">()</span>
+<span class="ne">--&gt; </span><span class="mi">367</span>     <span class="kn">from</span> <span class="nn">torch._C</span> <span class="kn">import</span> <span class="o">*</span>  <span class="c1"># noqa: F403</span>
+<span class="g g-Whitespace">    </span><span class="mi">370</span> <span class="k">class</span> <span class="nc">SymInt</span><span class="p">:</span>
+<span class="g g-Whitespace">    </span><span class="mi">371</span><span class="w">     </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="g g-Whitespace">    </span><span class="mi">372</span><span class="sd">     Like an int (including magic methods), but redirects all operations on the</span>
+<span class="g g-Whitespace">    </span><span class="mi">373</span><span class="sd">     wrapped node. This is used in particular to symbolically record operations</span>
+<span class="g g-Whitespace">    </span><span class="mi">374</span><span class="sd">     in the symbolic shape workflow.</span>
+<span class="g g-Whitespace">    </span><span class="mi">375</span><span class="sd">     &quot;&quot;&quot;</span>
+
+<span class="ne">ImportError</span>: dlopen(/Users/kvarada/miniforge3/envs/jbook/lib/python3.12/site-packages/torch/_C.cpython-312-darwin.so, 0x0002): Library not loaded: @rpath/libgfortran.5.dylib
+  <span class="n">Referenced</span> <span class="n">from</span><span class="p">:</span> <span class="o">&lt;</span><span class="mi">0</span><span class="n">B9C315B</span><span class="o">-</span><span class="n">A1DD</span><span class="o">-</span><span class="mi">3527</span><span class="o">-</span><span class="mi">88</span><span class="n">DB</span><span class="o">-</span><span class="mi">4</span><span class="n">B90531D343F</span><span class="o">&gt;</span> <span class="o">/</span><span class="n">Users</span><span class="o">/</span><span class="n">kvarada</span><span class="o">/</span><span class="n">miniforge3</span><span class="o">/</span><span class="n">envs</span><span class="o">/</span><span class="n">jbook</span><span class="o">/</span><span class="n">lib</span><span class="o">/</span><span class="n">libopenblas</span><span class="mf">.0</span><span class="o">.</span><span class="n">dylib</span>
+  <span class="n">Reason</span><span class="p">:</span> <span class="n">tried</span><span class="p">:</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/python3.12/site-packages/torch/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">no</span> <span class="n">such</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/python3.12/site-packages/torch/../../../libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/python3.12/site-packages/torch/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">no</span> <span class="n">such</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/lib/python3.12/site-packages/torch/../../../libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/bin/../lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/Users/kvarada/miniforge3/envs/jbook/bin/../lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">duplicate</span> <span class="n">LC_RPATH</span> <span class="s1">&#39;@loader_path&#39;</span><span class="p">),</span> <span class="s1">&#39;/usr/local/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">no</span> <span class="n">such</span> <span class="n">file</span><span class="p">),</span> <span class="s1">&#39;/usr/lib/libgfortran.5.dylib&#39;</span> <span class="p">(</span><span class="n">no</span> <span class="n">such</span> <span class="n">file</span><span class="p">,</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">dyld</span> <span class="n">cache</span><span class="p">)</span>
+</pre></div>
+</div>
+</div>
+</div>
+<p><br><br></p>
+</section>
+<section id="learning-outcomes">
+<h3>Learning outcomes<a class="headerlink" href="#learning-outcomes" title="Link to this heading">#</a></h3>
+<p>From this lecture you will be able to</p>
+<ul class="simple">
+<li><p>Broadly explain how transformers are used in a language model.</p></li>
+<li><p>Broadly explain how transformers are used for autoregressive text generation.</p></li>
+<li><p>Broadly explain how bi-directional attention works.</p></li>
+<li><p>Broadly explain masking and masked language models.</p></li>
+<li><p>Explain the difference between causal language model and bi-directional language model.</p></li>
+<li><p>Use PyTorch’s <a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.TransformerDecoderLayer.html"><code class="docutils literal notranslate"><span class="pre">TransformerDecoderLayer</span></code></a> layer.</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="attributions">
+<h3>Attributions<a class="headerlink" href="#attributions" title="Link to this heading">#</a></h3>
+<p>This material is heavily based on <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/10.pdf">Jurafsky and Martin, Chapter 10</a> and <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/11.pdf">Chapter 11</a>.</p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="recap-and-introduction">
+<h2>Recap and introduction<a class="headerlink" href="#recap-and-introduction" title="Link to this heading">#</a></h2>
+<section id="questions-for-you">
+<h3>❓❓ Questions for you<a class="headerlink" href="#questions-for-you" title="Link to this heading">#</a></h3>
+</section>
+<section id="exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 7.1: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) Unlike RNNs, self-attention allows the model to process all tokens in the sequence simultaneously without recurrent connections.</p></li>
+<li><p>(B) Self-attention enables each input token to influence the representation of every other token in the sequence through learned attention weights.</p></li>
+<li><p>(C) Self-attention computes a weighted sum of value representation based on the similarity between query and key representations of tokens.</p></li>
+<li><p>(D) The computational complexity of self-attention is quadratic in the sequence length, due to pairwise attention score calculations.</p></li>
+<li><p>(E) The output of a self-attention layer is always a scalar per token.
+<br><br><br><br></p></li>
+</ul>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 7.1: V’s Solutions!</p>
+<ul class="simple">
+<li><p>A, B, C, D</p></li>
+</ul>
+</div>
+</section>
+<section id="exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker">
+<h3>Exercise 7.2: Select all of the following statements which are <strong>True</strong> (iClicker)<a class="headerlink" href="#exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>(A) Self-attention can model long-range dependencies better than RNNs because it does not rely on sequential information flow.</p></li>
+<li><p>(B) Transformers use positional embeddings because self-attention alone does not encode the order of tokens.</p></li>
+<li><p>(C) Multihead self-attention allows the model to attend to different types of information from different subspaces.</p></li>
+<li><p>(D) Self-attention enables Transformers to model relationships between different parts of the input by computing weighted combinations of all tokens, where weights are based on learned similarity scores.</p></li>
+</ul>
+<p><br><br><br><br></p>
+<div class="tip dropdown admonition">
+<p class="admonition-title">Exercise 7.2: V’s Solutions!</p>
+<ul class="simple">
+<li><p>A, B, C, D</p></li>
+</ul>
+</div>
+</section>
+<section id="exercise-7-3-discuss-the-following-questions-with-your-neighbour">
+<h3>Exercise 7.3: Discuss the following questions with your neighbour<a class="headerlink" href="#exercise-7-3-discuss-the-following-questions-with-your-neighbour" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>How are the query (<span class="math notranslate nohighlight">\(Q\)</span>), key (<span class="math notranslate nohighlight">\(K\)</span>), and value (<span class="math notranslate nohighlight">\(V\)</span>) matrices used in self-attention?</p></li>
+<li><p>What are the typical components of a Transformer block?</p></li>
+<li><p>What architectural feature enables Transformers to process data in parallel?</p></li>
+</ul>
+<p><br><br></p>
+<p>Now you know some fundamentals of transformers. In this lesson we’ll focus on:</p>
+<ul class="simple">
+<li><p>Three types of language models</p></li>
+<li><p>Coding example of text generation and <code class="docutils literal notranslate"><span class="pre">TransformerDecoderLayer</span></code> using PyTorch</p></li>
+</ul>
+<p>In the last lecture, we looked at this architecture for language modeling. This is a decoder-only language model.</p>
+<p><br><br>
+<img alt="" src="../../_images/transformers-single-layer-LM.png" /></p>
+<!-- <img src="img/transformers-single-layer-LM.png" width="700" height="700"> --><p>Language models can be broadly categorized into three types:</p>
+<ul class="simple">
+<li><p><strong>Decoder-only models (e.g., GPT-3)</strong>: These models focus on generating text based on prior input. They are typically used for tasks like text generation.</p></li>
+<li><p><strong>Encoder-only models (e.g., BERT, RoBERTa)</strong>: These models are designed to analyze and understand input text, making them suitable for tasks such as sentiment analysis and question answering.</p></li>
+<li><p><strong>Encoder-decoder models (e.g., T5, BART)</strong>: These models combine the functionalities of both encoder and decoder architectures to handle tasks that involve transforming an input into an output, such as translation or summarization.</p></li>
+</ul>
+<p>Let’s try to understand the distinctions between these architectures. Later, we will look at a code example of the decoder-only architecture.</p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="decoder-only-architecture">
+<h2>1. Decoder-only architecture<a class="headerlink" href="#decoder-only-architecture" title="Link to this heading">#</a></h2>
+<p><strong>Training a language model with transformers</strong></p>
+<p>To train a language model, we begin by segmenting a large corpus of text into fixed-length <strong>input/output sequence pairs</strong>. For example:</p>
+<blockquote>
+<div><p><strong>Input</strong>: So long and thanks for<br />
+<strong>Target (Gold output)</strong>: long and thanks for all</p>
+</div></blockquote>
+<ul class="simple">
+<li><p>Here, the goal is for the model to predict the next word at each position in the target sequence based on the corresponding context in the input.</p></li>
+<li><p>At each time step, the final layer of the Transformer takes into account <strong>all preceding tokens</strong> in the input sequence and predicts a <strong>probability distribution</strong> over the entire vocabulary for the next token.</p></li>
+<li><p>During training, we use <strong>cross-entropy loss</strong> to compare the model’s predicted distribution with the actual next word in the sequence. The objective is to <strong>maximize the likelihood</strong> of the correct next token at each position.</p></li>
+<li><p>The total loss for a training sequence is computed as the <strong>mean of the cross-entropy losses</strong> across all positions in that sequence.</p></li>
+</ul>
+<p><img alt="Training a language model" src="../../_images/lm-training.png" /></p>
+<p><strong>Causal Masking in decoder-only models</strong></p>
+<ul class="simple">
+<li><p>In decoder-only language models, we must ensure that the model does not attend to future tokens when computing self-attention. This is essential for preserving the causal structure of text generation, where each token is predicted based only on the preceding tokens.</p></li>
+<li><p>To enforce this, we apply a <strong>causal mask</strong> during the attention computation. The mask sets the upper triangle of the attention score matrix (which corresponds to future tokens) to a very large negative value, typically <span class="math notranslate nohighlight">\(-\infty\)</span>.</p></li>
+<li><p>When the attention scores are passed through the softmax function, these large negative values become effectively zero. As a result, the model ignores future tokens when predicting the current one.</p></li>
+<li><p>This mechanism maintains the left-to-right (causal) nature of the model, ensuring that predictions are based only on past context.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../../_images/self_attention_calc_partial.png"><img alt="../../_images/self_attention_calc_partial.png" src="../../_images/self_attention_calc_partial.png" style="width: 500px; height: 500px;" /></a>
+<p><strong>Autoregressive text generation</strong></p>
+<ul class="simple">
+<li><p>Once we have a trained model, we can generate new text <strong>autoregressively</strong>, similar to how RNN-based models work.</p></li>
+<li><p>In autoregressive generation (also known as <strong>causal language model generation</strong>), text is generated one token at a time by repeatedly sampling the next token conditioned on all previously generated tokens.</p></li>
+<li><p>The sampling process in neural text generation resembles that of <strong>Markov models</strong> in its sequential nature. However, Transformer-based models capture <strong>long-range dependencies</strong> and <strong>richer contextual information</strong> beyond immediate history.</p></li>
+<li><p>Models in the <strong>GPT family</strong> are examples of autoregressive language models, primarily designed for generating coherent and contextually appropriate text.</p></li>
+</ul>
+<p><img alt="Autoregressive generation" src="../../_images/transformer_autoregressive_text_generation.png" /></p>
+<p><br><br></p>
+<p><strong><a class="reference internal" href="#../demo/transformers-recipe-generation.ipynb"><span class="xref myst">Recipe generation demo</span></a></strong></p>
+<ul class="simple">
+<li><p>In this demo, we will implement transformer-based text generation using <strong>PyTorch</strong>.</p></li>
+<li><p>We’ll walk through the key components needed to build a simple autoregressive text generator and apply it to generate <strong>recipe-style text</strong>.</p></li>
+<li><p>This example will help you understand how the underlying architecture translates into working code and how generation unfolds step by step.</p></li>
+</ul>
+<section id="break">
+<h3>Break<a class="headerlink" href="#break" title="Link to this heading">#</a></h3>
+<p><img alt="" src="../../_images/eva-coffee.png" /></p>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="encoder-only-architecture">
+<h2>2. Encoder-only architecture<a class="headerlink" href="#encoder-only-architecture" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>Models such as <a class="reference external" href="https://en.wikipedia.org/wiki/BERT_(language_model)"><strong>BERT</strong></a> and its variant <strong>RoBERTa</strong> are examples of <strong>bidirectional Transformer models</strong> with an <strong>encoder-only architecture</strong>.</p></li>
+<li><p>These models are primarily designed for a variety of <strong>natural language understanding tasks</strong>, such as text classification, sentence similarity, and question answering.</p></li>
+<li><p>Remember the <a class="reference external" href="https://www.sbert.net/"><strong>sentence transformers</strong></a> you used in DSCI 563 Lab 1 to compute sentence embeddings? Those embeddings are based on <strong>BERT</strong>, fine-tuned for semantic similarity tasks.</p></li>
+</ul>
+<p><strong>Bidirectional self-attention</strong></p>
+<ul class="simple">
+<li><p>So far, we’ve looked at <strong>backward-looking self-attention</strong>, also known as a <strong>causal</strong> or <strong>left-to-right Transformer model</strong>.</p></li>
+<li><p>In causal attention, each output is computed using <strong>only the tokens that come before</strong> the current position in the sequence.</p></li>
+<li><p>This setup is ideal for <strong>autoregressive text generation</strong>, where predicting the next token depends solely on prior context.</p></li>
+<li><p>However, in tasks like <strong>sequence classification</strong> or <strong>sequence labeling</strong>, causal models have a major limitation: they <strong>cannot access future tokens</strong>, which may contain important context.</p></li>
+<li><p>The hidden state at each position is computed using only the <strong>current and preceding tokens</strong>, and it <strong>ignores useful information</strong> from the right side of the sequence.</p></li>
+<li><p><strong>Bidirectional self-attention</strong> overcomes the limitations of causal attention by allowing each token to attend to <strong>all tokens in the input sequence</strong>, regardless of their position.</p></li>
+</ul>
+<p><img alt="Causal vs. Bidirectional Attention" src="../../_images/causal-bi-directional-self-attention.png" /></p>
+<ul class="simple">
+<li><p>As in causal attention, the model maps sequences of input embeddings <span class="math notranslate nohighlight">\((x_1, \dots, x_n)\)</span> to sequences of output embeddings <span class="math notranslate nohighlight">\((y_1, \dots, y_n)\)</span> of the same length.</p></li>
+<li><p>This bidirectional flow of information makes it particularly well-suited for <strong>sequence classification</strong>, <strong>named entity recognition</strong>, and other <strong>language understanding tasks</strong>.</p></li>
+</ul>
+<ul class="simple">
+<li><p>With <strong>bidirectional encoders</strong>, we obtain <strong>contextual representations</strong> of each token by incorporating information from both the left and right context. These representations are generally useful for a wide range of <strong>downstream NLP tasks</strong>.</p></li>
+<li><p>The core computations in the self-attention mechanism remain the same as in causal models.</p></li>
+<li><p>However, in bidirectional attention, we no longer mask out the future tokens. The attention score matrix includes <strong>all pairwise dot products</strong> <span class="math notranslate nohighlight">\(q_i \cdot k_j\)</span> without setting the upper triangle to <span class="math notranslate nohighlight">\(-\infty\)</span>.</p></li>
+</ul>
+<a class="reference internal image-reference" href="../../_images/self_attention_calc_all.png"><img alt="../../_images/self_attention_calc_all.png" src="../../_images/self_attention_calc_all.png" style="width: 400px; height: 400px;" /></a>
+<ul class="simple">
+<li><p>But this raises a challenge: <strong>How do we train a bidirectional encoder?</strong></p></li>
+<li><p>In causal models, training is straightforward. We simply predict the next word based on past context.</p></li>
+<li><p>Can we apply the same strategy here?</p>
+<ul>
+<li><p><strong>No</strong>, because in a bidirectional model, the representation of a token already includes information from both sides.</p></li>
+<li><p>Predicting the next token would be <strong>cheating</strong>, since the model has access to the token it’s supposed to predict.</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<p><strong>“Fill-in-the-blank” task</strong></p>
+<ul class="simple">
+<li><p>To train <strong>bidirectional encoder models</strong>, we use a <strong>fill-in-the-blank</strong> task, also known as the <strong>cloze task</strong>, instead of predicting the next word.</p></li>
+<li><p>In this setup, the model is given an input sequence with one or more tokens masked (hidden), and it must <strong>predict the missing tokens</strong>.</p></li>
+</ul>
+<blockquote>
+<div><p><strong>I am studying science at UBC because I want to ___ as a data scientist.</strong><br />
+<strong>The ___ in the exam where the fire alarm is ___ are really stressed.</strong></p>
+</div></blockquote>
+<ul class="simple">
+<li><p>During training, one or more tokens in the input sequence are <strong>masked out</strong>, and the model learns to predict a <strong>probability distribution</strong> over the vocabulary for each masked position.</p></li>
+<li><p>The model uses <strong>cross-entropy loss</strong> at each masked position to guide the learning process.</p></li>
+</ul>
+<p><strong>Masking</strong></p>
+<p>There are several ways to deprive the model of one or more tokens in the input sequence during training:</p>
+<ul class="simple">
+<li><p><strong>Masking</strong>: Replace a token with a special <code class="docutils literal notranslate"><span class="pre">[MASK]</span></code> token and train the model to recover the original token.</p></li>
+<li><p><strong>Random corruption</strong>: Replace a token with a <strong>random token</strong> from the vocabulary and train the model to recover the correct one.</p></li>
+<li><p>This approach is known as <strong>masked language modeling</strong>, and it was used in the training of <strong>BERT</strong>.</p></li>
+<li><p>In BERT, <strong>15% of the input tokens</strong> in each training sequence are selected for masking:</p>
+<ul>
+<li><p><strong>80%</strong> of the selected tokens are replaced with <code class="docutils literal notranslate"><span class="pre">[MASK]</span></code></p></li>
+<li><p><strong>10%</strong> are replaced with a randomly selected token</p></li>
+<li><p><strong>10%</strong> are <strong>left unchanged</strong></p></li>
+</ul>
+</li>
+</ul>
+<p>This strategy helps the model learn to make predictions in varied and realistic contexts.</p>
+<p><img alt="" src="../../_images/BERT-MLM.png" /></p>
+<!-- <img src="img/BERT-MLM.png" width="600" height="600"> --><p><strong>Contextual embeddings</strong></p>
+<p>The representations created by Transformer models are called <strong>contextual embeddings</strong>.</p>
+<ul class="simple">
+<li><p>Earlier methods like <strong>word2vec</strong> learned a <strong>single static vector</strong> for each word <span class="math notranslate nohighlight">\(w\)</span> in the vocabulary, regardless of its context.</p></li>
+<li><p>In contrast, <strong>Transformer-based models</strong>, whether causal (like GPT) or masked (like BERT), generate <strong>contextual representations</strong>, each word is represented by a <strong>different vector</strong> depending on its surrounding context.</p></li>
+<li><p>The key difference:</p>
+<ul>
+<li><p><strong>Causal models</strong> (e.g., GPT) use <strong>left-side context</strong> to build the representation.</p></li>
+<li><p><strong>Masked language models</strong> (e.g., BERT) use <strong>both left and right context</strong>, thanks to bidirectional attention.</p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="Contextual representations" src="../../_images/contextual-representation.png" /></p>
+<p><strong>BERT model parameters</strong></p>
+<p>The original <strong>BERT</strong> model (Bidirectional Encoder Representations from Transformers) was a <strong>bidirectional transformer encoder</strong> with the following specifications:</p>
+<ul class="simple">
+<li><p><strong>Training data</strong>:</p>
+<ul>
+<li><p><strong>800 million words</strong> from a book corpus called <strong>BooksCorpus</strong></p></li>
+<li><p><strong>2.5 billion words</strong> from the <strong>English Wikipedia</strong></p></li>
+<li><p>Total corpus size: <strong>3.3 billion words</strong></p></li>
+</ul>
+</li>
+<li><p><strong>Hidden size</strong>: 768</p>
+<ul>
+<li><p>(Recall from DSCI 563 Lab 1: the sentence embeddings you used were also <strong>768-dimensional</strong>, as they came from a BERT-based model.)</p></li>
+</ul>
+</li>
+<li><p><strong>Transformer architecture</strong>:</p>
+<ul>
+<li><p><strong>12 Transformer layers</strong> (also called encoder blocks)</p></li>
+<li><p>Each layer includes <strong>12 attention heads</strong> (multi-head attention)</p></li>
+</ul>
+</li>
+<li><p>The total model size is over <strong>100 million parameters</strong></p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="encoder-decoder-architecture-high-level">
+<h2>3. Encoder-decoder architecture (high-level)<a class="headerlink" href="#encoder-decoder-architecture-high-level" title="Link to this heading">#</a></h2>
+<ul class="simple">
+<li><p>There are tasks such as machine translation or text summarization, where a combination of encoder and decoder architecture is beneficial.</p></li>
+<li><p>For instance, when translating from English to Spanish, it would be useful to get contextual representations of the English sentence and then autoregressively generate the Spanish sentence.</p></li>
+</ul>
+<p><img alt="" src="../../_images/encoder-decoder-architecture.png" /></p>
+<ul class="simple">
+<li><p>In the encoder-decoder transformer architecture, the encoder uses the
+transformer blocks we saw in the previous lecture.</p></li>
+<li><p>The decoder uses a more powerful block with an extra cross-attention layer that can attend to all the encoder words.</p></li>
+</ul>
+<p><img alt="" src="../../_images/encoder-decoder.png" /></p>
+<p><br><br></p>
+<p><strong>Interim summary</strong></p>
+<p>The table below summarizes the key differences between the three main types of Transformer-based language models.</p>
+<div class="pst-scrollable-table-container"><table class="table">
+<thead>
+<tr class="row-odd"><th class="head"><p>Feature</p></th>
+<th class="head"><p>Decoder-Only (e.g., GPT-3)</p></th>
+<th class="head"><p>Encoder-Only (e.g., BERT, RoBERTa)</p></th>
+<th class="head"><p>Encoder-Decoder (e.g., T5, BART)</p></th>
+</tr>
+</thead>
+<tbody>
+<tr class="row-even"><td><p><strong>Contextual Embedding Direction</strong></p></td>
+<td><p>Unidirectional (left-to-right)</p></td>
+<td><p>Bidirectional</p></td>
+<td><p>Bidirectional (encoder) + unidirectional (decoder)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Output Computation Based On</strong></p></td>
+<td><p>Only previous (left) context</p></td>
+<td><p>Full context (both left and right)</p></td>
+<td><p>Encoded representation of the full input</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Text Generation Capability</strong></p></td>
+<td><p>Naturally suited for text generation</p></td>
+<td><p>Not designed for direct text generation</p></td>
+<td><p>Can generate text (e.g., translation, summarization)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Example</strong></p></td>
+<td><p><em>MDS Cohort 9 is the ___</em></p></td>
+<td><p><em>MDS Cohort 9 is the best!</em> → positive sentiment</p></td>
+<td><p><em>Input</em>: Translate to Mandarin: MDS Cohort 9 is the best!<br><em>Output</em>: MDS 第九期是最棒的!</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Typical Use Cases</strong></p></td>
+<td><p>Autoregressive generation, language modeling</p></td>
+<td><p>Classification, sequence labeling, embedding extraction</p></td>
+<td><p>Text-to-text tasks (e.g., translation, summarization, rewriting)</p></td>
+</tr>
+<tr class="row-odd"><td><p><strong>Contextual Embeddings</strong></p></td>
+<td><p>Unidirectional contextual embeddings and token distributions</p></td>
+<td><p>Bidirectional contextual embeddings</p></td>
+<td><p>Encoder: bidirectional<br>Decoder: unidirectional</p></td>
+</tr>
+<tr class="row-even"><td><p><strong>Sequence Processing</strong></p></td>
+<td><p>Given a prompt <span class="math notranslate nohighlight">\(X_{1:i}\)</span>, predicts <span class="math notranslate nohighlight">\(X_{i+1}\)</span> to <span class="math notranslate nohighlight">\(X_L\)</span></p></td>
+<td><p>Embeddings used for analysis, not generation</p></td>
+<td><p>Encode input sequence, then decode output step-by-step</p></td>
+</tr>
+</tbody>
+</table>
+</div>
+<ul class="simple">
+<li><p>This is just a high-level introduction of common transformer architectures.</p></li>
+<li><p>There are many things related to transformers which we have not covered. Refer to the linked resources from lecture 7 if you want to learn more.</p></li>
+<li><p>In particular, go through these chapters from Jurafsky &amp; Martin book: <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/10.pdf">Chapter 10</a>, <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/11.pdf">Chapter 11</a>, <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/12.pdf">Chapter 12</a>, <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/14.pdf">Chapter 14</a></p></li>
+<li><p><a class="reference external" href="http://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a> is an excellent resource.</p></li>
+<li><p>Transformers are not only for NLP. They have been successfully applied in many other domains often with state-of-the-art results. For example,</p>
+<ul>
+<li><p><a class="reference external" href="https://arxiv.org/pdf/2010.11929.pdf">Vision Transformers</a></p></li>
+<li><p>Bioinformatics: See <a class="reference external" href="https://www.deepmind.com/blog/alphafold-a-solution-to-a-50-year-old-grand-challenge-in-biology">this</a> and <a class="reference external" href="http://people.csail.mit.edu/tommi/papers/Ingraham_etal_neurips19.pdf">this</a>.</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+<p><strong>Implementing transformer blocks with PyTorch</strong></p>
+<p>To implement Transformer models using PyTorch, the following classes are particularly useful:</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.TransformerEncoderLayer.html"><code class="docutils literal notranslate"><span class="pre">TransformerEncoderLayer</span></code></a>:</p>
+<ul>
+<li><p>Used for <strong>encoder-only architectures</strong>. Combines multi-head self-attention with a feedforward neural network, residual connections, and layer normalization.</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.TransformerDecoderLayer.html"><code class="docutils literal notranslate"><span class="pre">TransformerDecoderLayer</span></code></a>:<br />
+Used for both:</p>
+<ul>
+<li><p><strong>Decoder-only models</strong>, where it includes <strong>masked self-attention</strong> and feedforward layers.</p></li>
+<li><p><strong>Encoder-decoder models</strong>, where it includes <strong>masked self-attention</strong>, <strong>cross-attention</strong> (attending to encoder outputs), and a feedforward layer.</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.TransformerDecoder.html"><code class="docutils literal notranslate"><span class="pre">TransformerDecoder</span></code></a>:<br />
+Stacks multiple decoder layers to form a complete decoder module. In encoder-decoder architectures, it takes:</p>
+<ul>
+<li><p>A decoder input sequence</p></li>
+<li><p>A <code class="docutils literal notranslate"><span class="pre">memory</span></code> input (i.e., the encoder’s output)</p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="https://pytorch.org/docs/stable/generated/torch.nn.MultiheadAttention.html"><code class="docutils literal notranslate"><span class="pre">MultiheadAttention</span></code></a>:<br />
+A lower-level component that computes attention across different heads. It enables the model to attend to information from multiple representation subspaces at different positions.<br />
+Use this class if you’re building a Transformer from scratch or modifying attention behaviour manually.</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="final-comments-and-summary">
+<h2>Final comments and summary<a class="headerlink" href="#final-comments-and-summary" title="Link to this heading">#</a></h2>
+<p>The Transformer architecture is modular and adaptable across a wide range of NLP tasks, from classification to generation.</p>
+<ul class="simple">
+<li><p>We explored three types of language models built with Transformers:</p>
+<ul>
+<li><p><strong>Decoder-only</strong> (e.g., GPT): Good for text generation with unidirectional attention.</p></li>
+<li><p><strong>Encoder-only</strong> (e.g., BERT): Used for classification and embedding tasks with bidirectional attention.</p></li>
+<li><p><strong>Encoder-decoder</strong> (e.g., T5, BART): Ideal for tasks that require input-to-output transformations, like translation.</p></li>
+</ul>
+</li>
+<li><p><strong>Training objectives</strong>:</p>
+<ul>
+<li><p>Causal models use <strong>next-word prediction</strong>.</p></li>
+<li><p>Encoder-only models like BERT use <strong>masked language modeling (MLM)</strong> or the <strong>cloze task</strong>.</p></li>
+</ul>
+</li>
+<li><p><strong>Contextual embeddings</strong>:</p>
+<ul>
+<li><p>All Transformer-based models produce <strong>contextual embeddings</strong>—the vector for a word depends on its context.</p></li>
+<li><p>BERT uses <strong>bidirectional context</strong>, GPT uses <strong>left-side context only</strong>.</p></li>
+</ul>
+</li>
+<li><p><strong>PyTorch tools for implementation</strong>:</p>
+<ul>
+<li><p><code class="docutils literal notranslate"><span class="pre">MultiheadAttention</span></code> for building custom attention.</p></li>
+<li><p><code class="docutils literal notranslate"><span class="pre">TransformerEncoderLayer</span></code>, <code class="docutils literal notranslate"><span class="pre">TransformerDecoderLayer</span></code>, and <code class="docutils literal notranslate"><span class="pre">TransformerDecoder</span></code> for composing full models.</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+<section id="resources">
+<h2>Resources<a class="headerlink" href="#resources" title="Link to this heading">#</a></h2>
+<p>Attention-mechanisms and transformers are quite new. But there are many resources on transformers. I’m listing a few resources here.</p>
+<ul class="simple">
+<li><p><a class="reference external" href="https://arxiv.org/pdf/1706.03762.pdf">Attention is all you need</a></p></li>
+<li><p><a class="reference external" href="https://ai.googleblog.com/2017/08/transformer-novel-neural-network.html">Transformers</a></p></li>
+<li><p>3Blue1Brown has recently released some videos on transformers</p>
+<ul>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=wjZofJX0v4M">But what is a GPT? Visual intro to transformers | Chapter 5, Deep Learning</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=eMlx5fFNoYc">Attention in transformers</a></p></li>
+</ul>
+</li>
+<li><p><a class="reference external" href="http://jalammar.github.io/illustrated-transformer/">The Illustrated Transformer</a></p></li>
+<li><p><a class="reference external" href="https://huggingface.co/transformers/index.html">Transformers documentation</a></p></li>
+<li><p><a class="reference external" href="https://www.youtube.com/watch?v=Y_NvR5dIaOY">A funny video: I taught an AI to make pasta</a></p></li>
+<li><p><a class="reference external" href="https://ai.googleblog.com/2018/11/open-sourcing-bert-state-of-art-pre.html">BERT</a></p></li>
+<li><p>Relevant chapters from Jurafsky &amp; Martin book: <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/10.pdf">Chapter 10</a>, <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/11.pdf">Chapter 11</a>, <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/12.pdf">Chapter 12</a>, <a class="reference external" href="https://web.stanford.edu/~jurafsky/slp3/14.pdf">Chapter 14</a></p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures/notes"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="06_intro-to-transformers.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Lecture 6: Introduction to self-attention and transformers</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="08_llms-applications.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Lecture 8: Applications of Large Language Models</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#imports-lo">Imports, LO</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#imports">Imports</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#learning-outcomes">Learning outcomes</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#attributions">Attributions</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#recap-and-introduction">Recap and introduction</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#questions-for-you">❓❓ Questions for you</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-1-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.1: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-2-select-all-of-the-following-statements-which-are-true-iclicker">Exercise 7.2: Select all of the following statements which are <strong>True</strong> (iClicker)</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#exercise-7-3-discuss-the-following-questions-with-your-neighbour">Exercise 7.3: Discuss the following questions with your neighbour</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#decoder-only-architecture">1. Decoder-only architecture</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#break">Break</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoder-only-architecture">2. Encoder-only architecture</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#encoder-decoder-architecture-high-level">3. Encoder-decoder architecture (high-level)</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#final-comments-and-summary">Final comments and summary</a></li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#resources">Resources</a></li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>

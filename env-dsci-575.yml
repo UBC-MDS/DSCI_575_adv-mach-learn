@@ -1,0 +1,40 @@
+# install with conda env create -f env-dsci-575.yml 
+name: '575'
+channels:
+  - conda-forge
+  - pytorch
+  - anaconda
+  - plotly
+  - defaults
+dependencies:
+  - python==3.12
+  - ipykernel
+  - matplotlib
+  - pandas
+  - nb_conda_kernels
+  - requests
+  - ipywidgets
+  - plotly
+  - jupyter-dash
+  - scikit-learn
+  - protobuf==4.25.3
+  - scikit-learn
+  - torchvision
+  - torchaudio
+  - pytorch
+  - autograd
+  - wordcloud
+  - seaborn
+  - sentence-transformers
+  - nltk
+  - hmmlearn
+  - wikipedia
+  - spacy
+  - panel
+  - pip
+  - pip:
+    - torch-summary
+    - otter-grader
+    - kaleido
+    - pyppeteer
+    - mglearn

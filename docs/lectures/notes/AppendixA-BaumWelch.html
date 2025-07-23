@@ -1,0 +1,1016 @@
+
+<!DOCTYPE html>
+
+
+<html lang="en" data-content_root="../../" >
+
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" /><meta name="viewport" content="width=device-width, initial-scale=1" />
+
+    <title>Baum-Welch (BW) algorithm &#8212; DSCI 575 Advanced Machine Learning</title>
+  
+  
+  
+  <script data-cfasync="false">
+    document.documentElement.dataset.mode = localStorage.getItem("mode") || "";
+    document.documentElement.dataset.theme = localStorage.getItem("theme") || "";
+  </script>
+  
+  <!-- Loaded before other Sphinx assets -->
+  <link href="../../_static/styles/theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/bootstrap.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+<link href="../../_static/styles/pydata-sphinx-theme.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+
+  
+  <link href="../../_static/vendor/fontawesome/6.5.2/css/all.min.css?digest=dfe6caa3a7d634c4db9b" rel="stylesheet" />
+  <link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-solid-900.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-brands-400.woff2" />
+<link rel="preload" as="font" type="font/woff2" crossorigin href="../../_static/vendor/fontawesome/6.5.2/webfonts/fa-regular-400.woff2" />
+
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=fa44fd50" />
+    <link rel="stylesheet" type="text/css" href="../../_static/styles/sphinx-book-theme.css?v=a3416100" />
+    <link rel="stylesheet" type="text/css" href="../../_static/togglebutton.css?v=13237357" />
+    <link rel="stylesheet" type="text/css" href="../../_static/copybutton.css?v=76b2166b" />
+    <link rel="stylesheet" type="text/css" href="../../_static/mystnb.4510f1fc1dee50b3e5859aac5469c37c29e427902b24a333a5f9fcb2f0b3ac41.css" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-thebe.css?v=4fa983c6" />
+    <link rel="stylesheet" type="text/css" href="../../_static/sphinx-design.min.css?v=95c83b7e" />
+  
+  <!-- Pre-loaded scripts that we'll load fully later -->
+  <link rel="preload" as="script" href="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b" />
+<link rel="preload" as="script" href="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b" />
+  <script src="../../_static/vendor/fontawesome/6.5.2/js/all.min.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+    <script src="../../_static/documentation_options.js?v=9eb32ce0"></script>
+    <script src="../../_static/doctools.js?v=9a2dae69"></script>
+    <script src="../../_static/sphinx_highlight.js?v=dc90522c"></script>
+    <script src="../../_static/clipboard.min.js?v=a7894cd8"></script>
+    <script src="../../_static/copybutton.js?v=f281be69"></script>
+    <script src="../../_static/scripts/sphinx-book-theme.js?v=887ef09a"></script>
+    <script>let toggleHintShow = 'Click to show';</script>
+    <script>let toggleHintHide = 'Click to hide';</script>
+    <script>let toggleOpenOnPrint = 'true';</script>
+    <script src="../../_static/togglebutton.js?v=4a39c7ea"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script src="../../_static/design-tabs.js?v=f930bc37"></script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script async="async" src="../../_static/sphinx-thebe.js?v=c100c467"></script>
+    <script>var togglebuttonSelector = '.toggle, .admonition.dropdown';</script>
+    <script>const THEBE_JS_URL = "https://unpkg.com/thebe@0.8.2/lib/index.js"; const thebe_selector = ".thebe,.cell"; const thebe_selector_input = "pre"; const thebe_selector_output = ".output, .cell_output"</script>
+    <script>window.MathJax = {"options": {"processHtmlClass": "tex2jax_process|mathjax_process|math|output_area"}}</script>
+    <script defer="defer" src="https://cdn.jsdelivr.net/npm/mathjax@3/es5/tex-mml-chtml.js"></script>
+    <script>DOCUMENTATION_OPTIONS.pagename = 'lectures/notes/AppendixA-BaumWelch';</script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/require.js/2.3.4/require.min.js"></script>
+    <link rel="icon" href="../../_static/favicon.png"/>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+    <link rel="next" title="Attributions" href="../../attribution.html" />
+    <link rel="prev" title="Recipe Generation using Transformers" href="../demos/transformers-recipe-generation.html" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <meta name="docsearch:language" content="en"/>
+  </head>
+  
+  
+  <body data-bs-spy="scroll" data-bs-target=".bd-toc-nav" data-offset="180" data-bs-root-margin="0px 0px -60%" data-default-mode="">
+
+  
+  
+  <div id="pst-skip-link" class="skip-link d-print-none"><a href="#main-content">Skip to main content</a></div>
+  
+  <div id="pst-scroll-pixel-helper"></div>
+  
+  <button type="button" class="btn rounded-pill" id="pst-back-to-top">
+    <i class="fa-solid fa-arrow-up"></i>Back to top</button>
+
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-primary-sidebar-checkbox"/>
+  <label class="overlay overlay-primary" for="pst-primary-sidebar-checkbox"></label>
+  
+  <input type="checkbox"
+          class="sidebar-toggle"
+          id="pst-secondary-sidebar-checkbox"/>
+  <label class="overlay overlay-secondary" for="pst-secondary-sidebar-checkbox"></label>
+  
+  <div class="search-button__wrapper">
+    <div class="search-button__overlay"></div>
+    <div class="search-button__search-container">
+<form class="bd-search d-flex align-items-center"
+      action="../../search.html"
+      method="get">
+  <i class="fa-solid fa-magnifying-glass"></i>
+  <input type="search"
+         class="form-control"
+         name="q"
+         id="search-input"
+         placeholder="Search this book..."
+         aria-label="Search this book..."
+         autocomplete="off"
+         autocorrect="off"
+         autocapitalize="off"
+         spellcheck="false"/>
+  <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd>K</kbd></span>
+</form></div>
+  </div>
+
+  <div class="pst-async-banner-revealer d-none">
+  <aside id="bd-header-version-warning" class="d-none d-print-none" aria-label="Version warning"></aside>
+</div>
+
+  
+    <header class="bd-header navbar navbar-expand-lg bd-navbar d-print-none">
+    </header>
+  
+
+  <div class="bd-container">
+    <div class="bd-container__inner bd-page-width">
+      
+      
+      
+      <div class="bd-sidebar-primary bd-sidebar">
+        
+
+  
+  <div class="sidebar-header-items sidebar-primary__section">
+    
+    
+    
+    
+  </div>
+  
+    <div class="sidebar-primary-items__start sidebar-primary__section">
+        <div class="sidebar-primary-item">
+
+  
+    
+  
+
+<a class="navbar-brand logo" href="../../README.html">
+  
+  
+  
+  
+  
+    
+    
+      
+    
+    
+    <img src="../../_static/mds-hex-sticker.png" class="logo__image only-light" alt="DSCI 575 Advanced Machine Learning - Home"/>
+    <script>document.write(`<img src="../../_static/mds-hex-sticker.png" class="logo__image only-dark" alt="DSCI 575 Advanced Machine Learning - Home"/>`);</script>
+  
+  
+</a></div>
+        <div class="sidebar-primary-item">
+
+ <script>
+ document.write(`
+   <button class="btn search-button-field search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass"></i>
+    <span class="search-button__default-text">Search</span>
+    <span class="search-button__kbd-shortcut"><kbd class="kbd-shortcut__modifier">Ctrl</kbd>+<kbd class="kbd-shortcut__modifier">K</kbd></span>
+   </button>
+ `);
+ </script></div>
+        <div class="sidebar-primary-item"><nav class="bd-links bd-docs-nav" aria-label="Main">
+    <div class="bd-toc-item navbar-nav active">
+        <p aria-level="2" class="caption" role="heading"><span class="caption-text">Getting ready</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="00_course-information.html">Course Information</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Lectures</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="01_Markov-models.html">Lecture 1: Markov Models</a></li>
+<li class="toctree-l1"><a class="reference internal" href="02_LMs-text-preprocessing.html">Lecture 2: Applications of Markov Models and Text Preprocessing</a></li>
+<li class="toctree-l1"><a class="reference internal" href="03_HMMs-intro.html">Lecture 3: Introduction to Hidden Markov Models (HMMs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="04_More-HMMs.html">Lecture 4: More HMMs</a></li>
+<li class="toctree-l1"><a class="reference internal" href="05_intro-to-RNNs.html">Lecture 5: Introduction to Recurrent Neural Networks (RNNs)</a></li>
+<li class="toctree-l1"><a class="reference internal" href="06_intro-to-transformers.html">Lecture 6: Introduction to self-attention and transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="07_more-transformers.html">Lecture 7: More transformers</a></li>
+<li class="toctree-l1"><a class="reference internal" href="08_llms-applications.html">Lecture 8: Applications of Large Language Models</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Class demos</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../demos/transformers-recipe-generation.html">Recipe Generation using Transformers</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Appendices</span></p>
+<ul class="current nav bd-sidenav">
+<li class="toctree-l1 current active"><a class="current reference internal" href="#">Baum-Welch (BW) algorithm</a></li>
+</ul>
+<p aria-level="2" class="caption" role="heading"><span class="caption-text">Attribution</span></p>
+<ul class="nav bd-sidenav">
+<li class="toctree-l1"><a class="reference internal" href="../../attribution.html">Attributions</a></li>
+</ul>
+
+    </div>
+</nav></div>
+    </div>
+  
+  
+  <div class="sidebar-primary-items__end sidebar-primary__section">
+  </div>
+  
+  <div id="rtd-footer-container"></div>
+
+
+      </div>
+      
+      <main id="main-content" class="bd-main" role="main">
+        
+        
+
+<div class="sbt-scroll-pixel-helper"></div>
+
+          <div class="bd-content">
+            <div class="bd-article-container">
+              
+              <div class="bd-header-article d-print-none">
+<div class="header-article-items header-article__inner">
+  
+    <div class="header-article-items__start">
+      
+        <div class="header-article-item"><button class="sidebar-toggle primary-toggle btn btn-sm" title="Toggle primary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+  <span class="fa-solid fa-bars"></span>
+</button></div>
+      
+    </div>
+  
+  
+    <div class="header-article-items__end">
+      
+        <div class="header-article-item">
+
+<div class="article-header-buttons">
+
+
+<a href="https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students" target="_blank"
+   class="btn btn-sm btn-source-repository-button"
+   title="Source repository"
+   data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fab fa-github"></i>
+  </span>
+
+</a>
+
+
+
+
+
+
+<div class="dropdown dropdown-download-buttons">
+  <button class="btn dropdown-toggle" type="button" data-bs-toggle="dropdown" aria-expanded="false" aria-label="Download this page">
+    <i class="fas fa-download"></i>
+  </button>
+  <ul class="dropdown-menu">
+      
+      
+      
+      <li><a href="../../_sources/lectures/notes/AppendixA-BaumWelch.ipynb" target="_blank"
+   class="btn btn-sm btn-download-source-button dropdown-item"
+   title="Download source file"
+   data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file"></i>
+  </span>
+<span class="btn__text-container">.ipynb</span>
+</a>
+</li>
+      
+      
+      
+      
+      <li>
+<button onclick="window.print()"
+  class="btn btn-sm btn-download-pdf-button dropdown-item"
+  title="Print to PDF"
+  data-bs-placement="left" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-file-pdf"></i>
+  </span>
+<span class="btn__text-container">.pdf</span>
+</button>
+</li>
+      
+  </ul>
+</div>
+
+
+
+
+<button onclick="toggleFullScreen()"
+  class="btn btn-sm btn-fullscreen-button"
+  title="Fullscreen mode"
+  data-bs-placement="bottom" data-bs-toggle="tooltip"
+>
+  
+
+<span class="btn__icon-container">
+  <i class="fas fa-expand"></i>
+  </span>
+
+</button>
+
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm nav-link pst-navbar-icon theme-switch-button" title="light/dark" aria-label="light/dark" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="theme-switch fa-solid fa-sun fa-lg" data-mode="light"></i>
+    <i class="theme-switch fa-solid fa-moon fa-lg" data-mode="dark"></i>
+    <i class="theme-switch fa-solid fa-circle-half-stroke fa-lg" data-mode="auto"></i>
+  </button>
+`);
+</script>
+
+
+<script>
+document.write(`
+  <button class="btn btn-sm pst-navbar-icon search-button search-button__button" title="Search" aria-label="Search" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <i class="fa-solid fa-magnifying-glass fa-lg"></i>
+  </button>
+`);
+</script>
+<button class="sidebar-toggle secondary-toggle btn btn-sm" title="Toggle secondary sidebar" data-bs-placement="bottom" data-bs-toggle="tooltip">
+    <span class="fa-solid fa-list"></span>
+</button>
+</div></div>
+      
+    </div>
+  
+</div>
+</div>
+              
+              
+
+<div id="jb-print-docs-body" class="onlyprint">
+    <h1>Baum-Welch (BW) algorithm</h1>
+    <!-- Table of contents -->
+    <div id="print-main-content">
+        <div id="jb-print-toc">
+            
+            <div>
+                <h2> Contents </h2>
+            </div>
+            <nav aria-label="Page">
+                <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm">2. The backward algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">2.1 Introduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-intuition">2.2 The backward algorithm intuition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-initialization-beta-3-and-beta-3">2.3 The backward algorithm: Initialization <span class="math notranslate nohighlight">\(\beta_🙂(3)\)</span> and <span class="math notranslate nohighlight">\(\beta_😔(3)\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-induction">2.4 The backward algorithm: Induction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-conclusion">2.5 The backward algorithm: Conclusion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baum-welch-bw-algorithm-high-level-idea">3. Baum-Welch (BW) algorithm (high-level idea)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3.1 Introduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-unsupervised-approach">3.2 Iterative unsupervised approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#can-we-use-mle">Can we use MLE?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-iterative-unsupervised-approach">Solution: iterative unsupervised approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-do-we-have-so-far">What do we have so far?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#combing-alpha-and-beta">Combing <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-calculate-gamma-i-t">How to calculate <span class="math notranslate nohighlight">\(\gamma_i(t)\)</span>?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-new-probability-xi-ij-t">A new probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculating-xi-ij-t">Calculating <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-are-we-so-far">Where are we so far?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baum-welch-algorithm-or-forward-backward-algorithm">Baum-Welch algorithm or forward-backward algorithm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expectation-maximization">Expectation maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-update-the-model">How to update the model?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-pi">Updating <span class="math notranslate nohighlight">\(\pi\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-transition-probabilities-a">Updating transition probabilities <span class="math notranslate nohighlight">\(A\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-observation-probabilities-b">Updating observation probabilities <span class="math notranslate nohighlight">\(B\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Expectation maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expectation-and-maximization">Expectation and maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Expectation-maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#em-algorithm-for-hmm-learning">EM algorithm for HMM learning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-the-em-algorithm">A note on the EM algorithm</a></li>
+</ul>
+</li>
+</ul>
+            </nav>
+        </div>
+    </div>
+</div>
+
+              
+                
+<div id="searchbox"></div>
+                <article class="bd-article">
+                  
+  <section class="tex2jax_ignore mathjax_ignore" id="baum-welch-bw-algorithm">
+<h1>Baum-Welch (BW) algorithm<a class="headerlink" href="#baum-welch-bw-algorithm" title="Link to this heading">#</a></h1>
+<section id="the-backward-algorithm">
+<h2>2. The backward algorithm<a class="headerlink" href="#the-backward-algorithm" title="Link to this heading">#</a></h2>
+<section id="introduction">
+<h3>2.1 Introduction<a class="headerlink" href="#introduction" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>In the last lecture we talked about supervised training of HMMs where we assumed that we had mapping between observation sequences and hidden state sequences.</p></li>
+<li><p>In real life we rarely have such mapping available.</p></li>
+<li><p>For example, you can imagine how much manual effort it would be to come up with gold part-of-speech tag sequences on a large enough sample of text data, say Wikipedia, so that we have enough training data in order to learn initial state probabilities, transition probabilities, and emission probabilities.</p></li>
+</ul>
+<p><strong>Question we want to answer</strong></p>
+<ul class="simple">
+<li><p>Given a large observation sequence (or a set of observation sequences) <span class="math notranslate nohighlight">\(O\)</span> for training, but <strong>not</strong> the state sequence, how do we choose the “best” parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+<li><p>We want our parameters <span class="math notranslate nohighlight">\(\theta\)</span> to be set so that the available training data is maximally likely.</p></li>
+<li><p>We do this using the forward-backward algorithm.</p></li>
+</ul>
+<p><strong>Recall: The forward algorithm</strong></p>
+<ul class="simple">
+<li><p>Computer probability of a given observation sequence.</p></li>
+<li><p>Given a model with parameters <span class="math notranslate nohighlight">\(\theta = &lt;\pi, T, B&gt;\)</span>, how do we efficiently compute the probability of a particular observation sequence <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+<li><p>Example: What’s the probability of the sequence below?</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_activity_seq_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_activity_seq.png" height="400" width="400">     -->
+<!-- </center>     --><p>Three steps of the forward algorithm.</p>
+<ul class="simple">
+<li><p>Initialization: Compute the <span class="math notranslate nohighlight">\(\alpha\)</span> values for nodes in the first column of the trellis <span class="math notranslate nohighlight">\((t = 0)\)</span>.</p></li>
+<li><p>Induction: Iteratively compute the <span class="math notranslate nohighlight">\(\alpha\)</span> values for nodes in the rest of the trellis <span class="math notranslate nohighlight">\((1 \leq t &lt; T)\)</span>.</p></li>
+<li><p>Conclusion: Sum over the <span class="math notranslate nohighlight">\(\alpha\)</span> values for nodes in the last column of the trellis <span class="math notranslate nohighlight">\((t = T)\)</span>.</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="800" width="800">  -->
+<!-- </center>     -->
+<ul class="simple">
+<li><p>Sum over all possible final states:</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(P(O;\theta) = \sum\limits_{i=1}^{n}\alpha_i(T-1)\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(P(E,L,F,C) = \alpha_🙂(3) + \alpha_😔(3) = 0.00023 + 0.00207 = 0.0023\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/hmm_alpha_values_small.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/hmm_alpha_values.png" height="700" width="700">  -->
+<!-- </center>     --><p><strong>What are we doing in the forward algorithm?</strong></p>
+<ul class="simple">
+<li><p>In forward algorithm the point is to compute <span class="math notranslate nohighlight">\(P(O;\theta)\)</span>.</p></li>
+<li><p>For each state <span class="math notranslate nohighlight">\(i\)</span>, we calculated <span class="math notranslate nohighlight">\(\alpha_i(0), \alpha_i(1), \alpha_i(2), ...\)</span></p></li>
+<li><p>The trellis was computed left to right and top to bottom.</p></li>
+<li><p>The forward algorithm stores the probabilities of all possible 1-state sequences (from the start), to store all possible 2-state sequences (from the start), to store all possible 3-state sequences (from the start) and so on.</p></li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="the-backward-algorithm-intuition">
+<h3>2.2 The backward algorithm intuition<a class="headerlink" href="#the-backward-algorithm-intuition" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Less intuitively, we can also do that in reverse order, i.e., from  right to left and top to bottom.</p></li>
+<li><p>We’ll still deal with the same observation sequence which evolves forward in time but we will store temporary results in the backward direction.</p></li>
+</ul>
+<ul class="simple">
+<li><p>In the <span class="math notranslate nohighlight">\(i^{th}\)</span> node of the trellis at time <span class="math notranslate nohighlight">\(t\)</span>, we store the probability of starting in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> then observing everything that comes thereafter.
+$<span class="math notranslate nohighlight">\(\beta_{i}(t) = P(b_{t+1:T-1})\)</span>$</p></li>
+<li><p>The trellis is computed <strong>right-to-left</strong> and <strong>top-to-bottom</strong>.</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700">  -->
+<!-- </center>     --><p><strong>The backward algorithm: steps</strong></p>
+<p>Three steps of the backward procedure.</p>
+<ul class="simple">
+<li><p>Initialization: Initialize <span class="math notranslate nohighlight">\(\beta\)</span> values for nodes in the last column of the trellis.
+$<span class="math notranslate nohighlight">\(\beta_i(T-1) = 1\)</span>$</p></li>
+<li><p>Induction: Iteratively compute the <span class="math notranslate nohighlight">\(\beta\)</span> values for nodes in the rest of the trellis <span class="math notranslate nohighlight">\((1 \leq t &lt; T)\)</span> as the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> and reading everything to follow.
+$<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_{j}(o_{t+1}) \beta_j(t+1)\)</span>$</p></li>
+<li><p>Conclusion: Sum over the <span class="math notranslate nohighlight">\(\beta\)</span> values for nodes in the first column of the trellis <span class="math notranslate nohighlight">\((t = 0)\)</span> (i.e., all initial states).</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="500" width="500">  -->
+<!-- </center>     --></section>
+<section id="the-backward-algorithm-initialization-beta-3-and-beta-3">
+<h3>2.3 The backward algorithm: Initialization <span class="math notranslate nohighlight">\(\beta_🙂(3)\)</span> and <span class="math notranslate nohighlight">\(\beta_😔(3)\)</span><a class="headerlink" href="#the-backward-algorithm-initialization-beta-3-and-beta-3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Initialize the nodes in the last column of the trellis <span class="math notranslate nohighlight">\((T = 3)\)</span>.</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\beta_🙂(3) = 1.0\)</span></p></li>
+<li><p><span class="math notranslate nohighlight">\(\beta_😔(3) = 1.0\)</span></p></li>
+</ul>
+</li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="800" width="800">  -->
+<!-- </center> --></section>
+<section id="the-backward-algorithm-induction">
+<h3>2.4 The backward algorithm: Induction<a class="headerlink" href="#the-backward-algorithm-induction" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Iteratively compute the nodes in the rest of the trellis <span class="math notranslate nohighlight">\((1 \leq t &lt; T)\)</span>.</p></li>
+<li><p>To compute <span class="math notranslate nohighlight">\(\beta_j(t)\)</span> we can compute <span class="math notranslate nohighlight">\(\beta_{i}(t+1)\)</span> for all possible states <span class="math notranslate nohighlight">\(i\)</span> and then use our knowledge of <span class="math notranslate nohighlight">\(a_{ij}\)</span> and <span class="math notranslate nohighlight">\(b_j(o_{t+1})\)</span>
+$<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_{j}(o_{t+1}) \beta_j(t+1)\)</span>$</p></li>
+</ul>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="800" width="800">  -->
+<!-- </center>     -->
+<p><strong>The backward algorithm: Induction <span class="math notranslate nohighlight">\(\beta_🙂(2)\)</span></strong></p>
+<div class="math notranslate nohighlight">
+\[\beta_i(t) = \sum_{j=1}^N a_{ij}b_{j}(o_{t+1}) \beta_j(t+1)\]</div>
+<ul class="simple">
+<li><p>Probability of being at state 🙂 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing everything to follow.</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-848ad625-e3c6-4352-819e-a0e368751608">
+<span class="eqno">(16)<a class="headerlink" href="#equation-848ad625-e3c6-4352-819e-a0e368751608" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\beta_🙂(2) = &amp; a_{🙂🙂}b_🙂(C)\beta_🙂(3) + a_{🙂😔}b_😔(C)\beta_😔(3)\\
+             = &amp; 0.7 \times 0.1 \times 1.0 + 0.3 \times 0.6 \times 1.0\\ 
+             = &amp; 0.25&amp; \\
+\end{split}
+\end{equation}\]</div>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700">  -->
+<!-- </center>     -->
+<p><strong>The backward algorithm: Induction <span class="math notranslate nohighlight">\(\beta_😔(2)\)</span></strong></p>
+<div class="math notranslate nohighlight">
+\[\beta_i(t) = \sum_{j=1}^N a_{ij}b_{j}(o_{t+1}) \beta_j(t+1)\]</div>
+<ul class="simple">
+<li><p>Probability of being at state 😔 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing everything to follow.</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-65ff6790-b264-4943-9161-1a536186455a">
+<span class="eqno">(17)<a class="headerlink" href="#equation-65ff6790-b264-4943-9161-1a536186455a" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\beta_😔(2) = &amp; a_{😔🙂}b_🙂(C)\beta_🙂(3) + a_{😔😔}b_😔(C)\beta_😔(3)\\
+             = &amp; 0.4 \times 0.1 \times 1.0 + 0.6 \times 0.6 \times 1.0\\ 
+             = &amp; 0.4&amp; \\
+\end{split}
+\end{equation}\]</div>
+<p><strong>Carry out rest of the steps as home work.</strong></p>
+<p><br><br></p>
+</section>
+<section id="the-backward-algorithm-conclusion">
+<h3>2.5 The backward algorithm: Conclusion<a class="headerlink" href="#the-backward-algorithm-conclusion" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Sum over all possible initial states to get the probability of an observation sequence in the reverse direction.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[P(O;\theta) = \sum_{i=1}^{N} \pi_i b_i(O_0)\beta_i(0)\]</div>
+<p><img alt="" src="../../_images/HMM_example_trellis.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/HMM_example_trellis.png" height="700" width="700">  -->
+<!-- </center>     --><ul class="simple">
+<li><p>We’re not doing this just for fun.</p></li>
+<li><p>We are going to use it for unsupervised HMM training!</p></li>
+<li><p>In general, we can combine <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> at any point in time to represent the probability of an entire sequence.</p></li>
+<li><p>This is going to be vital for training of unsupervised HMMs.</p></li>
+</ul>
+<p><br><br><br><br></p>
+</section>
+</section>
+<section id="baum-welch-bw-algorithm-high-level-idea">
+<h2>3. Baum-Welch (BW) algorithm (high-level idea)<a class="headerlink" href="#baum-welch-bw-algorithm-high-level-idea" title="Link to this heading">#</a></h2>
+<section id="id1">
+<h3>3.1 Introduction<a class="headerlink" href="#id1" title="Link to this heading">#</a></h3>
+<p>Given a large observation sequence (or a set of observation sequences) <span class="math notranslate nohighlight">\(O\)</span> for training, but <strong>not</strong> the state sequence, how do we choose the “best” parameters <span class="math notranslate nohighlight">\(\theta\)</span> that explain the data <span class="math notranslate nohighlight">\(O\)</span>?</p>
+<p>We want our parameters <span class="math notranslate nohighlight">\(\theta\)</span> to be set so that the available training data is maximally likely.</p>
+<p><strong>Can we use MLE?</strong></p>
+<ul class="simple">
+<li><p>If the training data contained state sequences, we could simply do maximum likelihood estimation, as we did in the last lecture, to get transition probabilities and the emission probabilities.</p></li>
+<li><p>But when we are only given observations, we <strong>cannot</strong> count the following:</p>
+<ul>
+<li><p>How often we move from <span class="math notranslate nohighlight">\(q_{i-1}\)</span> to <span class="math notranslate nohighlight">\(q_i\)</span> normalized by how often we move from <span class="math notranslate nohighlight">\(q_{i-1}\)</span> to anything:
+<span class="math notranslate nohighlight">\(p(q_i|q_{i-1}) = \frac{Count(q_{i-1} q_i)}{Count(q_{i-1} \text{ANY STATE })}\)</span></p></li>
+<li><p>What’s the proportion of <span class="math notranslate nohighlight">\(q_i\)</span> emitting the observation <span class="math notranslate nohighlight">\(o_i\)</span> .<br />
+<span class="math notranslate nohighlight">\(p(o_i|q_{i}) = \frac{Count(o_i \text{ and } q_i)}{Count(q_{i})}\)</span></p></li>
+</ul>
+</li>
+<li><p>In many cases, the mapping between hidden states and observations is unknown and so we can’t use MLE.</p></li>
+<li><p>How to deal with the incomplete data?</p>
+<ul>
+<li><p>Use unsupervised learning</p></li>
+</ul>
+</li>
+</ul>
+<p><br><br></p>
+</section>
+<section id="iterative-unsupervised-approach">
+<h3>3.2 Iterative unsupervised approach<a class="headerlink" href="#iterative-unsupervised-approach" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We guess the parameters and iteratively update them.</p></li>
+<li><p>Unsupervised HMM training is done using a combination of the forward and the backward algorithms.</p></li>
+<li><p>The idea is that we can combine <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> at any point in time to represent the probability of an entire observation sequence.</p></li>
+<li><p>The forward algorithm computes the <span class="math notranslate nohighlight">\(\alpha\)</span> values, which represent the probability of being in a particular state at a particular time, given the observation sequence up to that time.</p></li>
+<li><p>The backward algorithm computes the <span class="math notranslate nohighlight">\(\beta\)</span> values, which represent the probability of observing the rest of the sequence after that time.</p></li>
+<li><p>We define <span class="math notranslate nohighlight">\(\gamma_i(t)\)</span>, which represents the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> given the entire observation sequence <span class="math notranslate nohighlight">\(O\)</span>. We calculate it by combining <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> values calculated by the forward and backward algorithms.</p></li>
+<li><p>We define another probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> of landing in state <span class="math notranslate nohighlight">\(s_i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> and transitioning to state <span class="math notranslate nohighlight">\(s_j\)</span> at time <span class="math notranslate nohighlight">\(t+1\)</span> regardless of the previous states and future states given the observations.</p></li>
+<li><p>These probabilities are used to compute the expected sufficient statistics</p>
+<ul>
+<li><p>the expected number of times each state is visited</p></li>
+<li><p>the expected number of times each transition is made, given the observation sequence.</p></li>
+</ul>
+</li>
+</ul>
+<p><strong>Expectation maximization</strong></p>
+<ul class="simple">
+<li><p>We will start with a randomly initialized model.</p></li>
+<li><p>We use the model to calculate new <span class="math notranslate nohighlight">\(\alpha_i(t), \beta_i(t), \gamma_i(t), \xi_{ij}(t)\)</span>.</p></li>
+<li><p>We update the model.</p></li>
+<li><p>We can do this iteratively until convergence or stopping condition.</p></li>
+</ul>
+<p><img alt="" src="../../_images/em.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/em.png" height="700" width="700">        -->
+<!-- </center>    --></section>
+<section id="can-we-use-mle">
+<h3>Can we use MLE?<a class="headerlink" href="#can-we-use-mle" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>If the training data contained state sequences, we could simply do maximum likelihood estimation, as we did in the last lecture.</p></li>
+<li><p>But when we are only given observations, we <strong>cannot</strong> count the following:</p>
+<ul>
+<li><p>How often <span class="math notranslate nohighlight">\(q_{i-1}\)</span> and <span class="math notranslate nohighlight">\(q_i\)</span> occur together normalized by how often <span class="math notranslate nohighlight">\(q_{i-1}\)</span> occurs:
+<span class="math notranslate nohighlight">\(p(q_i|q_{i-1}) = \frac{Count(q_{i-1} q_i)}{Count(q_{i-1} \text{ANY STATE })}\)</span></p></li>
+<li><p>How often <span class="math notranslate nohighlight">\(q_i\)</span> is associated with the observation <span class="math notranslate nohighlight">\(o_i\)</span>.<br />
+<span class="math notranslate nohighlight">\(p(o_i|q_{i}) = \frac{Count(o_i \text{ and } q_i)}{Count(q_{i})}\)</span></p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="solution-iterative-unsupervised-approach">
+<h3>Solution: iterative unsupervised approach<a class="headerlink" href="#solution-iterative-unsupervised-approach" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Iterative approach.</p></li>
+<li><p>We guess the counts and iterate.</p></li>
+<li><p>Unsupervised HMM training is done using a combination of the forward and the backward algorithms.</p></li>
+<li><p>The idea is that we can combine <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span> at any point in time to represent the probability of an entire observation sequence.</p></li>
+</ul>
+</section>
+<section id="what-do-we-have-so-far">
+<h3>What do we have so far?<a class="headerlink" href="#what-do-we-have-so-far" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\alpha_i(t)\)</span> gives us the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> knowing everything that came till time <span class="math notranslate nohighlight">\(t\)</span>.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\beta_i(t)\)</span> gives us the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> knowing what’s going to come in the future.</p></li>
+</ul>
+<p><img alt="" src="../../_images/alpha_beta.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/alpha_beta.png" height="600" width="600">  -->
+<!-- </center> -->
+<p><a class="reference external" href="http://www.cs.toronto.edu/~frank/csc401/lectures2020/5_HMMs.pdf">Source</a></p>
+</section>
+<section id="combing-alpha-and-beta">
+<h3>Combing <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span><a class="headerlink" href="#combing-alpha-and-beta" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We define one more parameter <span class="math notranslate nohighlight">\(\gamma_i(t)\)</span>, which is a fusion of the <span class="math notranslate nohighlight">\(\alpha_i(t)\)</span> and the <span class="math notranslate nohighlight">\(\beta_i(t)\)</span> parameters.</p></li>
+<li><p><span class="math notranslate nohighlight">\(\gamma_i(t)\)</span> tells us the probability of being in a state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> knowing everything that came till time step <span class="math notranslate nohighlight">\(t\)</span> and everything that’s coming in the future.</p></li>
+</ul>
+<p><img alt="" src="../../_images/alpha_beta.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/alpha_beta.png" height="600" width="600">  -->
+<!-- </center>  -->
+<p><a class="reference external" href="http://www.cs.toronto.edu/~frank/csc401/lectures2020/5_HMMs.pdf">Source</a></p>
+</section>
+<section id="how-to-calculate-gamma-i-t">
+<h3>How to calculate <span class="math notranslate nohighlight">\(\gamma_i(t)\)</span>?<a class="headerlink" href="#how-to-calculate-gamma-i-t" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>What’s the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> and given the <strong>entire observation sequence</strong> <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-3f9c9089-55a0-4127-ae8a-fbaee29fa3b3">
+<span class="eqno">(18)<a class="headerlink" href="#equation-3f9c9089-55a0-4127-ae8a-fbaee29fa3b3" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\gamma_i(t) = &amp; \frac{P(q_t = i, O; \theta)}{P(O;\theta)}\\
+              = &amp; \frac{\alpha_i(t) \beta_i(t)}{\sum_{i=1}^{N}\alpha_i(t)\beta_i(t)}
+\end{split}
+\end{equation}\]</div>
+<ul class="simple">
+<li><p>Note that this is different than just looking at <span class="math notranslate nohighlight">\(\alpha\)</span> or <span class="math notranslate nohighlight">\(\beta\)</span>.</p></li>
+<li><p>If you know what came before you might guess some state which is optimal given what you’ve seen so far, but if you also know what’s coming in the future, you might have to revise that guess because what’s coming in future might make the current most likely position not very likely in the global picture.</p></li>
+</ul>
+</section>
+<section id="a-new-probability-xi-ij-t">
+<h3>A new probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span><a class="headerlink" href="#a-new-probability-xi-ij-t" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We also need <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> for Baum-Welch.</p></li>
+<li><p>We define a probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> of landing in state <span class="math notranslate nohighlight">\(s_i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> and transitioning to state <span class="math notranslate nohighlight">\(s_j\)</span> at time <span class="math notranslate nohighlight">\(t+1\)</span> regardless of the previous states and future states given the observations.</p></li>
+</ul>
+<p><img alt="" src="lectures/notes/img/xi_baum_welch.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/xi_baum_welch.png" height="500" width="500">        -->
+<!-- </center> -->
+<p><a class="reference external" href="http://www.cs.toronto.edu/~frank/csc401/lectures2020/5_HMMs.pdf">Source</a></p>
+<blockquote>
+<div><p>Let’s call it a bow-tie (🎀) picture.</p>
+</div></blockquote>
+</section>
+<section id="calculating-xi-ij-t">
+<h3>Calculating <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span><a class="headerlink" href="#calculating-xi-ij-t" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We define a new probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> as the probability of transitioning from state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> to state <span class="math notranslate nohighlight">\(j\)</span> at time <span class="math notranslate nohighlight">\(t+1\)</span> based on our current model, <span class="math notranslate nohighlight">\(\theta_k\)</span> and given the entire observation sequence <span class="math notranslate nohighlight">\(O\)</span>.</p></li>
+</ul>
+<div class="amsmath math notranslate nohighlight" id="equation-160e832f-e72a-42b3-baf0-68116b4aedec">
+<span class="eqno">(19)<a class="headerlink" href="#equation-160e832f-e72a-42b3-baf0-68116b4aedec" title="Permalink to this equation">#</a></span>\[\begin{equation}
+\begin{split}
+\xi_{ij}(t) = &amp; P(q_t = i, q_{t+1}=j \mid O;\theta ) \\
+              = &amp; \frac{\alpha_i(t)a_{ij}b_j(o_{t+1})\beta_j(t+1)}{P(O;\theta)}
+\end{split}
+\end{equation}\]</div>
+</section>
+<section id="where-are-we-so-far">
+<h3>Where are we so far?<a class="headerlink" href="#where-are-we-so-far" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We have an existing model <span class="math notranslate nohighlight">\(\theta=&lt;\pi,A,B&gt;\)</span>.</p></li>
+<li><p>We have observations <span class="math notranslate nohighlight">\(O\)</span>.</p></li>
+<li><p>We have some tools: <span class="math notranslate nohighlight">\(\alpha_i(t), \beta_i(t), \gamma_i(t), \xi_{ij}(t)\)</span>.</p></li>
+<li><p>Goal: We want to modify the parameters of our model <span class="math notranslate nohighlight">\(\theta = &lt;\pi, T, B&gt;\)</span> so that <span class="math notranslate nohighlight">\(P(O;\theta)\)</span> is maximized for the training data <span class="math notranslate nohighlight">\(O\)</span>.</p></li>
+</ul>
+<div class="math notranslate nohighlight">
+\[\bar{\theta} = argmax_\theta P(O; \theta) \]</div>
+<ul class="simple">
+<li><p>How can we use these tools to improve our model?</p></li>
+</ul>
+</section>
+<section id="baum-welch-algorithm-or-forward-backward-algorithm">
+<h3>Baum-Welch algorithm or forward-backward algorithm<a class="headerlink" href="#baum-welch-algorithm-or-forward-backward-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>There is no known way to solve for a globally optimal solution.</p></li>
+<li><p>We search for a locally optimal solution.</p></li>
+<li><p>We use an algorithm called Baum-Welch, which is a special case of expectation-maximization algorithm.</p></li>
+<li><p>An expectation–maximization (EM) algorithm is an iterative method to find (local) maximum likelihood of parameters, where the model depends on unobserved latent variables.</p></li>
+<li><p>With this algorithm we estimate the values for the hidden parameters of the model.</p></li>
+</ul>
+</section>
+<section id="expectation-maximization">
+<h3>Expectation maximization<a class="headerlink" href="#expectation-maximization" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We will start with a randomly initialized model.</p></li>
+<li><p>We use the model to calculate new <span class="math notranslate nohighlight">\(\alpha_i(t), \beta_i(t), \gamma_i(t), \xi_{ij}(t)\)</span>.</p></li>
+<li><p>We update the model.</p></li>
+<li><p>We can do this iteratively until convergence or stopping condition.</p></li>
+</ul>
+<p><img alt="" src="../../_images/em.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/em.png" height="700" width="700">        -->
+<!-- </center>    --><ul class="simple">
+<li><p>Given a model, we know how to calculate  <span class="math notranslate nohighlight">\(\alpha_i(t), \beta_i(t), \gamma_i(t), \xi_{ij}(t)\)</span></p></li>
+</ul>
+</section>
+<section id="how-to-update-the-model">
+<h3>How to update the model?<a class="headerlink" href="#how-to-update-the-model" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>What’s the probability of ever being in state <span class="math notranslate nohighlight">\(i\)</span> regardless of the time?</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\gamma_i(t)\)</span> is the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span></p></li>
+<li><p>If we sum over all <span class="math notranslate nohighlight">\(t\)</span> then we have a number that can be treated as the expected number of times <span class="math notranslate nohighlight">\(i\)</span> is ever visited.</p></li>
+</ul>
+</li>
+<li><p>What’s the probability of ever transitioning from state <span class="math notranslate nohighlight">\(i\)</span> to state <span class="math notranslate nohighlight">\(j\)</span>?</p>
+<ul>
+<li><p><span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> is the probability of transitioning from <span class="math notranslate nohighlight">\(i\)</span> at <span class="math notranslate nohighlight">\(t\)</span> to <span class="math notranslate nohighlight">\(j\)</span> at <span class="math notranslate nohighlight">\(t+1\)</span></p></li>
+<li><p>If we sum over all <span class="math notranslate nohighlight">\(t\)</span> then we have a number which can be treated as the expected number of times <span class="math notranslate nohighlight">\(i\)</span> ever transitions to <span class="math notranslate nohighlight">\(j\)</span>.</p></li>
+</ul>
+</li>
+</ul>
+</section>
+<section id="updating-pi">
+<h3>Updating <span class="math notranslate nohighlight">\(\pi\)</span><a class="headerlink" href="#updating-pi" title="Link to this heading">#</a></h3>
+<p>For each state <span class="math notranslate nohighlight">\(i\)</span></p>
+<ul class="simple">
+<li><p><span class="math notranslate nohighlight">\(\bar{\pi_i} = \gamma_i(0)\)</span> = expected frequency in state <span class="math notranslate nohighlight">\(i\)</span> at time 0.</p></li>
+</ul>
+</section>
+<section id="updating-transition-probabilities-a">
+<h3>Updating transition probabilities <span class="math notranslate nohighlight">\(A\)</span><a class="headerlink" href="#updating-transition-probabilities-a" title="Link to this heading">#</a></h3>
+<div class="math notranslate nohighlight">
+\[\bar{a}_{ij} = \frac{\text{expected number of transitions from $i$ to $j$}}{\text{expected number of transitions from $i$}}\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{a}_{ij} = \frac{\sum_{t=0}^{T-1} \xi_{ij}(t)}{\sum_{t=0}^{T-1}\gamma_i(t)}\]</div>
+</section>
+<section id="updating-observation-probabilities-b">
+<h3>Updating observation probabilities <span class="math notranslate nohighlight">\(B\)</span><a class="headerlink" href="#updating-observation-probabilities-b" title="Link to this heading">#</a></h3>
+<div class="math notranslate nohighlight">
+\[\bar{b}_j(o) = \frac{\text{expected number of times in state $j$ and observing $o$}}{\text{expected number of times in state $j$}}\]</div>
+<div class="math notranslate nohighlight">
+\[\bar{b}_j(o) = \frac{\sum_{t=0\text{ st }O_t = o}^{T} \gamma_j(t)}{\sum_{t=0}^{T}\gamma_j(t)}\]</div>
+</section>
+<section id="id2">
+<h3>Expectation maximization<a class="headerlink" href="#id2" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>We now have our updated parameters <span class="math notranslate nohighlight">\(\bar{\theta}\)</span></p></li>
+<li><p>We can use these updated parameters to calculate new <span class="math notranslate nohighlight">\(\alpha_i(t), \beta_i(t), \gamma_i(t), \xi_{ij}(t)\)</span>.</p></li>
+<li><p>We can do this iteratively until convergence or stopping condition.
+<br><br></p></li>
+</ul>
+<p><img alt="" src="../../_images/em.png" /></p>
+<!-- <center> -->
+<!-- <img src="img/em.png" height="700" width="700">        -->
+<!-- </center>    -->
+</section>
+<section id="expectation-and-maximization">
+<h3>Expectation and maximization<a class="headerlink" href="#expectation-and-maximization" title="Link to this heading">#</a></h3>
+<p>If we knew <span class="math notranslate nohighlight">\(\theta\)</span>, we could make <strong>expectations</strong> such as</p>
+<ul class="simple">
+<li><p>Expected number of times we are in state <span class="math notranslate nohighlight">\(s_i\)</span></p></li>
+<li><p>Expected number of transitions <span class="math notranslate nohighlight">\(s_i \rightarrow s_j\)</span></p></li>
+</ul>
+<p>If we knew</p>
+<ul class="simple">
+<li><p>Expected number of times we are in state <span class="math notranslate nohighlight">\(s_i\)</span></p></li>
+<li><p>Expected number of transitions <span class="math notranslate nohighlight">\(s_i \rightarrow s_j\)</span>
+then we could computer the maximum likelihood estimate of <span class="math notranslate nohighlight">\(\theta\)</span>
+$<span class="math notranslate nohighlight">\(\theta = &lt;\pi_i, {a_{ij}}, {b_i(o)}&gt;\)</span>$</p></li>
+</ul>
+</section>
+<section id="id3">
+<h3>Expectation-maximization<a class="headerlink" href="#id3" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Expectation maximization (EM) is an iterative algorithm that alternates between two steps: <strong>expectation (E-step)</strong> and <strong>maximization (M-step)</strong>.</p></li>
+<li><p>Guesses the expected counts for the hidden sequence using the current model <span class="math notranslate nohighlight">\(\theta_k\)</span> in the <span class="math notranslate nohighlight">\(k^{th}\)</span> iteration.</p></li>
+<li><p>Computes a new <span class="math notranslate nohighlight">\(\theta_{k+1}\)</span> that maximizes the likelihood of the data given the guesses in the E-step, which is used in the next E-step of <span class="math notranslate nohighlight">\(k+1^{th}\)</span> iteration.</p></li>
+<li><p>Continue until convergence or stopping condition.</p></li>
+</ul>
+</section>
+<section id="em-algorithm-for-hmm-learning">
+<h3>EM algorithm for HMM learning<a class="headerlink" href="#em-algorithm-for-hmm-learning" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Initialize <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span></p></li>
+<li><p>Iterate until convergence</p>
+<ul>
+<li><p>E-step
+$<span class="math notranslate nohighlight">\(\gamma_i(t) = \frac{\alpha_i(t) \beta_i(t)}{P(O;\theta)} \forall t \text{ and } i\)</span><span class="math notranslate nohighlight">\(    
+\)</span><span class="math notranslate nohighlight">\(\xi_{ij}(t) = \frac{\alpha_i(t)a_{ij}b_j(o_{t+1})\beta_j(t+1)}{P(O;\theta)} \forall t, i, \text{ and } j\)</span>$</p></li>
+<li><p>M-Step
+$<span class="math notranslate nohighlight">\(\bar{\pi_i} = \gamma_i(0), i=1 \dots N\)</span><span class="math notranslate nohighlight">\(
+\)</span><span class="math notranslate nohighlight">\(\bar{a}_{ij} = \frac{\sum_{t=1}^{T-1} \xi_{ij}(t)}{\sum_{t=0}^{T-1}\gamma_i(t)}, i,j=1 \dots N\)</span><span class="math notranslate nohighlight">\(
+\)</span><span class="math notranslate nohighlight">\(\bar{b}_j(o) = \frac{\sum_{t=1\text{ st }O_t = o}^T \gamma_j(t)}{\sum_{t=1}^{T}\gamma_j(t)}, i=1 \dots N, o \in O\)</span>$</p></li>
+</ul>
+</li>
+<li><p>Return <span class="math notranslate nohighlight">\(A\)</span> and <span class="math notranslate nohighlight">\(B\)</span></p></li>
+</ul>
+<ul class="simple">
+<li><p>Update parameters <span class="math notranslate nohighlight">\(\theta_{k+1}\)</span> after each iteration.</p></li>
+<li><p>Rinse and repeat until <span class="math notranslate nohighlight">\(\theta_{k} \approx \theta_{k+1}\)</span>.</p></li>
+<li><p>This algorithm does not estimate the number of states, which must be known beforehand.</p></li>
+<li><p>Moreover, in practice, some constraints on the topology and initial state probability are imposed at the beginning to assist training.</p></li>
+</ul>
+</section>
+<section id="a-note-on-the-em-algorithm">
+<h3>A note on the EM algorithm<a class="headerlink" href="#a-note-on-the-em-algorithm" title="Link to this heading">#</a></h3>
+<ul class="simple">
+<li><p>Here, we are looking at EM in the context of hidden Markov models.</p></li>
+<li><p>But EM algorithm is a general iterative method to find local MLE estimates of parameters when little or no labeled training data is available.</p></li>
+<li><p>We can view K-Means clustering as a special case of expectation maximization.</p></li>
+</ul>
+</section>
+</section>
+</section>
+
+    <script type="text/x-thebe-config">
+    {
+        requestKernel: true,
+        binderOptions: {
+            repo: "binder-examples/jupyter-stacks-datascience",
+            ref: "master",
+        },
+        codeMirrorConfig: {
+            theme: "abcdef",
+            mode: "conda-env-575-py"
+        },
+        kernelOptions: {
+            name: "conda-env-575-py",
+            path: "./lectures/notes"
+        },
+        predefinedOutput: true
+    }
+    </script>
+    <script>kernelName = 'conda-env-575-py'</script>
+
+                </article>
+              
+
+              
+              
+              
+              
+                <footer class="prev-next-footer d-print-none">
+                  
+<div class="prev-next-area">
+    <a class="left-prev"
+       href="../demos/transformers-recipe-generation.html"
+       title="previous page">
+      <i class="fa-solid fa-angle-left"></i>
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">previous</p>
+        <p class="prev-next-title">Recipe Generation using Transformers</p>
+      </div>
+    </a>
+    <a class="right-next"
+       href="../../attribution.html"
+       title="next page">
+      <div class="prev-next-info">
+        <p class="prev-next-subtitle">next</p>
+        <p class="prev-next-title">Attributions</p>
+      </div>
+      <i class="fa-solid fa-angle-right"></i>
+    </a>
+</div>
+                </footer>
+              
+            </div>
+            
+            
+              
+                <div class="bd-sidebar-secondary bd-toc"><div class="sidebar-secondary-items sidebar-secondary__inner">
+
+
+  <div class="sidebar-secondary-item">
+  <div class="page-toc tocsection onthispage">
+    <i class="fa-solid fa-list"></i> Contents
+  </div>
+  <nav class="bd-toc-nav page-toc">
+    <ul class="visible nav section-nav flex-column">
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm">2. The backward algorithm</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#introduction">2.1 Introduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-intuition">2.2 The backward algorithm intuition</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-initialization-beta-3-and-beta-3">2.3 The backward algorithm: Initialization <span class="math notranslate nohighlight">\(\beta_🙂(3)\)</span> and <span class="math notranslate nohighlight">\(\beta_😔(3)\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-induction">2.4 The backward algorithm: Induction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#the-backward-algorithm-conclusion">2.5 The backward algorithm: Conclusion</a></li>
+</ul>
+</li>
+<li class="toc-h2 nav-item toc-entry"><a class="reference internal nav-link" href="#baum-welch-bw-algorithm-high-level-idea">3. Baum-Welch (BW) algorithm (high-level idea)</a><ul class="nav section-nav flex-column">
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id1">3.1 Introduction</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#iterative-unsupervised-approach">3.2 Iterative unsupervised approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#can-we-use-mle">Can we use MLE?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#solution-iterative-unsupervised-approach">Solution: iterative unsupervised approach</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#what-do-we-have-so-far">What do we have so far?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#combing-alpha-and-beta">Combing <span class="math notranslate nohighlight">\(\alpha\)</span> and <span class="math notranslate nohighlight">\(\beta\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-calculate-gamma-i-t">How to calculate <span class="math notranslate nohighlight">\(\gamma_i(t)\)</span>?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-new-probability-xi-ij-t">A new probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#calculating-xi-ij-t">Calculating <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#where-are-we-so-far">Where are we so far?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#baum-welch-algorithm-or-forward-backward-algorithm">Baum-Welch algorithm or forward-backward algorithm</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expectation-maximization">Expectation maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#how-to-update-the-model">How to update the model?</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-pi">Updating <span class="math notranslate nohighlight">\(\pi\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-transition-probabilities-a">Updating transition probabilities <span class="math notranslate nohighlight">\(A\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#updating-observation-probabilities-b">Updating observation probabilities <span class="math notranslate nohighlight">\(B\)</span></a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id2">Expectation maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#expectation-and-maximization">Expectation and maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#id3">Expectation-maximization</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#em-algorithm-for-hmm-learning">EM algorithm for HMM learning</a></li>
+<li class="toc-h3 nav-item toc-entry"><a class="reference internal nav-link" href="#a-note-on-the-em-algorithm">A note on the EM algorithm</a></li>
+</ul>
+</li>
+</ul>
+  </nav></div>
+
+</div></div>
+              
+            
+          </div>
+          <footer class="bd-footer-content">
+            
+<div class="bd-footer-content__inner container">
+  
+  <div class="footer-item">
+    
+<p class="component-author">
+By The Jupyter Book community
+</p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+
+  <p class="copyright">
+    
+      © Copyright 2023.
+      <br/>
+    
+  </p>
+
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+  <div class="footer-item">
+    
+  </div>
+  
+</div>
+          </footer>
+        
+
+      </main>
+    </div>
+  </div>
+  
+  <!-- Scripts loaded after <body> so the DOM is not blocked -->
+  <script src="../../_static/scripts/bootstrap.js?digest=dfe6caa3a7d634c4db9b"></script>
+<script src="../../_static/scripts/pydata-sphinx-theme.js?digest=dfe6caa3a7d634c4db9b"></script>
+
+  <footer class="bd-footer">
+  </footer>
+  </body>
+</html>
