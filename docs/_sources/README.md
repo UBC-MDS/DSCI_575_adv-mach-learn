@@ -1,13 +1,5 @@
 ![](lectures/img/575_banner.png)
 
-## Important links 
-
-- [Course Jupyter book](https://pages.github.ubc.ca/mds-2024-25/DSCI_575_adv-mach-learn_students/README.html)
-- [Course GitHub page](https://github.ubc.ca/MDS-2024-25/DSCI_575_adv-mach-learn_students)
-- [Slack Channel](https://ubc-mds.slack.com/messages/575_adv-mach-learn)
-- [Canvas](https://canvas.ubc.ca/courses/154208)
-- [Gradescope](https://www.gradescope.ca/courses/26525)
-- [Class + office hours calendar](https://ubc-mds.github.io/calendar/)
 
 ## Course learning outcomes    
 In this course, we will learn some advanced machine learning methods in the context of natural language processing (NLP) applications, including Markov chains, hidden Markov models, recurrent neural networks, and self-attention and transformers. 
@@ -43,25 +35,6 @@ The following deliverables will determine your course grade:
 
 See [Calendar](https://ubc-mds.github.io/calendar/) for the due dates. 
 </details>
-
-## Teaching team
-<details>
-  <summary>Click to expand!</summary>
-
-| Role             |  Name  | 
-| :--------------: | :--------------: |
-| Lecture instructor Section 001 | Varada Kolhatkar |
-| Lab Instructor     Section 001 | Varada Kolhatkar |
-| Lecture instructor Section 002 | Varada Kolhatkar |
-| Lab Instructor     Section 001 | Varada Kolhatkar |
-| Teaching assistant | Afsoon Gharib Mombeini | 
-| Teaching assistant | Matin Daghyani |
-| Teaching assistant | Meltem Omur |
-| Teaching assistant | Nima Hashemi |
-| Teaching assistant | Tony L Fong	 |
-
-</details>  
-
 
 ## Lecture schedule
 

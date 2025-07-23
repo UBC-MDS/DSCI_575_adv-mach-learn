@@ -521,8 +521,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>Probability of being at state 🙂 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing everything to follow.</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-848ad625-e3c6-4352-819e-a0e368751608">
-<span class="eqno">(16)<a class="headerlink" href="#equation-848ad625-e3c6-4352-819e-a0e368751608" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-edd20893-915a-49b1-a146-7688aab7b7d4">
+<span class="eqno">(16)<a class="headerlink" href="#equation-edd20893-915a-49b1-a146-7688aab7b7d4" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \beta_🙂(2) = &amp; a_{🙂🙂}b_🙂(C)\beta_🙂(3) + a_{🙂😔}b_😔(C)\beta_😔(3)\\
              = &amp; 0.7 \times 0.1 \times 1.0 + 0.3 \times 0.6 \times 1.0\\ 
@@ -538,8 +538,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>Probability of being at state 😔 at <span class="math notranslate nohighlight">\(t=2\)</span> and observing everything to follow.</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-65ff6790-b264-4943-9161-1a536186455a">
-<span class="eqno">(17)<a class="headerlink" href="#equation-65ff6790-b264-4943-9161-1a536186455a" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-75d4cfd5-438a-4350-92b1-087ff519f115">
+<span class="eqno">(17)<a class="headerlink" href="#equation-75d4cfd5-438a-4350-92b1-087ff519f115" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \beta_😔(2) = &amp; a_{😔🙂}b_🙂(C)\beta_🙂(3) + a_{😔😔}b_😔(C)\beta_😔(3)\\
              = &amp; 0.4 \times 0.1 \times 1.0 + 0.6 \times 0.6 \times 1.0\\ 
@@ -674,8 +674,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>What’s the probability of being in state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> and given the <strong>entire observation sequence</strong> <span class="math notranslate nohighlight">\(O\)</span>?</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-3f9c9089-55a0-4127-ae8a-fbaee29fa3b3">
-<span class="eqno">(18)<a class="headerlink" href="#equation-3f9c9089-55a0-4127-ae8a-fbaee29fa3b3" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-3f4377f8-2e9c-4031-8130-eef7e2717878">
+<span class="eqno">(18)<a class="headerlink" href="#equation-3f4377f8-2e9c-4031-8130-eef7e2717878" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \gamma_i(t) = &amp; \frac{P(q_t = i, O; \theta)}{P(O;\theta)}\\
               = &amp; \frac{\alpha_i(t) \beta_i(t)}{\sum_{i=1}^{N}\alpha_i(t)\beta_i(t)}
@@ -706,8 +706,8 @@ $<span class="math notranslate nohighlight">\(\beta_i(t) = \sum_{j=1}^N a_{ij}b_
 <ul class="simple">
 <li><p>We define a new probability <span class="math notranslate nohighlight">\(\xi_{ij}(t)\)</span> as the probability of transitioning from state <span class="math notranslate nohighlight">\(i\)</span> at time <span class="math notranslate nohighlight">\(t\)</span> to state <span class="math notranslate nohighlight">\(j\)</span> at time <span class="math notranslate nohighlight">\(t+1\)</span> based on our current model, <span class="math notranslate nohighlight">\(\theta_k\)</span> and given the entire observation sequence <span class="math notranslate nohighlight">\(O\)</span>.</p></li>
 </ul>
-<div class="amsmath math notranslate nohighlight" id="equation-160e832f-e72a-42b3-baf0-68116b4aedec">
-<span class="eqno">(19)<a class="headerlink" href="#equation-160e832f-e72a-42b3-baf0-68116b4aedec" title="Permalink to this equation">#</a></span>\[\begin{equation}
+<div class="amsmath math notranslate nohighlight" id="equation-d740faa3-5fb1-42ab-ac0c-66b54b30ad1b">
+<span class="eqno">(19)<a class="headerlink" href="#equation-d740faa3-5fb1-42ab-ac0c-66b54b30ad1b" title="Permalink to this equation">#</a></span>\[\begin{equation}
 \begin{split}
 \xi_{ij}(t) = &amp; P(q_t = i, q_{t+1}=j \mid O;\theta ) \\
               = &amp; \frac{\alpha_i(t)a_{ij}b_j(o_{t+1})\beta_j(t+1)}{P(O;\theta)}
